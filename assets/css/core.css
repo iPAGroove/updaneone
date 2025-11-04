@@ -14,8 +14,7 @@
 }
 
 html, body {
-    /* 💥 ФИКС: Убираем height: 100%, чтобы разрешить нативный скролл body */
-    /* height: 100%; <- УДАЛЕНО */
+    /* 💥 ФИКС: Удаление height: 100% разрешает нативный скролл */
     background: var(--bg);
     color: var(--text);
     font: 16px/1.42 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
