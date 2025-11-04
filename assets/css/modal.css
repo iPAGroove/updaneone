@@ -1,0 +1,113 @@
+/* assets/css/modal.css */
+/* === URSA IPA MODAL SYSTEM === */
+
+/* === ПОДЛОЖКА (фон) === */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(5, 10, 20, 0.65);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease-in-out;
+}
+
+/* Активное состояние */
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* === КОНТЕЙНЕР МОДАЛКИ === */
+.modal {
+    position: relative;
+    background: color-mix(in oklab, var(--bg-elev) 90%, #000 10%);
+    border: 1px solid color-mix(in oklab, var(--border) 90%, #00b3ff 10%);
+    border-radius: 18px;
+    padding: 24px 20px;
+    max-width: 420px;
+    width: calc(100% - 40px);
+    color: var(--text);
+    box-shadow: 0 0 25px rgba(0, 179, 255, 0.25);
+    transform: translateY(40px) scale(0.96);
+    opacity: 0;
+    transition: all 0.25s ease-out;
+}
+
+/* Когда модалка активна — анимация появления */
+.modal-overlay.active .modal {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* === ЗАГОЛОВОК === */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.modal-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
+}
+
+/* === КНОПКА ЗАКРЫТИЯ === */
+.modal-close {
+    appearance: none;
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.modal-close:hover {
+    color: var(--accent);
+}
+
+/* === СОДЕРЖИМОЕ === */
+.modal-content {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 20px;
+}
+
+/* === КНОПКА ДЕЙСТВИЯ === */
+.modal-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    border: none;
+    color: #001018;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0,179,255,0.45);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.modal-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(0,179,255,0.65);
+}
+
+/* === АДАПТИВ === */
+@media (min-width: 520px) {
+    .modal {
+        padding: 28px 24px;
+    }
+}
