@@ -1,20 +1,22 @@
 /* assets/css/layout.css */
 
-/* === HEADER (Компактная высота и центрирование) === */
+/* === HEADER (СТИЛЬНО: Неоновая анимация и эффект "Стекла") === */
 
 .topbar {
     position: sticky; top: 0; z-index: 50; 
+    /* 💥 Эффект "Стекла": прозрачность + блюр */
     background: color-mix(in oklab, var(--bg) 95%, #000 5%);
     backdrop-filter: blur(8px) saturate(120%);
     -webkit-backdrop-filter: blur(8px) saturate(120%);
     border-bottom: 1px solid var(--border); 
     
+    /* ФИКСЫ ВЫСОТЫ: Используем height и flex-end для минимальной высоты */
     padding: 0; 
-    min-height: calc(38px + env(safe-area-inset-top)); 
+    min-height: calc(38px + env(safe-area-inset-top)); /* 38px для контента + Safe Area */
     
     display: flex; 
     justify-content: center; 
-    align-items: flex-end; 
+    align-items: flex-end; /* Прижимаем контент к низу */
     width: 100%;
 }
 
@@ -22,25 +24,29 @@
     width: 100%;
     padding: 0 14px; 
     text-align: center; 
-    padding-bottom: 4px; 
+    padding-bottom: 8px; /* Немного увеличенный отступ снизу */
 }
 
 .brand {
     font-family: 'Orbitron', sans-serif;
-    font-size: 20px; 
+    font-size: 26px; /* 💥 Увеличим размер для акцента */
     font-weight: 700; 
-    letter-spacing: 2px; 
+    letter-spacing: 4px; /* Увеличим расстояние между буквами */
     color: var(--accent); 
+    position: relative;
+    overflow: hidden; 
     white-space: nowrap;
 }
 
+/* 💥 СТИЛЬ: Неоновое свечение и пульсация */
 .brand span {
     display: inline-block;
     color: transparent;
     -webkit-text-stroke: 1px var(--accent);
     position: relative;
-    text-shadow: none; 
-    animation: none; 
+    /* Базовая тень и пульсация */
+    text-shadow: 0 0 12px var(--accent), 0 0 20px rgba(0, 179, 255, 0.4); 
+    animation: neon-pulse 2.5s ease-in-out infinite alternate; /* Запустим анимацию */
 }
 
 .brand span::before {
@@ -53,9 +59,14 @@
     animation: none; 
 }
 
+/* 💥 АНИМАЦИЯ: Ключевые кадры для пульсирующей неоновой тени */
 @keyframes neon-pulse { 
-    0% { text-shadow: 0 0 6px var(--accent), 0 0 10px rgba(0, 179, 255, 0.2); }
-    100% { text-shadow: 0 0 12px var(--accent), 0 0 20px rgba(0, 179, 255, 0.5); }
+    0% { 
+        text-shadow: 0 0 8px var(--accent), 0 0 15px rgba(0, 179, 255, 0.5);
+    }
+    100% { 
+        text-shadow: 0 0 20px var(--accent), 0 0 40px rgba(0, 179, 255, 0.8);
+    }
 }
 
 @keyframes draw { from { width: 0 } to { width: 100% } }
@@ -113,10 +124,9 @@
 }
 
 
-/* === CATALOG (ФИКС: Отступы для каталога) === */
+/* === CATALOG (Сетка с правильными отступами) === */
 
 .catalog {
-    /* 💥 ФИКС: Добавляем отступ сверху, чтобы каталог не прилипал к шапке */
     margin-top: 30px; 
     display: grid;
     grid-template-columns: 1fr;
@@ -127,14 +137,14 @@
 }
 
 .collection-row {
-    display: flex;
-    flex-direction: column;
-    gap: 16px; 
+    display: flex;
+    flex-direction: column;
+    gap: 16px; 
 }
 
 .collection-row h2 {
-    margin: 0;
-    padding: 0; 
+    margin: 0;
+    padding: 0; 
 }
 
 /* Фиксированная сетка 3 колонки */
@@ -148,7 +158,7 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    height: 120px; /* Заглушка */
+    height: 120px; 
 }
 
 /* Адаптивная сетка 2-3 колонки */
