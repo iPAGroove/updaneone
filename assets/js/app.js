@@ -1,231 +1,131 @@
 // assets/js/app.js
-// URSA IPA — Card Modal Controller (ES Module)
+// URSA IPA — Dynamic Firestore + Modal System
 
-const SELECTORS = {
-  catalog: '#catalog',
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+// === Firebase Config ===
+const firebaseConfig = {
+  apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
+  authDomain: "ipa-panel.firebaseapp.com",
+  projectId: "ipa-panel",
+  storageBucket: "ipa-panel.firebasestorage.app",
+  messagingSenderId: "239982196215",
+  appId: "1:239982196215:web:9de387c51952da428daaf2"
 };
 
-const FOCUSABLE = [
-  'a[href]', 'area[href]', 'button:not([disabled])', 'input:not([disabled]):not([type="hidden"])',
-  'select:not([disabled])', 'textarea:not([disabled])', '[tabindex]:not([tabindex="-1"])'
-].join(',');
+// === Initialize Firebase ===
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-let modalOverlay, modalEl, closeBtn, actionBtn, titleEl, contentEl, imageEl, tagsEl, badgeEl;
-let activeTrigger = null;
-let scrollLock = { y: 0 };
+// === Elements ===
+const catalog = document.querySelector("#catalog");
 
-// ---------- Build modal once ----------
+// === Load Collection ===
+async function loadCollection(name) {
+  const col = collection(db, name);
+  const snap = await getDocs(col);
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+// === Render Card ===
+function createCard(data) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.title = data.name || "Без названия";
+  card.dataset.desc = data.description || "Описание отсутствует";
+  card.dataset.img = data.image || "";
+  card.dataset.tags = data.tags?.join(",") || "";
+  card.dataset.cta = data.button || "Скачать";
+  card.dataset.link = data.link || "#";
+  card.dataset.badge = data.vip ? "VIP" : "";
+  card.innerHTML = `
+    <div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;color:var(--muted);">
+      ${data.name || "App"}
+    </div>`;
+  return card;
+}
+
+// === Render Section ===
+function renderSection(title, data) {
+  const section = document.createElement("section");
+  section.className = "collection-row";
+  section.innerHTML = `
+    <h2 class="collection-title">${title}</h2>
+    <div class="card-carousel"></div>
+    <button class="view-all-btn">Смотреть все</button>
+  `;
+  const container = section.querySelector(".card-carousel");
+  data.forEach(item => container.appendChild(createCard(item)));
+  catalog.appendChild(section);
+}
+
+// === Modal System ===
+let modalOverlay;
 function buildModal() {
   if (modalOverlay) return;
-
-  const tpl = document.createElement('div');
-  tpl.className = 'modal-overlay';
-  tpl.id = 'ursaModal';
-  tpl.innerHTML = `
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ursaModalTitle">
+  modalOverlay = document.createElement("div");
+  modalOverlay.className = "modal-overlay";
+  modalOverlay.innerHTML = `
+    <div class="modal">
       <div class="modal-header">
-        <span class="modal-badge" style="display:none;"></span>
-        <h3 class="modal-title" id="ursaModalTitle">Детали</h3>
-        <button class="modal-close" aria-label="Закрыть">&times;</button>
+        <h3 class="modal-title">Информация</h3>
+        <button class="modal-close">&times;</button>
       </div>
-      <div class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
-        <img class="modal-image" alt="" style="display:none; width:100%; border-radius:12px; border:1px solid var(--border);" />
-        <div class="modal-tags" style="display:none; gap:8px; flex-wrap:wrap;"></div>
-        <div class="modal-content">Описание недоступно.</div>
-      </div>
+      <img class="modal-image" style="display:none;width:100%;border-radius:12px;border:1px solid var(--border);" />
+      <div class="modal-content"></div>
       <button class="modal-btn">Открыть</button>
     </div>
   `;
-  document.body.appendChild(tpl);
-
-  // cache refs
-  modalOverlay = tpl;
-  modalEl = tpl.querySelector('.modal');
-  closeBtn = tpl.querySelector('.modal-close');
-  actionBtn = tpl.querySelector('.modal-btn');
-  titleEl = tpl.querySelector('.modal-title');
-  contentEl = tpl.querySelector('.modal-content');
-  imageEl = tpl.querySelector('.modal-image');
-  tagsEl = tpl.querySelector('.modal-tags');
-  badgeEl = tpl.querySelector('.modal-badge');
-
-  // listeners
-  closeBtn.addEventListener('click', closeModal);
-  actionBtn.addEventListener('click', onActionClick);
-  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
-  document.addEventListener('keydown', onKeydown);
-
-  // prevent iOS vertical bleed inside overlay
-  modalOverlay.addEventListener('touchmove', (e) => {
-    // allow internal modal scroll, block overlay scroll bounce
-    if (!modalEl.contains(e.target)) e.preventDefault();
-  }, { passive: false });
-
-  // focus trap
-  modalEl.addEventListener('keydown', (e) => {
-    if (e.key !== 'Tab') return;
-    const focusables = modalEl.querySelectorAll(FOCUSABLE);
-    if (!focusables.length) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
-    else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+  document.body.appendChild(modalOverlay);
+  modalOverlay.addEventListener("click", e => {
+    if (e.target === modalOverlay) modalOverlay.classList.remove("active");
+  });
+  modalOverlay.querySelector(".modal-close").addEventListener("click", () => modalOverlay.classList.remove("active"));
+  modalOverlay.querySelector(".modal-btn").addEventListener("click", () => {
+    const link = modalOverlay.dataset.link;
+    if (link && link !== "#") window.open(link, "_blank");
+    modalOverlay.classList.remove("active");
   });
 }
 
-// ---------- Open / Close ----------
-function openModalFromCard(card) {
+// === Open Modal ===
+function openModal(card) {
   buildModal();
-
-  activeTrigger = card;
-
-  // read dataset
-  const {
-    title = 'Информация',
-    subtitle = '',
-    desc = '',
-    img = '',
-    tags = '',
-    cta = 'Открыть',
-    link = '',
-    badge = '',
-  } = card.dataset;
-
-  titleEl.textContent = title || 'Информация';
-  titleEl.title = subtitle || '';
-
-  // Description
-  const text = desc || subtitle || 'Описание скоро будет доступно.';
-  contentEl.textContent = text;
-
-  // Image (optional)
+  const title = card.dataset.title;
+  const desc = card.dataset.desc;
+  const img = card.dataset.img;
+  const link = card.dataset.link;
+  const modal = modalOverlay.querySelector(".modal");
+  modal.querySelector(".modal-title").textContent = title;
+  modalOverlay.querySelector(".modal-content").textContent = desc;
+  const image = modalOverlay.querySelector(".modal-image");
   if (img) {
-    imageEl.src = img;
-    imageEl.alt = title || 'изображение';
-    imageEl.style.display = '';
+    image.src = img;
+    image.style.display = "block";
   } else {
-    imageEl.removeAttribute('src');
-    imageEl.style.display = 'none';
+    image.style.display = "none";
   }
-
-  // Tags (comma separated)
-  if (tags) {
-    tagsEl.innerHTML = '';
-    tags.split(',').map(s => s.trim()).filter(Boolean).forEach(tag => {
-      const chip = document.createElement('span');
-      chip.textContent = tag;
-      chip.style.cssText = `
-        display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px;
-        background: color-mix(in oklab, var(--bg-elev) 90%, #000 10%);
-        border:1px solid var(--border); font-size:12px; color: var(--muted);
-      `;
-      tagsEl.appendChild(chip);
-    });
-    tagsEl.style.display = 'flex';
-  } else {
-    tagsEl.style.display = 'none';
-    tagsEl.innerHTML = '';
-  }
-
-  // Badge (e.g., VIP)
-  if (badge) {
-    badgeEl.textContent = badge.toUpperCase();
-    badgeEl.style.cssText = `
-      display:inline-flex; align-items:center; justify-content:center; margin-right:8px;
-      padding:4px 8px; border-radius:10px; font-size:11px; font-weight:800;
-      color:#001018; background: ${badge.toLowerCase()==='vip' ? 'linear-gradient(90deg,#ffd54f,#ffa000)' : 'linear-gradient(90deg,var(--accent),#00e0ff)'};
-      box-shadow: 0 0 12px rgba(0,179,255,.35);
-    `;
-  } else {
-    badgeEl.style.display = 'none';
-  }
-
-  // CTA
-  actionBtn.textContent = cta || 'Открыть';
-  actionBtn.dataset.link = link || '';
-
-  // lock scroll
-  lockBodyScroll();
-
-  // show
-  modalOverlay.classList.add('active');
-
-  // focus first interactive
-  setTimeout(() => {
-    (modalEl.querySelector(FOCUSABLE) || closeBtn).focus();
-  }, 10);
+  modalOverlay.dataset.link = link;
+  modalOverlay.classList.add("active");
 }
 
-function closeModal() {
-  if (!modalOverlay) return;
-  modalOverlay.classList.remove('active');
-  unlockBodyScroll();
-  if (activeTrigger) {
-    // return focus to the card user clicked
-    activeTrigger.focus?.();
-    activeTrigger = null;
-  }
-}
-
-function onActionClick() {
-  const url = actionBtn.dataset.link || '';
-  if (!url) { closeModal(); return; }
-  // open in new tab — can be adapted later to router
-  window.open(url, '_blank', 'noopener,noreferrer');
-  closeModal();
-}
-
-function onKeydown(e) {
-  if (e.key === 'Escape') {
-    e.preventDefault();
-    closeModal();
-  }
-}
-
-// ---------- Body scroll lock (no layout jump) ----------
-function lockBodyScroll() {
-  scrollLock.y = window.scrollY || document.documentElement.scrollTop;
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${scrollLock.y}px`;
-  document.body.style.width = '100%';
-}
-
-function unlockBodyScroll() {
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.width = '';
-  window.scrollTo(0, scrollLock.y || 0);
-}
-
-// ---------- Event delegation for cards ----------
-function initCardClicks() {
-  const catalog = document.querySelector(SELECTORS.catalog);
-  if (!catalog) return;
-
-  catalog.addEventListener('click', (e) => {
-    // find .card
-    let el = e.target;
-    while (el && el !== catalog && !el.classList?.contains('card')) el = el.parentElement;
-    if (!el || el === catalog) return;
-
-    // support keyboard activation too
-    openModalFromCard(el);
-  });
-
-  // make cards tabbable for a11y
-  catalog.querySelectorAll('.card').forEach(card => {
-    card.setAttribute('tabindex', '0');
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openModalFromCard(card);
-      }
-    });
+// === Bind Clicks ===
+function bindCardClicks() {
+  catalog.addEventListener("click", e => {
+    const card = e.target.closest(".card");
+    if (card) openModal(card);
   });
 }
 
-// ---------- Boot ----------
-document.addEventListener('DOMContentLoaded', () => {
-  buildModal();
-  initCardClicks();
-});
+// === Init ===
+(async function init() {
+  try {
+    const [apps, games] = await Promise.all([loadCollection("apps"), loadCollection("games")]);
+    renderSection("Popular Apps", apps.slice(0, 15));
+    renderSection("Games", games.slice(0, 15));
+    bindCardClicks();
+  } catch (err) {
+    console.error("Ошибка загрузки Firestore:", err);
+  }
+})();
