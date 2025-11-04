@@ -1,0 +1,50 @@
+/* assets/css/catalog.css */
+
+/* === CATALOG & CARDS (Сетка с правильными отступами) === */
+
+.catalog {
+    margin-top: 30px; 
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px; 
+    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 32px);
+    overflow: hidden; 
+    padding: 0 14px; /* Горизонтальные отступы для всего каталога */
+}
+
+.collection-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; 
+}
+
+.collection-row h2 {
+    margin: 0;
+    padding: 0; 
+}
+
+/* Фиксированная сетка 3 колонки */
+.card-carousel {
+    display: grid;
+    gap: var(--gap);
+    padding: 0;
+}
+
+.card-carousel .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    height: 120px; 
+}
+
+/* Адаптивная сетка 2-3 колонки */
+@media (max-width: 520px) {
+    .card-carousel {
+        grid-template-columns: repeat(2, 1fr); /* 2 карточки в ряд */
+    }
+}
+@media (min-width: 521px) {
+    .card-carousel {
+        grid-template-columns: repeat(3, 1fr); /* 3 колонки в ряд */
+    }
+}
