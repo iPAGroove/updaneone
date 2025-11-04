@@ -1,76 +1,54 @@
 /* assets/css/catalog.css */
 
-/* === ЗАГОЛОВОК (СТИЛЬ: Центрирование и акцент) === */
-
+/* === СЕКЦИИ === */
 .collection-row {
     display: flex;
     flex-direction: column;
-    gap: 16px; 
+    gap: 16px;
 }
 
+/* === ЗАГОЛОВКИ === */
 .collection-title {
     margin: 0;
-    padding: 0 14px; 
+    padding: 0 14px;
     font-size: 22px;
     font-weight: 700;
-    
-    /* СТИЛЬ: Тень/Акцент */
     color: var(--text);
-    text-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
-    
-    /* ПОЛОЖЕНИЕ: Центрирование */
     text-align: center;
+    text-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
 }
 
-/* === КАРУСЕЛЬ КАРТОЧЕК (Горизонтальный скролл с сеткой 3xN) === */
-
+/* === КАРУСЕЛИ === */
 .catalog {
-    margin-top: 30px; 
+    margin-top: 30px;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 40px; 
-    /* 💥 КРИТИЧЕСКИЙ ФИКС: Увеличиваем padding-bottom, чтобы контент не уходил под nav-bar */
-    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 150px); /* Увеличено до 150px */
-    overflow: hidden; 
-    padding: 0; 
+    gap: 40px;
+    padding: 0;
 }
 
 .card-carousel {
-    /* КРИТИЧЕСКИЙ ФИКС: Горизонтальный скролл для СЕТКИ */
-    display: grid; 
-    
-    /* Grid Flow: Разрешаем размещать элементы по столбцам и разрешаем перенос в новые столбцы */
+    display: grid;
     grid-auto-flow: column;
-    
-    /* ФИКС: Три строки в коллекции */
-    grid-template-rows: repeat(3, 1fr); 
-    
-    /* НОВЫЙ РАЗМЕР: Увеличиваем ширину колонки до 85% */
-    grid-auto-columns: 85%; /* Это гарантирует, что ты увидишь только ~1.2 колонки в окне */
-    
-    overflow-x: auto; /* Разрешаем скролл */
+    grid-template-rows: repeat(3, 1fr);
+    grid-auto-columns: 85%;
+    overflow-x: auto;
     overflow-y: hidden;
-    
     gap: var(--gap);
-    padding: 0 14px; /* Отступы для видимости первой/последней карточки */
-    
+    padding: 0 14px;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
 
-/* Убираем скроллбар в Webkit (Chrome, Safari) */
 .card-carousel::-webkit-scrollbar {
     display: none;
 }
 
 .card-carousel .card {
-    /* НОВАЯ ВЫСОТА */
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    height: 72px; 
-    
-    /* Убедимся, что карточка выглядит хорошо */
+    height: 72px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,18 +56,32 @@
     font-size: 14px;
 }
 
-/* Адаптивная ширина: На больших экранах - 3 колонки, без скролла */
+/* === КНОПКА "СМОТРЕТЬ ВСЕ" === */
+.view-all-btn {
+    margin: 8px auto 0 auto;
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    border: none;
+    color: #001018;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.view-all-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 20px rgba(0, 179, 255, 0.65);
+}
+
+/* === ДЕСКТОП === */
 @media (min-width: 521px) {
     .card-carousel {
-        grid-template-rows: repeat(3, 1fr); 
-        grid-auto-flow: unset; 
+        grid-template-rows: repeat(3, 1fr);
+        grid-auto-flow: unset;
         grid-auto-columns: unset;
         overflow-x: hidden;
-        
-        /* Распределяем колонки равномерно по ширине wrap */
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-    }
-    .card-carousel .card {
-        height: 72px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 }
