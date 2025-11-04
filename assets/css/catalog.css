@@ -1,16 +1,6 @@
 /* assets/css/catalog.css */
 
-/* === CATALOG & CARDS (Сетка с правильными отступами) === */
-
-.catalog {
-    margin-top: 30px; 
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px; 
-    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 32px);
-    overflow: hidden; 
-    padding: 0 14px; /* Горизонтальные отступы для всего каталога */
-}
+/* === ЗАГОЛОВОК (СТИЛЬ: Центрирование и акцент) === */
 
 .collection-row {
     display: flex;
@@ -18,33 +8,74 @@
     gap: 16px; 
 }
 
-.collection-row h2 {
+.collection-title {
     margin: 0;
-    padding: 0; 
+    padding: 0 14px; /* Горизонтальный паддинг от края */
+    font-size: 22px;
+    font-weight: 700;
+    
+    /* 💥 СТИЛЬ: Тень/Акцент */
+    color: var(--text);
+    text-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
+    
+    /* 💥 ПОЛОЖЕНИЕ: Центрирование */
+    text-align: center;
 }
 
-/* Фиксированная сетка 3 колонки */
+/* === КАРУСЕЛЬ КАРТОЧЕК (Скролл влево/вправо) === */
+
+.catalog {
+    margin-top: 30px; 
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px; /* Увеличим расстояние между коллекциями */
+    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 32px);
+    overflow: hidden; 
+    padding: 0; /* Убираем паддинг здесь, он в collection-title */
+}
+
 .card-carousel {
-    display: grid;
+    /* 💥 КРИТИЧЕСКИЙ ФИКС: Горизонтальный скролл */
+    display: flex; /* Используем flex для горизонтального расположения */
+    flex-wrap: nowrap; /* Запрещаем перенос */
+    overflow-x: auto; /* Разрешаем скролл */
+    overflow-y: hidden;
+    
     gap: var(--gap);
-    padding: 0;
+    padding: 0 14px; /* Отступы для видимости первой/последней карточки */
+    
+    /* Скрыть скроллбар (опционально, для чистого вида) */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Убираем скроллбар в Webkit (Chrome, Safari) */
+.card-carousel::-webkit-scrollbar {
+    display: none;
 }
 
 .card-carousel .card {
+    /* 💥 ФИКС: Ширина, чтобы влезло 2-3 на мобильном */
+    flex: 0 0 calc(50% - (var(--gap) / 2)); /* 2 карточки на мобильном */
+    max-width: 200px; /* Ограничение для больших экранов */
+    
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    height: 120px; 
+    height: 120px; /* Заглушка */
+    
+    /* Убедимся, что карточка выглядит хорошо */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--muted);
+    font-size: 14px;
 }
 
-/* Адаптивная сетка 2-3 колонки */
-@media (max-width: 520px) {
-    .card-carousel {
-        grid-template-columns: repeat(2, 1fr); /* 2 карточки в ряд */
-    }
-}
+/* Адаптивная сетка 2-3 колонки (для горизонтальной карусели не используется, 
+   но оставим как медиа-запрос для ПК) */
 @media (min-width: 521px) {
-    .card-carousel {
-        grid-template-columns: repeat(3, 1fr); /* 3 колонки в ряд */
+    .card-carousel .card {
+        flex: 0 0 180px; /* Фиксированная ширина на десктопе */
     }
 }
