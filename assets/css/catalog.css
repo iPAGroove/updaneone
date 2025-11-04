@@ -7,20 +7,32 @@
     gap: 16px;
 }
 
-/* === ЗАГОЛОВКИ === */
+/* === ЗАГОЛОВОК (тёмный контейнер по всей ширине) === */
 .collection-title {
+    width: 100%;
     margin: 0;
-    padding: 0 14px;
+    padding: 16px 0;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
     font-size: 22px;
     font-weight: 700;
-    color: var(--text);
-    text-align: center;
-    text-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
+    letter-spacing: 2px;
+
+    /* 💥 Темный контейнер */
+    background: color-mix(in oklab, var(--bg-elev) 85%, #000 15%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+
+    /* 💡 Неоновое свечение */
+    color: var(--accent);
+    text-shadow:
+        0 0 8px rgba(0, 179, 255, 0.6),
+        0 0 18px rgba(0, 179, 255, 0.3);
 }
 
 /* === КАРУСЕЛИ === */
 .catalog {
-    margin-top: 30px;
+    margin-top: 20px;
     display: grid;
     grid-template-columns: 1fr;
     gap: 40px;
@@ -58,20 +70,21 @@
 
 /* === КНОПКА "СМОТРЕТЬ ВСЕ" === */
 .view-all-btn {
-    margin: 8px auto 0 auto;
+    margin: 4px auto 0 auto;
     background: linear-gradient(90deg, var(--accent), #00e0ff);
     border: none;
     color: #001018;
     font-weight: 700;
     border-radius: 12px;
-    padding: 10px 20px;
+    padding: 10px 22px;
     font-size: 15px;
     cursor: pointer;
     box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
     transition: transform .25s ease, box-shadow .25s ease;
 }
+
 .view-all-btn:hover {
-    transform: scale(1.04);
+    transform: scale(1.05);
     box-shadow: 0 0 20px rgba(0, 179, 255, 0.65);
 }
 
