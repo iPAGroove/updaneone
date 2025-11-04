@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>URSA IPA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 
     <!-- Базовые стили -->
@@ -13,7 +13,8 @@
     <link rel="stylesheet" href="assets/css/header.css" />
     <link rel="stylesheet" href="assets/css/navigation.css" />
     <link rel="stylesheet" href="assets/css/catalog.css" />
-    
+    <!-- Модалки -->
+    <link rel="stylesheet" href="assets/css/modal.css" />
 </head>
 <body>
 
@@ -31,16 +32,44 @@
                 <section class="collection-row">
                     <h2 class="collection-title">Popular</h2>
                     <div class="card-carousel">
-                        <article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article>
+                        <!-- Пример карточки с данными для модалки -->
+                        <article class="card"
+                                 data-title="Subway Surfers"
+                                 data-subtitle="v3.17 • Mod Menu"
+                                 data-desc="God Mode, Unlimited Coins/Keys, No Stumble. Тестировано на iOS 16–18."
+                                 data-img="https://picsum.photos/seed/ursa1/800/420"
+                                 data-tags="Runner,Offline,URSA"
+                                 data-cta="Скачать"
+                                 data-link="https://example.com/subway"
+                                 data-badge="VIP">
+                            <!-- Внутренность можешь оформить позже -->
+                        </article>
+
+                        <!-- Заглушки -->
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article>
                     </div>
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
-                
+
                 <!-- КОЛЛЕКЦИЯ 2: Update -->
                 <section class="collection-row">
                     <h2 class="collection-title">Update</h2>
                     <div class="card-carousel">
-                        <article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article>
                     </div>
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
@@ -49,7 +78,14 @@
                 <section class="collection-row">
                     <h2 class="collection-title">VIP</h2>
                     <div class="card-carousel">
-                        <article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article>
                     </div>
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
@@ -67,6 +103,7 @@
         </div>
     </nav>
 
+    <!-- JS модалки и кликов по карточкам -->
     <script src="assets/js/app.js" type="module"></script>
 </body>
 </html>
