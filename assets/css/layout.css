@@ -1,22 +1,23 @@
 /* assets/css/layout.css */
 
-/* === HEADER (СТИЛЬНО: Неоновая анимация и эффект "Стекла") === */
+/* === HEADER (ФИНАЛЬНЫЙ ФИКС: Компактная высота и центрирование) === */
 
 .topbar {
     position: sticky; top: 0; z-index: 50; 
-    /* 💥 Эффект "Стекла": прозрачность + блюр */
+    /* Прозрачный фон с блюром (эффект "стекла") */
     background: color-mix(in oklab, var(--bg) 95%, #000 5%);
     backdrop-filter: blur(8px) saturate(120%);
     -webkit-backdrop-filter: blur(8px) saturate(120%);
     border-bottom: 1px solid var(--border); 
     
-    /* ФИКСЫ ВЫСОТЫ: Используем height и flex-end для минимальной высоты */
+    /* 💥 ФИКС: Убираем height/min-height, возвращаем padding для центрирования */
     padding: 0; 
-    min-height: calc(38px + env(safe-area-inset-top)); /* 38px для контента + Safe Area */
+    padding-top: calc(env(safe-area-inset-top) + 10px); /* Вертикальный отступ сверху */
+    padding-bottom: 10px; /* Вертикальный отступ снизу */
     
     display: flex; 
     justify-content: center; 
-    align-items: flex-end; /* Прижимаем контент к низу */
+    align-items: center; /* 💥 ФИКС: Центрируем по вертикали */
     width: 100%;
 }
 
@@ -24,12 +25,12 @@
     width: 100%;
     padding: 0 14px; 
     text-align: center; 
-    padding-bottom: 8px; /* Немного увеличенный отступ снизу */
+    padding-bottom: 0; /* Убираем лишний padding-bottom из .wrap */
 }
 
 .brand {
     font-family: 'Orbitron', sans-serif;
-    font-size: 26px; /* 💥 Увеличим размер для акцента */
+    font-size: 26px; /* Увеличим размер для акцента */
     font-weight: 700; 
     letter-spacing: 4px; /* Увеличим расстояние между буквами */
     color: var(--accent); 
@@ -38,15 +39,14 @@
     white-space: nowrap;
 }
 
-/* 💥 СТИЛЬ: Неоновое свечение и пульсация */
 .brand span {
     display: inline-block;
     color: transparent;
     -webkit-text-stroke: 1px var(--accent);
     position: relative;
-    /* Базовая тень и пульсация */
-    text-shadow: 0 0 12px var(--accent), 0 0 20px rgba(0, 179, 255, 0.4); 
-    animation: neon-pulse 2.5s ease-in-out infinite alternate; /* Запустим анимацию */
+    /* Неоновое свечение (без пульсации) */
+    text-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
+    animation: none; 
 }
 
 .brand span::before {
@@ -59,7 +59,6 @@
     animation: none; 
 }
 
-/* 💥 АНИМАЦИЯ: Ключевые кадры для пульсирующей неоновой тени */
 @keyframes neon-pulse { 
     0% { 
         text-shadow: 0 0 8px var(--accent), 0 0 15px rgba(0, 179, 255, 0.5);
@@ -76,7 +75,7 @@
 /* Все стили поиска удалены */
 
 
-/* === BOTTOM NAV (Аккуратная центрированная панель) === */
+/* === BOTTOM NAV (ФИКС: Аккуратная и тонкая панель) === */
 
 .tabbar {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
@@ -84,7 +83,8 @@
     border-top: none; 
     backdrop-filter: none; -webkit-backdrop-filter: none;
     
-    padding: 8px 0 calc(env(safe-area-inset-bottom) + 8px); 
+    /* 💥 ФИКС: Уменьшаем общий padding для более тонкого вида панели */
+    padding: 6px 0 calc(env(safe-area-inset-bottom) + 6px); 
     box-sizing: border-box;
     width: 100%;
     display: flex; 
@@ -98,7 +98,10 @@
     background: color-mix(in oklab, var(--bg-elev) 94%, #000 6%);
     border: 1px solid var(--border); 
     border-radius: 26px;
-    padding: 8px 4px; 
+    
+    /* 💥 ФИКС: Уменьшаем внутренний padding дока */
+    padding: 6px 4px; 
+    
     max-width: 420px;
     box-shadow: 0 10px 24px rgba(0,0,0,.4);
     
@@ -106,8 +109,9 @@
     width: calc(100% - 28px); 
     max-width: 420px; 
     
-    padding-left: calc(8px + env(safe-area-inset-left)); 
-    padding-right: calc(8px + env(safe-area-inset-right)); 
+    /* 💥 ФИКС: Уменьшаем padding safe area */
+    padding-left: calc(6px + env(safe-area-inset-left)); 
+    padding-right: calc(6px + env(safe-area-inset-right)); 
 }
 
 .nav-btn {
