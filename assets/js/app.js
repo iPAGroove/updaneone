@@ -1,53 +1,46 @@
 // assets/js/app.js
-// URSA IPA — Dynamic Firestore + Modal System
+import { db } from "./firebase.js";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+// === КОНТЕЙНЕР КАТАЛОГА ===
+const catalogContainer = document.getElementById("catalog");
 
-// === Firebase Config ===
-const firebaseConfig = {
-  apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
-  authDomain: "ipa-panel.firebaseapp.com",
-  projectId: "ipa-panel",
-  storageBucket: "ipa-panel.firebasestorage.app",
-  messagingSenderId: "239982196215",
-  appId: "1:239982196215:web:9de387c51952da428daaf2"
-};
+// === ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ ===
+function createCard(app) {
+  const article = document.createElement("article");
+  article.className = "card";
+  article.dataset.title = app.name || "Без названия";
+  article.dataset.subtitle = app.version || "";
+  article.dataset.desc = app.description_ru || "";
+  article.dataset.img = app.iconUrl || "";
+  article.dataset.tags = (app.tags || []).join(",");
+  article.dataset.cta = "Скачать";
+  article.dataset.link = app.downloadUrl || "#";
+  if (app.vipOnly) article.dataset.badge = "VIP";
 
-// === Initialize Firebase ===
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// === Elements ===
-const catalog = document.querySelector("#catalog");
-
-// === Load Collection ===
-async function loadCollection(name) {
-  const col = collection(db, name);
-  const snap = await getDocs(col);
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  article.innerHTML = `
+    <div class="row">
+      <div class="thumb">
+        <img src="${app.iconUrl || "https://via.placeholder.com/80"}" alt="">
+      </div>
+      <div>
+        <h3>${app.name || "Без имени"}</h3>
+        <div class="meta">v${app.version || "—"}</div>
+        ${app.vipOnly ? `<div class="meta" style="color:#ffb300;">⭐ VIP</div>` : ""}
+      </div>
+    </div>
+  `;
+  return article;
 }
 
-// === Render Card ===
-function createCard(data) {
-  const card = document.createElement("article");
-  card.className = "card";
-  card.dataset.title = data.name || "Без названия";
-  card.dataset.desc = data.description || "Описание отсутствует";
-  card.dataset.img = data.image || "";
-  card.dataset.tags = data.tags?.join(",") || "";
-  card.dataset.cta = data.button || "Скачать";
-  card.dataset.link = data.link || "#";
-  card.dataset.badge = data.vip ? "VIP" : "";
-  card.innerHTML = `
-    <div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;color:var(--muted);">
-      ${data.name || "App"}
-    </div>`;
-  return card;
-}
-
-// === Render Section ===
-function renderSection(title, data) {
+// === ФУНКЦИЯ СОЗДАНИЯ СЕКЦИИ ===
+function createSection(title, apps) {
   const section = document.createElement("section");
   section.className = "collection-row";
   section.innerHTML = `
@@ -55,77 +48,36 @@ function renderSection(title, data) {
     <div class="card-carousel"></div>
     <button class="view-all-btn">Смотреть все</button>
   `;
-  const container = section.querySelector(".card-carousel");
-  data.forEach(item => container.appendChild(createCard(item)));
-  catalog.appendChild(section);
+  const carousel = section.querySelector(".card-carousel");
+  apps.forEach((app) => carousel.appendChild(createCard(app)));
+  catalogContainer.appendChild(section);
 }
 
-// === Modal System ===
-let modalOverlay;
-function buildModal() {
-  if (modalOverlay) return;
-  modalOverlay = document.createElement("div");
-  modalOverlay.className = "modal-overlay";
-  modalOverlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal-title">Информация</h3>
-        <button class="modal-close">&times;</button>
-      </div>
-      <img class="modal-image" style="display:none;width:100%;border-radius:12px;border:1px solid var(--border);" />
-      <div class="modal-content"></div>
-      <button class="modal-btn">Открыть</button>
-    </div>
-  `;
-  document.body.appendChild(modalOverlay);
-  modalOverlay.addEventListener("click", e => {
-    if (e.target === modalOverlay) modalOverlay.classList.remove("active");
-  });
-  modalOverlay.querySelector(".modal-close").addEventListener("click", () => modalOverlay.classList.remove("active"));
-  modalOverlay.querySelector(".modal-btn").addEventListener("click", () => {
-    const link = modalOverlay.dataset.link;
-    if (link && link !== "#") window.open(link, "_blank");
-    modalOverlay.classList.remove("active");
-  });
-}
-
-// === Open Modal ===
-function openModal(card) {
-  buildModal();
-  const title = card.dataset.title;
-  const desc = card.dataset.desc;
-  const img = card.dataset.img;
-  const link = card.dataset.link;
-  const modal = modalOverlay.querySelector(".modal");
-  modal.querySelector(".modal-title").textContent = title;
-  modalOverlay.querySelector(".modal-content").textContent = desc;
-  const image = modalOverlay.querySelector(".modal-image");
-  if (img) {
-    image.src = img;
-    image.style.display = "block";
-  } else {
-    image.style.display = "none";
-  }
-  modalOverlay.dataset.link = link;
-  modalOverlay.classList.add("active");
-}
-
-// === Bind Clicks ===
-function bindCardClicks() {
-  catalog.addEventListener("click", e => {
-    const card = e.target.closest(".card");
-    if (card) openModal(card);
-  });
-}
-
-// === Init ===
-(async function init() {
+// === ЗАГРУЗКА ИГР И ПРИЛОЖЕНИЙ ===
+async function loadCollections() {
   try {
-    const [apps, games] = await Promise.all([loadCollection("apps"), loadCollection("games")]);
-    renderSection("Popular Apps", apps.slice(0, 15));
-    renderSection("Games", games.slice(0, 15));
-    bindCardClicks();
+    const qRef = query(collection(db, "ursa_ipas"), orderBy("updatedAt", "desc"), limit(20));
+    const snap = await getDocs(qRef);
+    const apps = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    // === ГРУППИРОВКА ===
+    const popular = [...apps].sort((a, b) => (b.installCount || 0) - (a.installCount || 0));
+    const updates = [...apps].sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+    const vip = apps.filter((a) => a.vipOnly);
+
+    catalogContainer.innerHTML = ""; // Очистить заглушки
+    createSection("Popular", popular.slice(0, 8));
+    createSection("Update", updates.slice(0, 8));
+    createSection("VIP", vip.slice(0, 8));
+
+    console.log("🔥 Firestore loaded", apps.length, "items");
   } catch (err) {
-    console.error("Ошибка загрузки Firestore:", err);
+    console.error("Firestore load error:", err);
+    catalogContainer.innerHTML = `<div style="opacity:.7;text-align:center;padding:40px;">Ошибка загрузки Firestore</div>`;
   }
-})();
+}
+
+document.addEventListener("DOMContentLoaded", loadCollections);
