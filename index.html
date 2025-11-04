@@ -1,125 +1,217 @@
 <!DOCTYPE html>
+
 <html lang="ru">
+
 <head>
+
     <meta charset="utf-8" />
+
     <title>URSA IPA</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 
-    <!-- Шрифт URSA -->
+
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 
-    <!-- Стили -->
+
+
+    <!-- Базовые стили -->
+
     <link rel="stylesheet" href="assets/css/core.css" />
+
+    <!-- Разделенные стили -->
+
     <link rel="stylesheet" href="assets/css/header.css" />
+
     <link rel="stylesheet" href="assets/css/navigation.css" />
+
     <link rel="stylesheet" href="assets/css/catalog.css" />
+
+    <!-- Модалки -->
+
+    <link rel="stylesheet" href="assets/css/modal.css" />
+
 </head>
+
 <body>
 
-    <!-- Верхняя шапка -->
+
+
+    <!-- Шапка сайта -->
+
     <header class="topbar">
+
         <div class="wrap">
+
             <div class="brand"><span>URSA IPA</span></div>
+
         </div>
+
     </header>
 
-    <!-- Основная область -->
+
+
     <main>
+
         <div class="wrap">
 
-            <!-- Поиск -->
-            <div style="padding: 0 14px 10px 14px;">
-                <input type="search" id="search" placeholder="Поиск..." class="search-input" />
+            <div id="catalog" class="catalog" role="list">
+
+                <!-- КОЛЛЕКЦИЯ 1: Popular -->
+
+                <section class="collection-row">
+
+                    <h2 class="collection-title">Popular</h2>
+
+                    <div class="card-carousel">
+
+                        <!-- Пример карточки с данными для модалки -->
+
+                        <article class="card"
+
+                                 data-title="Subway Surfers"
+
+                                 data-subtitle="v3.17 • Mod Menu"
+
+                                 data-desc="God Mode, Unlimited Coins/Keys, No Stumble. Тестировано на iOS 16–18."
+
+                                 data-img="https://picsum.photos/seed/ursa1/800/420"
+
+                                 data-tags="Runner,Offline,URSA"
+
+                                 data-cta="Скачать"
+
+                                 data-link="https://example.com/subway"
+
+                                 data-badge="VIP">
+
+                            <!-- Внутренность можешь оформить позже -->
+
+                        </article>
+
+
+
+                        <!-- Заглушки -->
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article>
+
+                    </div>
+
+                    <button class="view-all-btn">Смотреть все</button>
+
+                </section>
+
+
+
+                <!-- КОЛЛЕКЦИЯ 2: Update -->
+
+                <section class="collection-row">
+
+                    <h2 class="collection-title">Update</h2>
+
+                    <div class="card-carousel">
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article>
+
+                    </div>
+
+                    <button class="view-all-btn">Смотреть все</button>
+
+                </section>
+
+
+
+                <!-- КОЛЛЕКЦИЯ 3: VIP -->
+
+                <section class="collection-row">
+
+                    <h2 class="collection-title">VIP</h2>
+
+                    <div class="card-carousel">
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article><article class="card placeholder"></article>
+
+                        <article class="card placeholder"></article>
+
+                    </div>
+
+                    <button class="view-all-btn">Смотреть все</button>
+
+                </section>
+
             </div>
 
-            <!-- Каталог -->
-            <div id="catalog" class="catalog" role="list">
-                <div style="opacity:.7;text-align:center;padding:40px;">
-                    Загрузка каталога...
-                </div>
-            </div>
         </div>
+
     </main>
 
-    <!-- Нижняя панель -->
+
+
+    <!-- Панель навигации -->
+
     <nav class="tabbar" id="tabbar" role="tablist">
+
         <div class="newdock">
-            <button class="nav-btn active" data-tab="apps">
-                <img id="navAppsIcon" src="https://img.icons8.com/ios-filled/50/00b3ff/iphone.png" alt="apps" width="26">
-            </button>
-            <button class="nav-btn" data-tab="games">
-                <img id="navGamesIcon" src="https://img.icons8.com/ios-filled/50/00b3ff/controller.png" alt="games" width="26">
-            </button>
+
+            <button class="nav-btn active" data-tab="apps">📱</button>
+
+            <button class="nav-btn" data-tab="games">🎮</button>
+
             <button class="nav-btn" id="search-btn">🔍</button>
-            <button class="nav-btn" id="settings-btn">
-                <img id="navSettingsIcon" src="https://img.icons8.com/ios-filled/50/00b3ff/settings.png" alt="settings" width="26">
-            </button>
+
+            <button class="nav-btn" id="settings-btn">⚙️</button>
+
         </div>
+
     </nav>
 
-    <!-- ======================== -->
-    <!--   МОДАЛЬНЫЕ ОКНА UI     -->
-    <!-- ======================== -->
 
-    <!-- 1. Детали приложения -->
-    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="sheet-container">
-            <div class="sheet-header"></div>
-            <div class="sheet-body"></div>
-            <div class="sheet-footer">
-                <button data-close class="btn outline small">Закрыть</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- 2. Настройки -->
-    <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="sheet-container max-w-sm">
-            <div class="sheet-header"><h2>Профиль URSA</h2></div>
-            <div class="sheet-body">
-                <div id="user-info" class="profile-card">
-                    <img id="user-photo" class="avatar" src="assets/icons/avatar.png" alt="Avatar">
-                    <div class="profile-details">
-                        <p><strong id="user-name">Гость</strong></p>
-                        <p class="meta"><span id="user-email">—</span></p>
-                        <p class="meta"><span>Статус аккаунта:</span> <strong id="user-status" style="color:var(--accent);">Free</strong></p>
-                        <p class="meta"><span>Сертификат:</span> <strong id="cert-state">❌ Не загружен</strong></p>
-                    </div>
-                </div>
-                <div class="btn-group" style="margin-top: 20px;">
-                    <button id="cert-upload" class="btn small outline">📤 Добавить / Обновить сертификат</button>
-                    <button id="vip-upgrade" class="btn small">🚀 Поднять статус</button>
-                    <button id="auth-action" class="btn small danger" style="margin-top: 10px;">Войти через Google</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- JS модалки и кликов по карточкам -->
 
-    <!-- 3. VIP окно -->
-    <div id="vip-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="sheet-container max-w-sm">
-            <div class="sheet-header"><h2>VIP Статус URSA</h2></div>
-            <div class="sheet-body">
-                <p>🌟 Получите VIP статус и откройте доступ ко всем эксклюзивным модам и приоритетной установке IPA.</p>
-                <ul class="bullets" style="margin-top: 15px;">
-                    <li>⭐ Эксклюзивные моды</li>
-                    <li>⚡ Приоритетная установка без ожидания</li>
-                    <li>💬 Поддержка в Telegram</li>
-                </ul>
-                <p class="meta" style="margin-top: 20px;">Цена: 4.99 USD / месяц</p>
-            </div>
-            <div class="sheet-footer">
-                <button id="buy-vip" class="btn">💳 Купить</button>
-            </div>
-        </div>
-    </div>
+    <script src="assets/js/app.js" type="module"></script>
 
-    <!-- 4. Загрузка сертификата -->
-    <div id="signer-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="sheet-container max-w-sm">
-            <div class="sheet-header"><h2>Загрузка Сертификата</h2></div>
-            <div class="sheet-body"><p>Здесь будет интерфейс загрузки P12 файла и пароля.</p></div>
-        </div>
-    </div>
 </body>
+
 </html>
