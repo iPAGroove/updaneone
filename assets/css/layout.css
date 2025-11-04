@@ -6,7 +6,7 @@
     position: sticky; top: 0; z-index: 50; 
     background: color-mix(in oklab, var(--bg) 95%, #000 5%);
     backdrop-filter: blur(8px) saturate(120%);
-    -webkit-backdrop-filter: blur(8px) saturate(12pt);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
     border-bottom: 1px solid var(--border); 
     
     padding: 0; 
@@ -61,33 +61,18 @@
 @keyframes draw { from { width: 0 } to { width: 100% } }
 
 
-/* === SEARCH (Аккуратный вид, полная ширина) === */
-
-.search-area { padding-top: 12px; padding-bottom: 6px; width: 100%; }
-
-.search-wrap { 
-    display: flex; /* 💥 ФИКС: Используем flex, так как убрали кнопку темы */
-    gap: 10px; 
-    padding: 0 14px; 
-}
-
-#search {
-    width: 100%; appearance: none; outline: none;
-    padding: 12px 14px; border-radius: 14px;
-    background: var(--card); border: 1px solid var(--border); color: var(--text);
-}
+/* === SEARCH (УДАЛЕНО С ГЛАВНОГО ЭКРАНА) === */
+/* Все стили поиска удалены */
 
 
-/* === BOTTOM NAV (Аккуратная центрированная панель, убран фон) === */
+/* === BOTTOM NAV (Аккуратная центрированная панель) === */
 
 .tabbar {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
-    /* 💥 ФИКС: Убираем черный фон под доком */
     background: transparent;
     border-top: none; 
     backdrop-filter: none; -webkit-backdrop-filter: none;
     
-    /* Добавляем прозрачный padding для safe area, чтобы сам док не прилипал */
     padding: 8px 0 calc(env(safe-area-inset-bottom) + 8px); 
     box-sizing: border-box;
     width: 100%;
@@ -97,7 +82,7 @@
 
 .newdock {
     display: grid; 
-    grid-template-columns: repeat(4,1fr); /* 💥 ФИКС: 4 кнопки, включая поиск */
+    grid-template-columns: repeat(4,1fr); 
     align-items: center;
     background: color-mix(in oklab, var(--bg-elev) 94%, #000 6%);
     border: 1px solid var(--border); 
@@ -128,11 +113,15 @@
 }
 
 
-/* === CATALOG === */
+/* === CATALOG (ФИКС: Отступы для каталога) === */
 
 .catalog {
-    margin-top: 20px;
-    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 32px);
+    /* 💥 ФИКС: Добавляем отступ сверху, чтобы каталог не прилипал к шапке */
+    margin-top: 30px; 
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px; 
+    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 32px);
     overflow: hidden; 
     padding: 0 14px; 
 }
