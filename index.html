@@ -5,135 +5,127 @@
     <title>URSA IPA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 
+    <!-- Шрифт URSA -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 
-    <!-- Базовые стили -->
+    <!-- Стили -->
     <link rel="stylesheet" href="assets/css/core.css" />
-    <!-- Разделенные стили -->
     <link rel="stylesheet" href="assets/css/header.css" />
     <link rel="stylesheet" href="assets/css/navigation.css" />
     <link rel="stylesheet" href="assets/css/catalog.css" />
-    <!-- Модалки -->
     <link rel="stylesheet" href="assets/css/modal.css" />
 </head>
 <body>
 
-    <!-- Шапка сайта -->
+    <!-- Верхняя шапка -->
     <header class="topbar">
         <div class="wrap">
             <div class="brand"><span>URSA IPA</span></div>
         </div>
     </header>
 
+    <!-- Основная область -->
     <main>
         <div class="wrap">
-            <!-- Поле поиска, используемое в app.js -->
+
+            <!-- Поиск -->
             <div style="padding: 0 14px 10px 14px;">
                 <input type="search" id="search" placeholder="Поиск..." class="search-input" />
             </div>
-            
+
+            <!-- Каталог -->
             <div id="catalog" class="catalog" role="list">
-                <!-- Этот блок будет заполнен динамически из Firestore с помощью app.js -->
-                <div style="opacity:.7;text-align:center;padding:40px;" data-i18n="empty">Пока нет приложений</div>
+                <div style="opacity:.7;text-align:center;padding:40px;">
+                    Загрузка каталога...
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Панель навигации -->
+    <!-- Нижняя панель -->
     <nav class="tabbar" id="tabbar" role="tablist">
         <div class="newdock">
-            <!-- Добавляем ID иконок, чтобы JS мог менять их -->
-            <button class="nav-btn active" data-tab="apps"><img id="navAppsIcon" src="" alt="📱"></button>
-            <button class="nav-btn" data-tab="games"><img id="navGamesIcon" src="" alt="🎮"></button>
+            <button class="nav-btn active" data-tab="apps">
+                <img id="navAppsIcon" src="https://img.icons8.com/ios-filled/50/00b3ff/iphone.png" alt="apps" width="26">
+            </button>
+            <button class="nav-btn" data-tab="games">
+                <img id="navGamesIcon" src="https://img.icons8.com/ios-filled/50/00b3ff/controller.png" alt="games" width="26">
+            </button>
             <button class="nav-btn" id="search-btn">🔍</button>
-            <button class="nav-btn" id="settings-btn"><img id="navSettingsIcon" src="" alt="⚙️"></button>
+            <button class="nav-btn" id="settings-btn">
+                <img id="navSettingsIcon" src="https://img.icons8.com/ios-filled/50/00b3ff/settings.png" alt="settings" width="26">
+            </button>
         </div>
     </nav>
-    
-    <!-- 1. Модальное окно деталей приложения (App Modal) -->
+
+    <!-- ======================== -->
+    <!--   МОДАЛЬНЫЕ ОКНА UI     -->
+    <!-- ======================== -->
+
+    <!-- 1. Детали приложения -->
     <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="sheet-container">
-            <div class="sheet-header">
-                <!-- Контент заголовка будет заполнен JS -->
-            </div>
-            <div class="sheet-body">
-                <!-- Контент тела будет заполнен JS -->
-            </div>
+            <div class="sheet-header"></div>
+            <div class="sheet-body"></div>
             <div class="sheet-footer">
                 <button data-close class="btn outline small">Закрыть</button>
             </div>
         </div>
     </div>
-    
-    <!-- 2. Модальное окно настроек (Settings Modal) -->
+
+    <!-- 2. Настройки -->
     <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="sheet-container max-w-sm">
-            <div class="sheet-header">
-                <h2 data-i18n="profile_title">Профиль URSA</h2>
-            </div>
+            <div class="sheet-header"><h2>Профиль URSA</h2></div>
             <div class="sheet-body">
                 <div id="user-info" class="profile-card">
-                    <img id="user-photo" class="avatar" src="" alt="Avatar">
+                    <img id="user-photo" class="avatar" src="assets/icons/avatar.png" alt="Avatar">
                     <div class="profile-details">
-                        <p><strong><span id="user-name">Гость</span></strong></p>
+                        <p><strong id="user-name">Гость</strong></p>
                         <p class="meta"><span id="user-email">—</span></p>
-                        <p class="meta" style="margin-top: 10px;">
-                            <span data-i18n="acc_status">Статус аккаунта:</span>
-                            <strong id="user-status" style="color:var(--accent); margin-left: 5px;">Free</strong>
-                        </p>
-                        <p class="meta" style="margin-top: 15px;">
-                            <span data-i18n="cert_state">Состояние:</span>
-                            <strong id="cert-state" style="margin-left: 5px;">❌ Не загружен</strong>
-                        </p>
+                        <p class="meta"><span>Статус аккаунта:</span> <strong id="user-status" style="color:var(--accent);">Free</strong></p>
+                        <p class="meta"><span>Сертификат:</span> <strong id="cert-state">❌ Не загружен</strong></p>
                     </div>
                 </div>
                 <div class="btn-group" style="margin-top: 20px;">
-                    <button id="cert-upload" class="btn small outline" data-i18n="cert_upload_btn">📤 Добавить / Обновить сертификат</button>
-                    <button id="vip-upgrade" class="btn small" data-i18n="upgrade_btn">🚀 Поднять статус</button>
-                    <button id="auth-action" class="btn small danger" style="margin-top: 10px;" data-i18n="login_btn">Войти через Google</button>
-                    <button id="theme-toggle" class="btn small outline" style="margin-top: 10px;">Toggle Theme (Placeholder)</button>
-                    <button id="lang-btn" class="btn small outline" style="margin-top: 10px;"><img id="navLangIcon" src="" alt="Lang"></button>
+                    <button id="cert-upload" class="btn small outline">📤 Добавить / Обновить сертификат</button>
+                    <button id="vip-upgrade" class="btn small">🚀 Поднять статус</button>
+                    <button id="auth-action" class="btn small danger" style="margin-top: 10px;">Войти через Google</button>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 3. Модальное окно VIP (Vip Modal) -->
-    <div id="vip-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="sheet-container max-w-sm">
-            <div class="sheet-header">
-                <h2 data-i18n="vip_title">VIP Статус URSA</h2>
-            </div>
-            <div class="sheet-body">
-                <p data-i18n="vip_desc">🌟 Получите VIP статус и откройте доступ ко всем модам, скрытым функциям и приоритетной подписи IPA.</p>
-                <ul class="bullets" style="margin-top: 15px;">
-                    <li data-i18n="vip_benefit1">⭐ Доступ к эксклюзивным модам</li>
-                    <li data-i18n="vip_benefit2">⚡ Приоритетная установка без ожидания</li>
-                    <li data-i18n="vip_benefit3">💬 Поддержка напрямую из Telegram</li>
-                </ul>
-                <p class="meta" style="margin-top: 20px;">
-                    <span data-i18n="vip_price">Цена: 4.99 USD / месяц</span>
-                </p>
-            </div>
-            <div class="sheet-footer">
-                <button id="buy-vip" class="btn" data-i18n="vip_buy">💳 Купить</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 4. Модальное окно загрузки сертификата (Signer Modal) -->
-    <div id="signer-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="sheet-container max-w-sm">
-            <div class="sheet-header">
-                <h2>Загрузка Сертификата</h2>
-            </div>
-            <div class="sheet-body">
-                <p>Здесь будет интерфейс для загрузки P12 файла и пароля.</p>
             </div>
         </div>
     </div>
 
-    <!-- JS модалки и кликов по карточкам -->
+    <!-- 3. VIP окно -->
+    <div id="vip-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="sheet-container max-w-sm">
+            <div class="sheet-header"><h2>VIP Статус URSA</h2></div>
+            <div class="sheet-body">
+                <p>🌟 Получите VIP статус и откройте доступ ко всем эксклюзивным модам и приоритетной установке IPA.</p>
+                <ul class="bullets" style="margin-top: 15px;">
+                    <li>⭐ Эксклюзивные моды</li>
+                    <li>⚡ Приоритетная установка без ожидания</li>
+                    <li>💬 Поддержка в Telegram</li>
+                </ul>
+                <p class="meta" style="margin-top: 20px;">Цена: 4.99 USD / месяц</p>
+            </div>
+            <div class="sheet-footer">
+                <button id="buy-vip" class="btn">💳 Купить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Загрузка сертификата -->
+    <div id="signer-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="sheet-container max-w-sm">
+            <div class="sheet-header"><h2>Загрузка Сертификата</h2></div>
+            <div class="sheet-body"><p>Здесь будет интерфейс загрузки P12 файла и пароля.</p></div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!--       ПОДКЛЮЧЕНИЕ JS     -->
+    <!-- ======================== -->
     <script src="assets/js/app.js" type="module"></script>
 </body>
 </html>
