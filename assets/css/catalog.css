@@ -29,8 +29,8 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 40px; 
-    /* 💥 ФИКС: Увеличиваем padding-bottom, чтобы контент не уходил под nav-bar */
-    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 80px); /* Увеличил 32px до 80px */
+    /* 💥 КРИТИЧЕСКИЙ ФИКС: Увеличиваем padding-bottom, чтобы контент не уходил под nav-bar */
+    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 150px); /* Увеличено до 150px */
     overflow: hidden; 
     padding: 0; 
 }
