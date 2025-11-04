@@ -17,36 +17,20 @@
 /* === СБРОС И ОСНОВА === */
 html, body {
     height: 100%;
-    width: 100%;
     background: var(--bg);
     color: var(--text);
     font: 16px/1.42 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow: hidden; /* запрет двойного скролла */
     margin: 0;
     padding: 0;
-    overflow: hidden;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    max-width: 100%;
-}
-
-/* === АНТИ-БЕЛЫЙ ОСТРОВОК === */
-html {
-    background: var(--bg);
-    overflow-x: hidden !important;
-    overscroll-behavior: none;
-}
-body {
-    background: var(--bg);
-    overflow-x: hidden !important;
-    transform: translateZ(0);
-    will-change: transform;
-    contain: strict;
 }
 
 /* === ОСНОВНОЙ ЛЭЙАУТ === */
@@ -55,24 +39,18 @@ body {
     flex-direction: column;
     height: 100vh;
     width: 100vw;
+    overflow: hidden;
 }
 
 /* === ПРОКРУТКА ТОЛЬКО MAIN === */
 main {
     flex: 1;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     padding-top: calc(env(safe-area-inset-top) + 8px);
+    /* 🔧 увеличенный нижний отступ для комфортного расстояния от панели */
     padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 100px);
-
-    /* 💥 Главный фикс bleed в iOS Safari */
-    position: relative;
-    isolation: isolate;
-    clip-path: inset(0 0 0 0);
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    background: var(--bg);
 }
 
 /* === КОНТЕЙНЕР === */
@@ -125,6 +103,7 @@ h3 {
 /* === КАТАЛОГ === */
 .catalog {
     overflow: visible !important;
+    /* 🔧 запас для полного отображения последней карточки */
     padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 140px);
 }
 
