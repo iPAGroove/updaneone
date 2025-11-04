@@ -17,20 +17,34 @@
 /* === СБРОС И ОСНОВА === */
 html, body {
     height: 100%;
+    width: 100%;
     background: var(--bg);
     color: var(--text);
     font: 16px/1.42 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow: hidden; /* запрет двойного скролла */
+    overflow: hidden;
     margin: 0;
     padding: 0;
+}
+
+/* 💥 КРИТИЧЕСКИЙ ФИКС: защита от белого островка справа */
+html {
+    overflow-x: hidden !important;
+    overflow-y: hidden;
+    background-color: var(--bg);
+    overscroll-behavior-x: none; /* блок горизонтального bounce */
+}
+body {
+    overflow-x: hidden !important;
+    background-color: var(--bg);
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    max-width: 100%; /* гарантируем, что элементы не вылезут */
 }
 
 /* === ОСНОВНОЙ ЛЭЙАУТ === */
@@ -39,17 +53,16 @@ body {
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    overflow: hidden;
 }
 
 /* === ПРОКРУТКА ТОЛЬКО MAIN === */
 main {
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain; /* убирает "белый откат" на iOS */
     padding-top: calc(env(safe-area-inset-top) + 8px);
-    /* 🔧 увеличенный нижний отступ для комфортного расстояния от панели */
     padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 100px);
 }
 
@@ -103,7 +116,6 @@ h3 {
 /* === КАТАЛОГ === */
 .catalog {
     overflow: visible !important;
-    /* 🔧 запас для полного отображения последней карточки */
     padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 140px);
 }
 
