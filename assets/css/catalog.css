@@ -4,30 +4,34 @@
 .collection-row {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
 }
 
-/* === ЗАГОЛОВОК (тёмный контейнер по всей ширине) === */
+/* === ЗАГОЛОВОК (тёмный контейнер по всей ширине, компактный) === */
 .collection-title {
     width: 100%;
     margin: 0;
-    padding: 16px 0;
+    padding: 8px 0; /* стало ниже */
     text-align: center;
     font-family: 'Orbitron', sans-serif;
-    font-size: 22px;
+    font-size: 20px; /* чуть меньше, но всё ещё заметно */
     font-weight: 700;
     letter-spacing: 2px;
 
-    /* 💥 Темный контейнер */
-    background: color-mix(in oklab, var(--bg-elev) 85%, #000 15%);
+    /* 💥 Компактный тёмный контейнер с лёгким градиентом */
+    background: linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--bg-elev) 90%, #000 10%) 0%,
+        color-mix(in oklab, var(--bg-elev) 80%, #000 20%) 100%
+    );
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
 
-    /* 💡 Неоновое свечение */
+    /* 💡 Неоновое свечение текста */
     color: var(--accent);
     text-shadow:
-        0 0 8px rgba(0, 179, 255, 0.6),
-        0 0 18px rgba(0, 179, 255, 0.3);
+        0 0 6px rgba(0, 179, 255, 0.6),
+        0 0 14px rgba(0, 179, 255, 0.3);
 }
 
 /* === КАРУСЕЛИ === */
@@ -35,7 +39,7 @@
     margin-top: 20px;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 36px;
     padding: 0;
 }
 
@@ -70,19 +74,18 @@
 
 /* === КНОПКА "СМОТРЕТЬ ВСЕ" === */
 .view-all-btn {
-    margin: 4px auto 0 auto;
+    margin: 6px auto 0 auto;
     background: linear-gradient(90deg, var(--accent), #00e0ff);
     border: none;
     color: #001018;
     font-weight: 700;
     border-radius: 12px;
-    padding: 10px 22px;
+    padding: 9px 20px;
     font-size: 15px;
     cursor: pointer;
     box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
     transition: transform .25s ease, box-shadow .25s ease;
 }
-
 .view-all-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(0, 179, 255, 0.65);
