@@ -1,6 +1,6 @@
 /* assets/css/core.css */
 
-/* === ПЕРЕМЕННЫЕ ТЕМЫ === */
+/* === ТЕМНЫЙ НЕОН ТЕМПЛЕЙТ === */
 :root {
     --bg: #0b0f14;
     --bg-elev: #121722;
@@ -14,7 +14,7 @@
     --nav-btn-h: 56px;
 }
 
-/* === ОСНОВНЫЕ БАЗОВЫЕ НАСТРОЙКИ === */
+/* === СБРОС И ОСНОВА === */
 html, body {
     height: 100%;
     background: var(--bg);
@@ -22,88 +22,94 @@ html, body {
     font: 16px/1.42 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden !important;
-    padding: 0;
-    margin: 0;
-}
-
-/* === ГЛОБАЛЬНЫЙ RESET === */
-* { 
-    box-sizing: border-box; 
+    overflow: hidden; /* запрет двойного скролла */
     margin: 0;
     padding: 0;
 }
 
-/* === ОСНОВНОЙ ЛЭЙАУТ (фикс скролла и позиционирования) === */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* === ОСНОВНОЙ ЛЭЙАУТ === */
 body {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    overflow: hidden; /* чтобы не появлялся двойной скролл */
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
 }
 
+/* === ПРОКРУТКА ТОЛЬКО MAIN === */
 main {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 20px);
+    padding-top: calc(env(safe-area-inset-top) + 8px);
+    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 40px);
 }
 
 /* === КОНТЕЙНЕР === */
-.wrap { 
-    max-width: 720px; 
-    margin: 0 auto; 
-    padding: 0; /* отступы добавляются в секциях */
+.wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 0 60px 0;
 }
 
-/* === ТЕКСТОВЫЕ ЭЛЕМЕНТЫ === */
-h2 { 
-    color: var(--text); 
-    font-size: 22px; 
-    font-weight: 700; 
+/* === ТЕКСТ === */
+h2 {
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
 }
-h3 { 
-    color: #fff; 
-    font-size: 15px; 
-    font-weight: 700; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
+h3 {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.meta { 
-    font-size: 12px; 
-    color: var(--muted); 
-    line-height: 1.3; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
+.meta {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* === КНОПКА === */
 .btn {
-    display: inline-flex; 
-    align-items: center; 
-    justify-content: center; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 12px 14px; 
+    padding: 12px 14px;
     border-radius: 14px;
     background: var(--accent);
-    color: #001018; 
-    font-weight: 800; 
-    border: 0; 
+    color: #001018;
+    font-weight: 800;
+    border: 0;
     width: 100%;
     box-shadow: 0 0 12px rgba(0,179,255,.45);
     transition: transform .25s ease, box-shadow .25s ease;
 }
 
-/* === ФИКС ДЛЯ КАТАЛОГА === */
+/* === КАТАЛОГ === */
 .catalog {
     overflow: visible !important;
     padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 100px);
 }
 
-/* === НАВИГАЦИЯ ПОВЕРХ === */
+/* === ПАНЕЛЬ === */
 .tabbar {
     z-index: 100;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
