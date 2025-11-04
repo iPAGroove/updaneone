@@ -1,109 +1,109 @@
 /* assets/css/core.css */
 
-
-
+/* === ПЕРЕМЕННЫЕ ТЕМЫ === */
 :root {
-
     --bg: #0b0f14;
-
     --bg-elev: #121722;
-
     --card: #141a24;
-
     --border: #1e2633;
-
     --text: #fff;
-
     --muted: #9aa7bd;
-
     --accent: #00b3ff;
-
     --radius: 16px;
-
     --gap: 14px;
-
     --nav-btn-h: 56px;
-
 }
 
-
-
+/* === ОСНОВНЫЕ БАЗОВЫЕ НАСТРОЙКИ === */
 html, body {
-
     height: 100%;
-
     background: var(--bg);
-
     color: var(--text);
-
     font: 16px/1.42 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
     -webkit-font-smoothing: antialiased;
-
     text-rendering: optimizeLegibility;
-
-    /* КРИТИЧЕСКИЙ ФИКС: Убираем горизонтальное растяжение */
-
-    overflow-x: hidden !important; 
-
+    overflow-x: hidden !important;
     padding: 0;
-
     margin: 0;
-
 }
 
-
-
+/* === ГЛОБАЛЬНЫЙ RESET === */
 * { 
-
     box-sizing: border-box; 
-
     margin: 0;
-
     padding: 0;
-
 }
 
+/* === ОСНОВНОЙ ЛЭЙАУТ (фикс скролла и позиционирования) === */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden; /* чтобы не появлялся двойной скролл */
+}
 
+main {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 20px);
+}
 
-/* Контейнер для центрирования контента */
-
+/* === КОНТЕЙНЕР === */
 .wrap { 
-
     max-width: 720px; 
-
     margin: 0 auto; 
-
-    padding: 0; /* Отступы будут применены к секциям внутри wrap */
-
+    padding: 0; /* отступы добавляются в секциях */
 }
 
+/* === ТЕКСТОВЫЕ ЭЛЕМЕНТЫ === */
+h2 { 
+    color: var(--text); 
+    font-size: 22px; 
+    font-weight: 700; 
+}
+h3 { 
+    color: #fff; 
+    font-size: 15px; 
+    font-weight: 700; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+.meta { 
+    font-size: 12px; 
+    color: var(--muted); 
+    line-height: 1.3; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
 
-
-/* Базовые стили для заголовков */
-
-h2 { color: var(--text); font-size: 22px; font-weight: 700; }
-
-h3 { color: #fff; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.meta { font-size: 12px; color: var(--muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-
-
-/* Кнопка заглушка */
-
+/* === КНОПКА === */
 .btn {
-
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-
-    padding: 12px 14px; border-radius: 14px;
-
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 8px;
+    padding: 12px 14px; 
+    border-radius: 14px;
     background: var(--accent);
-
-    color: #001018; font-weight: 800; border: 0; width: 100%;
-
+    color: #001018; 
+    font-weight: 800; 
+    border: 0; 
+    width: 100%;
     box-shadow: 0 0 12px rgba(0,179,255,.45);
-
     transition: transform .25s ease, box-shadow .25s ease;
+}
 
+/* === ФИКС ДЛЯ КАТАЛОГА === */
+.catalog {
+    overflow: visible !important;
+    padding-bottom: calc(var(--nav-btn-h) + env(safe-area-inset-bottom) + 100px);
+}
+
+/* === НАВИГАЦИЯ ПОВЕРХ === */
+.tabbar {
+    z-index: 100;
 }
