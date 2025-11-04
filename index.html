@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>URSA IPA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/core.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="wrap">
+            <div class="brand"><span>URSA IPA</span></div>
+        </div>
+    </header>
+
+    <section class="search-area">
+        <div class="wrap search-wrap">
+            <input id="search" type="search" inputmode="search" placeholder="Поиск по названию, bundleId…">
+            <button id="theme-toggle" aria-label="Сменить тему">🎨</button>
+        </div>
+    </section>
+
+    <main>
+        <div class="wrap">
+            <div id="catalog" class="catalog" role="list">
+                <section class="collection-row">
+                    <h2>Popular</h2>
+                    <div class="card-carousel">
+                         <article class="card placeholder"></article>
+                        <article class="card placeholder"></article>
+                        <article class="card placeholder"></article>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <nav class="tabbar" id="tabbar" role="tablist">
+        <div class="newdock">
+            <button class="nav-btn active" data-tab="apps">📱</button>
+            <button class="nav-btn" data-tab="games">🎮</button>
+            <button class="nav-btn" id="lang-btn">🌐</button>
+            <button class="nav-btn" id="settings-btn">⚙️</button>
+        </div>
+    </nav>
+
+    <script src="assets/js/app.js" type="module"></script>
+</body>
+</html>
