@@ -4,6 +4,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"; // ✅ ДОБАВЛЕНО
 import { openModal } from "./modal.js";
 
 // 1. Firebase Config
@@ -17,13 +18,16 @@ const firebaseConfig = {
 };
 
 // Init Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+export const app = initializeApp(firebaseConfig);   // ✅ экспортируем, чтобы могли использовать в auth.js
+export const db = getFirestore(app);
+export const auth = getAuth(app);                  // ✅ ИНИЦИАЛИЗИРОВАН AUTH
+
+console.log("✅ Firebase инициализирован");
 
 // ===============================
 // ГЛАВНЫЕ ДАННЫЕ ДЛЯ ВСЕГО САЙТА
 // ===============================
-export let appsData = [];  
+export let appsData = [];
 export let currentCategory = "apps"; // "apps" или "games"
 
 export function setCurrentCategory(type) {
@@ -78,20 +82,16 @@ export function displayCatalog() {
         let items = appsData.filter(app => {
             const tags = (app.tags || "").toLowerCase().split(",").map(t => t.trim());
 
-            // ✅ Показываем только по текущей категории (apps / games)
             if (!tags.includes(currentCategory)) return false;
 
-            // ✅ VIP раздел
             if (section === "VIP") return app.badge === "VIP";
 
-            // ✅ Popular / Update — без VIP
             return app.badge !== "VIP";
         }).slice(0, LIMIT);
 
         items.forEach(app => carousel.insertAdjacentHTML("beforeend", createCardHtml(app)));
         attachModalOpenListeners(carousel);
 
-        // placeholders
         for (let i = items.length; i < LIMIT; i++) {
             carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
         }
