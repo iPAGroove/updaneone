@@ -77,10 +77,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
-    // 🔐 Вход через Google / Facebook
+    // 🔐 Google / Facebook вход
     // ===============================
-    document.querySelector(".google-auth")?.addEventListener("click", loginWithGoogle);
-    document.querySelector(".facebook-auth")?.addEventListener("click", loginWithFacebook);
+    document.querySelector(".google-auth")?.addEventListener("click", async () => {
+        await loginWithGoogle();
+        closeMenu();
+    });
+
+    document.querySelector(".facebook-auth")?.addEventListener("click", async () => {
+        await loginWithFacebook();
+        closeMenu();
+    });
 
 
     // ===============================
@@ -107,19 +114,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") closeEmailModal();
     });
 
-
     // ===============================
     // ✉ Email вход / регистрация / восстановление
     // ===============================
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
 
-    document.getElementById("email-login-btn")?.addEventListener("click", () => {
-        loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+    document.getElementById("email-login-btn")?.addEventListener("click", async () => {
+        await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+        closeEmailModal();
+        openMenu();
     });
 
-    document.getElementById("email-register-btn")?.addEventListener("click", () => {
-        registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+    document.getElementById("email-register-btn")?.addEventListener("click", async () => {
+        await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+        closeEmailModal();
+        openMenu();
     });
 
     document.getElementById("email-reset-btn")?.addEventListener("click", () => {
@@ -128,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
-    // 👤 Обновление UI пользователя
+    // 👤 Обновление UI (СРАЗУ, без перезагрузки)
     // ===============================
     const nickEl = document.getElementById("user-nickname");
     const avatarEl = document.getElementById("user-avatar");
