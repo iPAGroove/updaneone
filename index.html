@@ -25,21 +25,22 @@
         <div class="wrap">
             <div id="catalog" class="catalog" role="list">
 
+                <!-- POPULAR -->
                 <section class="collection-row">
                     <h2 class="collection-title">Popular</h2>
                     <div class="card-carousel">
                         <article class="card placeholder"></article><article class="card placeholder"></article>
                         <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card placeholder"></article>
+                        <article class="card placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
                         <article class="card.placeholder"></article>
                     </div>
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
 
+                <!-- UPDATE -->
                 <section class="collection-row">
                     <h2 class="collection-title">Update</h2>
                     <div class="card-carousel">
@@ -55,6 +56,7 @@
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
 
+                <!-- VIP -->
                 <section class="collection-row">
                     <h2 class="collection-title">VIP</h2>
                     <div class="card-carousel">
@@ -74,6 +76,7 @@
         </div>
     </main>
 
+    <!-- NAVIGATION -->
     <nav class="tabbar" id="tabbar" role="tablist">
         <div class="newdock">
             <button class="nav-btn active" data-tab="apps">📱</button>
@@ -83,12 +86,11 @@
         </div>
     </nav>
     
-    <!-- МОДАЛЬНОЕ ОКНО -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="app-modal">
         <div class="modal-content">
             <button class="modal-close-btn" data-action="close">✕</button>
 
-            <!-- 1. HEADER -->
             <div class="modal-header-new">
                 <img id="modal-icon" class="modal-icon" src="" alt="Иконка приложения">
                 <div class="modal-info-col">
@@ -97,23 +99,21 @@
                 </div>
             </div>
 
-            <!-- 2. МЕТА -->
             <div class="modal-metadata-new">
                 <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
                 <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
                 <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
             </div>
 
-            <!-- 3. ФУНКЦИИ -->
             <div class="modal-features-new">
                 <h4>ФУНКЦИИ МОДА</h4>
                 <pre id="modal-features"></pre>
             </div>
 
-            <!-- 4. ОПИСАНИЕ -->
             <div class="modal-description-new">
                 <p id="modal-desc">Подробное описание...</p>
             </div>
+
         </div>
     </div>
     
