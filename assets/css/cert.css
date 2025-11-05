@@ -104,7 +104,7 @@
    CERTIFICATE DISPLAY IN MENU
    =========================== */
 .certificate-card {
-    /* Убедимся, что внутри карточки есть пространство */
+    /* Стили для контейнера карточки, чтобы вместить flex-контент */
     display: flex; 
     flex-direction: column; 
     align-items: center; 
