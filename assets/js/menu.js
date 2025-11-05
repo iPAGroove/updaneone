@@ -1,5 +1,3 @@
-assets/js/menu.js
-
 const menuBtn = document.getElementById("menu-btn");
 const overlay = document.getElementById("menu-modal");
 
