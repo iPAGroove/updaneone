@@ -48,16 +48,16 @@ export function openModal(data) {
     const timeAgo = timeSince(new Date(data.uploadTime));
     document.getElementById('modal-time-ago').textContent = timeAgo;
     
-    // Функции мода
-    document.getElementById('modal-features').textContent = data.features;
+    // Функции мода: Заменяем запятые на переносы строк для центрирования
+    document.getElementById('modal-features').textContent = data.features.replace(/,/g, ',\n');
     
     // Описание (центрированное)
     document.getElementById('modal-desc').textContent = data.desc;
     
-    // 2. Настройка кнопки CTA
+    // 2. Настройка кнопки CTA: "УСТАНОВИТЬ"
     const ctaButton = document.getElementById('modal-cta');
     ctaButton.href = data.link; 
-    ctaButton.textContent = `Открыть ${data.title}`;
+    ctaButton.textContent = `Установить`; // Изменено на "Установить"
 
     // 3. Отображение
     modalOverlay.classList.add('visible');
