@@ -1,3 +1,4 @@
+// assets/js/menu.js
 // ===============================
 // Меню + Авторизация + Email Login + Смена Языка
 // ===============================
@@ -10,7 +11,9 @@ import {
     resetPassword
 } from "./firebase/auth.js";
 
-import { onUserChanged } from "./firebase/user.js";
+import { onUserChanged, updateCertUI } from "./firebase/user.js"; // ⚠️ Импорт updateCertUI
+
+import { openCertModal } from "./cert-manager.js"; // 🔑 Импорт для работы с сертификатом
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -138,20 +141,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
+    // 🔑 Обработка Сертификата (передаем управление в cert-manager.js)
+    // ===============================
+    const addCertBtn = document.getElementById("add-cert-btn");
+    
+    // Передаем функцию закрытия меню в cert-manager для вызова после нажатия
+    addCertBtn?.addEventListener("click", () => openCertModal(closeMenu));
+
+
+    // ===============================
     // 👤 Обновление UI (СРАЗУ, без перезагрузки)
     // ===============================
     const nickEl = document.getElementById("user-nickname");
     const avatarEl = document.getElementById("user-avatar");
 
+    // ⚠️ DOM-элементы для секции сертификата
+    const certPlaceholder = document.getElementById('cert-info-placeholder');
+    const certDisplay = document.getElementById('cert-info-display');
+    const certUdidEl = document.getElementById('cert-udid');
+    const certExpiryEl = document.getElementById('cert-expiry');
+    const deleteCertBtn = document.querySelector('.delete-cert-btn');
+
+    // ⚠️ Обработчик для кнопки удаления сертификата
+    deleteCertBtn?.addEventListener('click', async () => {
+        if (confirm("Вы уверены, что хотите удалить этот сертификат?")) {
+            // TODO: Реализовать логику удаления сертификата
+            alert("Функция удаления пока не реализована.");
+        }
+    });
+
     onUserChanged((user) => {
         if (!user) {
             nickEl.textContent = "Гость";
             avatarEl.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
+            
+            // Скрываем данные, показываем кнопку "Добавить"
+            certDisplay.style.display = 'none';
+            certPlaceholder.style.display = 'flex';
             return;
         }
 
         nickEl.textContent = user.displayName || user.email || "Пользователь";
         avatarEl.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
+
+        // ⚠️ Обновляем UI сертификата
+        updateCertUI(user.uid, {
+            displayEl: certDisplay,
+            placeholderEl: certPlaceholder,
+            udidEl: certUdidEl,
+            expiryEl: certExpiryEl
+        });
     });
 
 });
