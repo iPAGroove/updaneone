@@ -1,0 +1,149 @@
+/* assets/css/cert.css */
+
+/* ===========================
+   CERTIFICATE UPLOAD MODAL
+   =========================== */
+
+.cert-upload-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: .35s ease;
+}
+
+.cert-upload-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.cert-modal-content {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 24px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 0 40px rgba(0,179,255,0.4);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.cert-title {
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+    color: var(--text);
+    margin-top: 18px;
+    margin-bottom: 4px;
+    font-size: 22px;
+}
+
+/* Файлы */
+.file-upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.upload-label {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: var(--text);
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.upload-label:hover {
+    border-color: var(--accent);
+}
+
+.filename-display {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+}
+
+/* Скрываем нативный input type="file" */
+#p12-file, #mobileprovision-file {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+/* Кнопка Импортировать */
+#import-cert-btn {
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    color: #001018;
+    box-shadow: 0 0 18px rgba(0,179,255,0.45);
+}
+
+.status-text {
+    text-align: center;
+    color: var(--accent);
+    font-size: 14px;
+    min-height: 18px;
+}
+
+/* ===========================
+   CERTIFICATE DISPLAY IN MENU
+   =========================== */
+.certificate-card {
+    /* Убедимся, что внутри карточки есть пространство */
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+#cert-info-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.cert-data {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+}
+
+.cert-data strong {
+    display: block;
+    color: var(--text);
+    font-size: 16px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+/* Кнопка удаления */
+.delete-cert-btn {
+    width: auto;
+    padding: 8px 20px;
+    font-size: 14px;
+    border-radius: 8px;
+    box-shadow: none;
+    background: #3d141d;
+    color: #ff5757;
+    border: 1px solid #ff5757;
+    margin-top: 15px;
+}
+.delete-cert-btn:hover {
+    background: #5a202d;
+}
