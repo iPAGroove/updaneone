@@ -1,49 +1,43 @@
 // ===============================
-// Меню + Авторизация + Смена Языка
+// Меню + Авторизация + Email Login + Смена Языка
 // ===============================
 
-import { loginWithGoogle, loginWithFacebook } from "./firebase/auth.js";
+import {
+    loginWithGoogle,
+    loginWithFacebook,
+    loginWithEmail,
+    registerWithEmail,
+    resetPassword
+} from "./firebase/auth.js";
+
 import { onUserChanged } from "./firebase/user.js";
 
-// Ждем DOM
 document.addEventListener("DOMContentLoaded", () => {
 
+    // ===============================
+    // 📌 Меню
+    // ===============================
     const menuBtn = document.getElementById("menu-btn");
-    const overlay = document.getElementById("menu-modal");
+    const menuOverlay = document.getElementById("menu-modal");
 
-    if (!menuBtn || !overlay) {
-        console.error("❌ Меню не найдено (menu-btn или menu-modal отсутствуют)");
-        return;
-    }
-
-    // Открыть меню
-    function openMenuModal() {
-        overlay.classList.add("visible");
+    function openMenu() {
+        menuOverlay.classList.add("visible");
         document.body.classList.add("modal-open");
     }
-
-    // Закрыть меню
-    function closeMenuModal() {
-        overlay.classList.remove("visible");
+    function closeMenu() {
+        menuOverlay.classList.remove("visible");
         document.body.classList.remove("modal-open");
     }
 
-    menuBtn.addEventListener("click", openMenuModal);
+    menuBtn?.addEventListener("click", openMenu);
 
-    overlay.addEventListener("click", (e) => {
-        if (e.target === overlay || e.target.closest("[data-action='close-menu']")) {
-            closeMenuModal();
-        }
+    menuOverlay?.addEventListener("click", (e) => {
+        if (e.target === menuOverlay || e.target.closest("[data-action='close-menu']")) closeMenu();
     });
 
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && overlay.classList.contains("visible")) {
-            closeMenuModal();
-        }
-    });
 
     // ===============================
-    // 🌍 СМЕНА ЯЗЫКА
+    // 🌍 Смена языка
     // ===============================
     const changeLangBtn = document.querySelector(".change-lang-btn");
     let currentLang = localStorage.getItem("ursa_lang") || "ru";
@@ -69,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector(".change-lang-btn").textContent = uiText[currentLang].changeLang;
         document.querySelector(".about-us-btn").textContent = uiText[currentLang].aboutUs;
     }
-
     applyLang();
 
     changeLangBtn?.addEventListener("click", () => {
@@ -78,18 +71,22 @@ document.addEventListener("DOMContentLoaded", () => {
         applyLang();
     });
 
-    // ===============================
-    // 🔐 ВХОДЫ
-    // ===============================
 
+    // ===============================
+    // 🔐 Вход через Google / Facebook
+    // ===============================
     document.querySelector(".google-auth")?.addEventListener("click", loginWithGoogle);
     document.querySelector(".facebook-auth")?.addEventListener("click", loginWithFacebook);
 
-    // 🎯 Новый: открыть модалку Email логина
-    const emailAuthBtn = document.querySelector(".email-auth");
-    const emailModal = document.getElementById("email-auth-modal");
 
-    emailAuthBtn?.addEventListener("click", () => {
+    // ===============================
+    // ✉ Открыть окно email входа
+    // ===============================
+    const emailBtn = document.querySelector(".email-auth");
+    const emailModal = document.getElementById("email-modal");
+
+    emailBtn?.addEventListener("click", () => {
+        closeMenu();
         emailModal.classList.add("visible");
     });
 
@@ -99,8 +96,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+
     // ===============================
-    // 👤 UI при изменении пользователя
+    // ✉ Email вход / регистрация / восстановление
+    // ===============================
+    const emailInput = document.getElementById("email-input");
+    const passwordInput = document.getElementById("password-input");
+
+    document.getElementById("email-login-btn")?.addEventListener("click", () => {
+        loginWithEmail(emailInput.value, passwordInput.value);
+    });
+
+    document.getElementById("email-register-btn")?.addEventListener("click", () => {
+        registerWithEmail(emailInput.value, passwordInput.value);
+    });
+
+    document.getElementById("email-reset-btn")?.addEventListener("click", () => {
+        resetPassword(emailInput.value);
+    });
+
+
+    // ===============================
+    // 👤 Обновление UI пользователя
     // ===============================
     const nickEl = document.getElementById("user-nickname");
     const avatarEl = document.getElementById("user-avatar");
