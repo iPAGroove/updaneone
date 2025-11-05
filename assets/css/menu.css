@@ -235,30 +235,30 @@
     .user-profile { padding-top: 0; }
 }
 /* ===========================
-   EMAIL AUTH MODAL
+   EMAIL AUTH MODAL (URSA GLASS)
    =========================== */
 
-.email-auth-overlay {
+#email-modal {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.85);
     backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
-    z-index: 2000;
+    z-index: 2500;
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    transition: .3s ease;
+    transition: .35s ease;
 }
 
-.email-auth-overlay.visible {
+#email-modal.visible {
     opacity: 1;
     pointer-events: all;
 }
 
-.email-auth-content {
+.email-modal-content {
     background: var(--bg-elev);
     border: 1px solid var(--border);
     border-radius: 18px;
@@ -269,54 +269,59 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
 }
 
-.email-close-btn {
+/* Close Button */
+.email-modal-content .menu-close-btn {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 14px;
+    right: 14px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 10px;
     font-size: 22px;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     color: var(--accent);
     box-shadow: 0 0 12px rgba(0,179,255,0.3);
     cursor: pointer;
     transition: .25s;
 }
-.email-close-btn:hover {
-    box-shadow: 0 0 20px rgba(0,179,255,0.7);
-    transform: translateX(-2px);
+.email-modal-content .menu-close-btn:hover {
+    box-shadow: 0 0 22px rgba(0,179,255,0.7);
 }
 
-.email-title {
+/* Title */
+.email-modal-content h2 {
     font-family: 'Orbitron', sans-serif;
     text-align: center;
     color: var(--text);
-    margin-bottom: 10px;
+    margin-top: 18px;
+    margin-bottom: 4px;
     font-size: 22px;
 }
 
-.email-input {
+/* Inputs */
+.auth-input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 13px 14px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
     color: var(--text);
-    font-size: 15px;
+    font-size: 16px;
 }
-.email-input:focus {
+.auth-input:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 14px rgba(0,179,255,0.4);
 }
 
-.email-submit-btn,
-.email-register-btn {
+/* Buttons */
+#email-login-btn,
+#email-register-btn,
+#email-reset-btn {
     width: 100%;
     padding: 14px;
     border-radius: 14px;
@@ -325,21 +330,32 @@
     transition: .25s;
 }
 
-.email-submit-btn {
+#email-login-btn {
     background: linear-gradient(90deg, var(--accent), #00e0ff);
     color: #001018;
     box-shadow: 0 0 18px rgba(0,179,255,0.45);
 }
-.email-submit-btn:hover {
+#email-login-btn:hover {
     transform: scale(1.03);
     box-shadow: 0 0 28px rgba(0,179,255,0.7);
 }
 
-.email-register-btn {
+#email-register-btn {
     background: var(--bg-elev);
     border: 1px solid var(--accent);
     color: var(--accent);
 }
-.email-register-btn:hover {
+#email-register-btn:hover {
     background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%);
 }
+
+#email-reset-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+}
+#email-reset-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
