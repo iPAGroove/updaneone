@@ -119,8 +119,38 @@
 <div class="menu-overlay" id="menu-modal">
     <div class="menu-content">
         <button class="menu-close-btn" data-action="close-menu">✕</button>
-        <!-- Сюда будем добавлять содержимое позже -->
-        <h2 class="menu-title">МЕНЮ</h2>
+
+        <!-- 1. Профиль пользователя (Фото + Ник) -->
+        <div class="user-profile">
+            <img id="user-avatar" src="https://placehold.co/100x100/121722/00b3ff?text=User" alt="Профиль" class="avatar">
+            <h3 id="user-nickname" class="nickname">Гость</h3>
+        </div>
+
+        <!-- 2. Войти через (Текст + 3 кнопки) -->
+        <div class="login-options">
+            <p class="login-prompt">Войти через:</p>
+            <div class="login-buttons">
+                <button class="auth-btn google-auth" title="Google">G</button>
+                <button class="auth-btn facebook-auth" title="Facebook">f</button>
+                <button class="auth-btn anon-auth" title="Анонимно">👤</button>
+            </div>
+        </div>
+
+        <!-- 3. Блок Сертификата -->
+        <div class="certificate-card">
+            <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
+            <button class="btn add-cert-btn">Добавить сертификат</button>
+        </div>
+
+        <!-- 4. Кнопка "Выбрать план" -->
+        <button class="btn menu-action-btn select-plan-btn">Выбрать план</button>
+
+        <!-- 5. Кнопка "Купить сертификат" -->
+        <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
+
+        <!-- 6. Кнопка "О нас" -->
+        <button class="btn menu-action-btn about-us-btn">О нас</button>
+
     </div>
 </div>
 
