@@ -1,161 +1,159 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8" />
-    <title>URSA IPA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta charset="utf-8" />
+    <title>URSA IPA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="assets/css/core.css" />
-    <link rel="stylesheet" href="assets/css/header.css" />
-    <link rel="stylesheet" href="assets/css/navigation.css" />
-    <link rel="stylesheet" href="assets/css/catalog.css" />
-    <link rel="stylesheet" href="assets/css/modal.css" />
-    <link rel="stylesheet" href="assets/css/all-catalog.css" />
-    <link rel="stylesheet" href="assets/css/search.css" /> <!-- ✅ поиск -->
-    <link rel="stylesheet" href="assets/css/menu.css" /> <!-- 🚀 НОВЫЙ CSS -->
+    <link rel="stylesheet" href="assets/css/core.css" />
+    <link rel="stylesheet" href="assets/css/header.css" />
+    <link rel="stylesheet" href="assets/css/navigation.css" />
+    <link rel="stylesheet" href="assets/css/catalog.css" />
+    <link rel="stylesheet" href="assets/css/modal.css" />
+    <link rel="stylesheet" href="assets/css/all-catalog.css" />
+    <link rel="stylesheet" href="assets/css/search.css" /> <!-- ✅ поиск -->
+    <link rel="stylesheet" href="assets/css/menu.css" /> <!-- 🚀 НОВЫЙ CSS -->
 </head>
 <body>
 
 <header class="topbar">
-    <div class="wrap">
-        <div class="brand"><span>URSA IPA</span></div>
-    </div>
+    <div class="wrap">
+        <div class="brand"><span>URSA IPA</span></div>
+    </div>
 </header>
 
 <main>
-    <div class="wrap">
-        <div id="catalog" class="catalog" role="list">
+    <div class="wrap">
+        <div id="catalog" class="catalog" role="list">
 
-            <!-- POPULAR -->
-            <section class="collection-row">
-                <h2 class="collection-title">Popular</h2>
-                <div class="card-carousel"></div>
-                <button class="view-all-btn">Смотреть все</button>
-            </section>
+            <!-- POPULAR -->
+            <section class="collection-row">
+                <h2 class="collection-title">Popular</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
 
-            <!-- UPDATE -->
-            <section class="collection-row">
-                <h2 class="collection-title">Update</h2>
-                <div class="card-carousel"></div>
-                <button class="view-all-btn">Смотреть все</button>
-            </section>
+            <!-- UPDATE -->
+            <section class="collection-row">
+                <h2 class="collection-title">Update</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
 
-            <!-- VIP -->
-            <section class="collection-row">
-                <h2 class="collection-title">VIP</h2>
-                <div class="card-carousel"></div>
-                <button class="view-all-btn">Смотреть все</button>
-            </section>
+            <!-- VIP -->
+            <section class="collection-row">
+                <h2 class="collection-title">VIP</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
 
-        </div>
-    </div>
+        </div>
+    </div>
 </main>
 
 <!-- NAVIGATION -->
 <nav class="tabbar" id="tabbar" role="tablist">
-    <div class="newdock">
-        <button class="nav-btn active" data-tab="apps">📱</button>
-        <button class="nav-btn" data-tab="games">🎮</button>
-        <button class="nav-btn" id="search-btn">🔍</button>
-        <button class="nav-btn" id="menu-btn">☰</button> <!-- 🚀 ИЗМЕНЕНО: Кнопка Меню -->
-    </div>
+    <div class="newdock">
+        <button class="nav-btn active" data-tab="apps">📱</button>
+        <button class="nav-btn" data-tab="games">🎮</button>
+        <button class="nav-btn" id="search-btn">🔍</button>
+        <button class="nav-btn" id="menu-btn">☰</button> <!-- 🚀 ИЗМЕНЕНО: Кнопка Меню -->
+    </div>
 </nav>
 
 <!-- === МОДАЛКА ПРИЛОЖЕНИЯ === -->
 <div class="modal-overlay" id="app-modal">
-    <div class="modal-content">
-        <button class="modal-close-btn" data-action="close">✕</button>
+    <div class="modal-content">
+        <button class="modal-close-btn" data-action="close">✕</button>
 
-        <div class="modal-header-new">
-            <img id="modal-icon" class="modal-icon" src="" alt="">
-            <div class="modal-info-col">
-                <h3 id="modal-title" class="modal-app-title">Название</h3>
-                <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
-            </div>
-        </div>
+        <div class="modal-header-new">
+            <img id="modal-icon" class="modal-icon" src="" alt="">
+            <div class="modal-info-col">
+                <h3 id="modal-title" class="modal-app-title">Название</h3>
+                <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
+            </div>
+        </div>
 
-        <div class="modal-metadata-new">
-            <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
-            <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
-            <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
-        </div>
+        <div class="modal-metadata-new">
+            <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
+            <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
+            <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+        </div>
 
-        <div class="modal-features-new">
-            <h4>ФУНКЦИИ МОДА</h4>
-            <pre id="modal-features"></pre>
-        </div>
+        <div class="modal-features-new">
+            <h4>ФУНКЦИИ МОДА</h4>
+            <pre id="modal-features"></pre>
+        </div>
 
-        <div class="modal-description-new">
-            <p id="modal-desc"></p>
-        </div>
-    </div>
+        <div class="modal-description-new">
+            <p id="modal-desc"></p>
+        </div>
+    </div>
 </div>
 
 <!-- === МОДАЛКА ПОЛНОГО СПИСКА === -->
 <div class="all-list-overlay" id="all-catalog-modal">
-    <div class="all-list-content">
-        <button class="all-close-btn" data-action="close-list">✕</button>
-        <h2 id="all-list-title">Каталог</h2>
-        <div id="all-list-container" class="all-list-scroll"></div>
-    </div>
+    <div class="all-list-content">
+        <button class="all-close-btn" data-action="close-list">✕</button>
+        <h2 id="all-list-title">Каталог</h2>
+        <div id="all-list-container" class="all-list-scroll"></div>
+    </div>
 </div>
 
 <!-- === МОДАЛКА ПОИСКА === -->
 <div class="search-overlay" id="search-modal">
-    <div class="search-content">
+    <div class="search-content">
 
-        <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
+        <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
 
-        <!-- ✅ Подсказка -->
-        <p class="search-hint">Нажмите вне поиска, чтобы закрыть</p>
+        <!-- ✅ Подсказка -->
+        <p class="search-hint">Нажмите вне поиска, чтобы закрыть</p>
 
-        <div id="search-results" class="search-results"></div>
-    </div>
+        <div id="search-results" class="search-results"></div>
+    </div>
 </div>
 
 <!-- === МОДАЛКА МЕНЮ (НА ВЕСЬ ЭКРАН) === -->
 <div class="menu-overlay" id="menu-modal">
-    <div class="menu-content">
-        <button class="menu-close-btn" data-action="close-menu">✕</button>
+    <div class="menu-content">
+        <button class="menu-close-btn" data-action="close-menu">✕</button>
+        <!-- Сюда будем добавлять содержимое позже -->
+        <h2 class="menu-title">МЕНЮ</h2>
 
-        <!-- 1. Профиль пользователя (Фото + Ник) -->
-        <div class="user-profile">
-            <img id="user-avatar" src="https://placehold.co/100x100/121722/00b3ff?text=User" alt="Профиль" class="avatar">
-            <h3 id="user-nickname" class="nickname">Гость</h3>
-        </div>
+        <!-- 1. Профиль пользователя (Фото + Ник) -->
+        <div class="user-profile">
+            <img id="user-avatar" src="https://placehold.co/100x100/121722/00b3ff?text=User" alt="Профиль" class="avatar">
+            <h3 id="user-nickname" class="nickname">Гость</h3>
+        </div>
 
-        <!-- 2. Войти через (Текст + 3 кнопки) -->
-        <div class="login-options">
-            <p class="login-prompt">Войти через:</p>
-            <div class="login-buttons">
-                <button class="auth-btn google-auth" title="Google">G</button>
-                <button class="auth-btn facebook-auth" title="Facebook">f</button>
-                <button class="auth-btn anon-auth" title="Анонимно">👤</button>
-            </div>
-        </div>
+        <!-- 2. Войти через (Текст + 3 кнопки) -->
+        <div class="login-options">
+            <p class="login-prompt">Войти через:</p>
+            <div class="login-buttons">
+                <button class="auth-btn google-auth" title="Google">G</button>
+                <button class="auth-btn facebook-auth" title="Facebook">f</button>
+                <button class="auth-btn anon-auth" title="Анонимно">👤</button>
+            </div>
+        </div>
 
-        <!-- 3. Блок Сертификата -->
-        <div class="certificate-card">
-            <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
-            <button class="btn add-cert-btn">Добавить сертификат</button>
-        </div>
+        <!-- 3. Блок Сертификата -->
+        <div class="certificate-card">
+            <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
+            <button class="btn add-cert-btn">Добавить сертификат</button>
+        </div>
 
-        <!-- 4. Кнопка "Выбрать план" -->
-        <button class="btn menu-action-btn select-plan-btn">Выбрать план</button>
+        <!-- 4. Кнопка "Выбрать план" -->
+        <button class="btn menu-action-btn select-plan-btn">Выбрать план</button>
 
-        <!-- 5. Кнопка "Купить сертификат" -->
-        <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
-        
-        <!-- 🚀 ДОБАВЛЕННЫЕ КНОПКИ -->
-        <button class="btn menu-action-btn change-theme-btn">Сменить тему</button>
-        <button class="btn menu-action-btn change-language-btn">Сменить язык</button>
+        <!-- 5. Кнопка "Купить сертификат" -->
+        <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
 
-        <!-- 6. Кнопка "О нас" -->
-        <button class="btn menu-action-btn about-us-btn">О нас</button>
+        <!-- 6. Кнопка "О нас" -->
+        <button class="btn menu-action-btn about-us-btn">О нас</button>
 
-    </div>
+    </div>
 </div>
 
 <!-- SCRIPTS -->
