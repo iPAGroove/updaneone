@@ -2,6 +2,7 @@
 body.modal-open {
     overflow: hidden !important;
 }
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -14,7 +15,7 @@ body.modal-open {
     -webkit-backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
-    align-items: flex-end; 
+    align-items: flex-end;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
@@ -24,6 +25,7 @@ body.modal-open {
     pointer-events: all;
     align-items: center;
 }
+
 .modal-content {
     background: var(--bg-elev);
     border: 1px solid var(--border);
@@ -51,7 +53,7 @@ body.modal-open {
     .modal-content {
         border-radius: var(--radius);
         max-width: 400px;
-        max-height: 600px; 
+        max-height: 600px;
         transform: scale(0.95);
         transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
@@ -159,7 +161,7 @@ body.modal-open {
     margin-top: 5px;
 }
 
-/* FEATURES BLOCK */
+/* FEATURES */
 .modal-features-new {
     margin-bottom: 20px;
     padding: 15px;
@@ -168,14 +170,17 @@ body.modal-open {
     background-color: color-mix(in oklab, var(--bg) 80%, var(--accent) 5%);
     box-shadow: 0 0 15px rgba(0, 179, 255, 0.15);
 }
+
+/* ✅ Центровка заголовка */
 .modal-features-new h4 {
     color: var(--accent);
     margin-bottom: 10px;
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(0, 179, 255, 0.5);
+    text-align: center;
 }
 
-/* ✅ Список ФУНКЦИЙ МОДА — центрирован */
+/* ✅ Список ФУНКЦИЙ МОДА */
 #modal-features {
     font-size: 15px;
     color: var(--text);
