@@ -11,16 +11,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 
 
-
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 
 
-
-    <!-- Базовые стили -->
-
     <link rel="stylesheet" href="assets/css/core.css" />
-
-    <!-- Разделенные стили -->
 
     <link rel="stylesheet" href="assets/css/header.css" />
 
@@ -28,17 +22,12 @@
 
     <link rel="stylesheet" href="assets/css/catalog.css" />
 
-    <!-- Модалки -->
-
     <link rel="stylesheet" href="assets/css/modal.css" />
 
 </head>
 
 <body>
 
-
-
-    <!-- Шапка сайта -->
 
     <header class="topbar">
 
@@ -51,14 +40,11 @@
     </header>
 
 
-
     <main>
 
         <div class="wrap">
 
             <div id="catalog" class="catalog" role="list">
-
-                <!-- КОЛЛЕКЦИЯ 1: Popular -->
 
                 <section class="collection-row">
 
@@ -66,33 +52,36 @@
 
                     <div class="card-carousel">
 
-                        <!-- Пример карточки с данными для модалки -->
-
                         <article class="card"
 
-                                 data-title="Subway Surfers"
+                                data-title="Subway Surfers"
 
-                                 data-subtitle="v3.17 • Mod Menu"
+                                data-subtitle="v3.17 • Mod Menu"
 
-                                 data-desc="God Mode, Unlimited Coins/Keys, No Stumble. Тестировано на iOS 16–18."
+                                data-desc="God Mode, Unlimited Coins/Keys, No Stumble. Тестировано на iOS 16–18."
 
-                                 data-img="https://picsum.photos/seed/ursa1/800/420"
+                                data-img="https://picsum.photos/seed/ursa1/800/420"
 
-                                 data-tags="Runner,Offline,URSA"
+                                data-tags="Runner,Offline,URSA"
 
-                                 data-cta="Скачать"
+                                data-cta="Скачать"
 
-                                 data-link="https://example.com/subway"
+                                data-link="https://example.com/subway"
 
-                                 data-badge="VIP">
+                                data-badge="VIP">
 
-                            <!-- Внутренность можешь оформить позже -->
+                            <div class="card-media">
 
+                                <img src="https://picsum.photos/seed/ursa1/52" alt="Subway Surfers Icon" class="card-icon">
+                                <div class="card-badge">VIP</div>
+                            </div>
+                            <div class="card-info">
+                                <h3>Subway Surfers</h3>
+                                <p class="meta">v3.17 • Mod Menu</p>
+                            </div>
+                            <a class="card-cta" href="https://example.com/subway" target="_blank">Скачать</a>
                         </article>
 
-
-
-                        <!-- Заглушки -->
 
                         <article class="card placeholder"></article><article class="card placeholder"></article>
 
@@ -116,9 +105,6 @@
 
                 </section>
 
-
-
-                <!-- КОЛЛЕКЦИЯ 2: Update -->
 
                 <section class="collection-row">
 
@@ -148,9 +134,6 @@
 
                 </section>
 
-
-
-                <!-- КОЛЛЕКЦИЯ 3: VIP -->
 
                 <section class="collection-row">
 
@@ -187,9 +170,6 @@
     </main>
 
 
-
-    <!-- Панель навигации -->
-
     <nav class="tabbar" id="tabbar" role="tablist">
 
         <div class="newdock">
@@ -206,6 +186,7 @@
 
     </nav>
 
+    <script type="module" src="assets/js/app.js" defer></script>
 </body>
 
 </html>
