@@ -42,18 +42,25 @@
     right: 20px;
     background: var(--card);
     border: 1px solid var(--border);
-    color: #FF4D4D;
-    font-size: 22px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    color: var(--accent);
+    font-size: 26px; /* чуть больше, чем крестик */
+    width: 42px;
+    height: 42px;
+    border-radius: 12px; /* квадрат с мягкими углами = стильнее */
     cursor: pointer;
-    transition: .2s;
+    transition: .25s;
     z-index: 10;
-    box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(0,179,255,0.25);
 }
+
+/* Hover эффект — мягкое свечение */
 .menu-close-btn:hover {
-    color: #ff8b8b;
+    border-color: var(--accent);
+    box-shadow: 0 0 22px rgba(0,179,255,0.55);
+    transform: translateX(-2px);
 }
 
 /* 1. User Profile */
