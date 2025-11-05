@@ -24,27 +24,12 @@ const db = getFirestore(app);
 // ===============================
 // ГЛОБАЛЬНЫЕ ДАННЫЕ
 // ===============================
-export let appsData = [];  
+export let appsData = [];
 export let currentCategory = "apps"; // "apps" или "games"
 
 export function setCurrentCategory(type) {
     currentCategory = type;
     displayCatalog();
-}
-
-// ===============================
-// Вспомогательная нормализация тегов
-// ===============================
-function normalizeTags(raw) {
-    if (Array.isArray(raw)) return raw.map(t => t.toLowerCase().trim());
-    if (typeof raw === "string") return raw.split(",").map(t => t.toLowerCase().trim());
-    return [];
-}
-
-function getItemKind(tagsNorm) {
-    if (tagsNorm.includes("apps")) return "apps";
-    if (tagsNorm.includes("games")) return "games";
-    return "unknown";
 }
 
 // ===============================
@@ -72,15 +57,13 @@ function attachModalOpenListeners(carousel) {
     carousel.addEventListener("click", (event) => {
         const btn = event.target.closest(".open-modal-btn");
         if (!btn) return;
-
-        const id = btn.dataset.id;
-        const data = appsData.find(app => app.id === id);
-        if (data) openModal(data);
+        const app = appsData.find(a => a.id === btn.dataset.id);
+        if (app) openModal(app);
     });
 }
 
 // ===============================
-// Рендер секций Popular / Update / VIP
+// Рендер секций
 // ===============================
 export function displayCatalog() {
     const rows = document.querySelectorAll(".collection-row");
@@ -88,18 +71,15 @@ export function displayCatalog() {
 
     rows.forEach(row => {
         const carousel = row.querySelector(".card-carousel");
-        const sectionTitle = row.querySelector(".collection-title").textContent.trim();
+        const title = row.querySelector(".collection-title").textContent.trim();
         carousel.innerHTML = "";
 
-        // Фильтрация по категории (apps/games)
-        let items = appsData.filter(app => app.kind === currentCategory);
+        // ✅ Фильтруем строго по текущей категории
+        let items = appsData.filter(app => app.tags.includes(currentCategory));
 
-        // Если раздел VIP → только VIP
-        if (sectionTitle === "VIP") {
+        if (title === "VIP") {
             items = items.filter(app => app.badge === "VIP");
-        } 
-        // Другие разделы → без VIP
-        else {
+        } else {
             items = items.filter(app => app.badge !== "VIP");
         }
 
@@ -108,8 +88,7 @@ export function displayCatalog() {
         items.forEach(app => carousel.insertAdjacentHTML("beforeend", createCardHtml(app)));
         attachModalOpenListeners(carousel);
 
-        // placeholders
-        for (let i = items.length; i < LIMIT; i++) {
+        while (carousel.children.length < LIMIT) {
             carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
         }
     });
@@ -124,17 +103,13 @@ async function loadDataFromFirestore() {
 
         appsData = snapshot.docs.map(doc => {
             const item = doc.data();
-            const tags = normalizeTags(item.tags);
-            const kind = getItemKind(tags);
-
             return {
                 id: doc.id,
                 title: item.NAME || "Без названия",
                 version: item.Version || "N/A",
                 desc: item.description_ru || item.description_en || "",
                 img: item.iconUrl || "https://placehold.co/200x200",
-                tags,
-                kind, // <— ключ для фильтрации apps/games
+                tags: Array.isArray(item.tags) ? item.tags.map(t => t.toLowerCase()) : [],
                 link: item.DownloadUrl || "#",
                 size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : "N/A",
                 features: item.features_ru || item.features_en || "",
@@ -144,9 +119,9 @@ async function loadDataFromFirestore() {
         });
 
         displayCatalog();
-        console.log(`✅ Загружено ${appsData.length} приложений`);
+        console.log(`✅ Loaded ${appsData.length} apps`);
     } catch (err) {
-        console.error("❌ Ошибка загрузки Firestore:", err);
+        console.error("❌ Firestore Load Error:", err);
     }
 }
 
