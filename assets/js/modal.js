@@ -35,7 +35,6 @@ export function openModal(data) {
     if (!modalOverlay || !data) return;
 
     // 1. Наполнение контентом
-    // Заголовок и кнопка
     document.getElementById('modal-icon').src = data.img;
     document.getElementById('modal-icon').alt = `Іконка ${data.title}`;
     document.getElementById('modal-title').textContent = data.title;
@@ -44,12 +43,12 @@ export function openModal(data) {
     document.getElementById('modal-version').textContent = data.version;
     document.getElementById('modal-size').textContent = data.size;
     
-    // Расчет относительного времени (Новая функция)
     const timeAgo = timeSince(new Date(data.uploadTime));
     document.getElementById('modal-time-ago').textContent = timeAgo;
     
-    // Функции мода: Заменяем запятые на переносы строк для центрирования
-    document.getElementById('modal-features').textContent = data.features.replace(/,/g, ',\n');
+    // Функции мода: Заменяем запятые на переносы строк И УДАЛЯЕМ ЗАПЯТЫЕ
+    // Заменяем запятую и пробел на перенос строки
+    document.getElementById('modal-features').textContent = data.features.replace(/, /g, '\n').replace(/,/g, '\n');
     
     // Описание (центрированное)
     document.getElementById('modal-desc').textContent = data.desc;
@@ -57,7 +56,7 @@ export function openModal(data) {
     // 2. Настройка кнопки CTA: "УСТАНОВИТЬ"
     const ctaButton = document.getElementById('modal-cta');
     ctaButton.href = data.link; 
-    ctaButton.textContent = `Установить`; // Изменено на "Установить"
+    ctaButton.textContent = `Установить`; 
 
     // 3. Отображение
     modalOverlay.classList.add('visible');
@@ -76,13 +75,11 @@ function closeModal() {
 // 4. Обработчики закрытия
 if (modalOverlay) {
     modalOverlay.addEventListener('click', (event) => {
-        // Закрытие при клике на оверлей или кнопку "✕"
         if (event.target === modalOverlay || event.target.closest('[data-action="close"]')) {
             closeModal();
         }
     });
 
-    // Закрытие по клавише Esc
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && modalOverlay.classList.contains('visible')) {
             closeModal();
