@@ -65,7 +65,7 @@ body.modal-open {
     right: 15px;
     background: var(--card);
     border: 1px solid var(--border);
-    color: #FF4D4D; /* Красный крестик */
+    color: #FF4D4D;
     font-size: 20px;
     width: 32px;
     height: 32px;
@@ -78,14 +78,13 @@ body.modal-open {
     color: #ff8888;
 }
 
-/* НОВЫЙ МАКЕТ */
+/* HEADER */
 .modal-header-new {
     display: flex;
     gap: 15px;
     margin-bottom: 25px;
     align-items: flex-start;
-    /* УВЕЛИЧЕННЫЙ ОТСТУП СПРАВА, ЧТОБЫ КРЕСТИК НЕ НАЛЕЗАЛ НА ЗАГОЛОВОК */
-    padding-right: 45px; 
+    padding-right: 45px;
 }
 .modal-info-col {
     display: flex;
@@ -104,12 +103,19 @@ body.modal-open {
     border: 2px solid var(--accent);
     box-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
 }
+
+/* ✅ ФИКС НАЗВАНИЯ, ЧТОБЫ НЕ НАЕЗЖАЛО НА КРЕСТИК */
 .modal-app-title {
-    font-size: 24px;
+    font-size: 20px;
     margin: 0;
     color: var(--text);
-    align-self: flex-start;
+    max-width: calc(100% - 10px);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
 .modal-install-btn {
     width: 100%;
     font-size: 16px;
@@ -130,11 +136,10 @@ body.modal-open {
     transform: scale(1.02);
 }
 
-/* БЛОК МЕТАДАННЫХ: Версия / Размер / Время */
+/* META */
 .modal-metadata-new {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     margin-bottom: 20px;
@@ -149,7 +154,6 @@ body.modal-open {
     margin: 0;
     color: var(--muted);
     line-height: 1.2;
-    padding: 0 5px;
     position: relative;
 }
 .modal-metadata-new p:not(:last-child)::after {
@@ -162,9 +166,6 @@ body.modal-open {
     height: 60%;
     background-color: var(--border);
 }
-.modal-metadata-new p:first-child { text-align: left; padding-left: 0; }
-.modal-metadata-new p:last-child { text-align: right; padding-right: 0; }
-
 .modal-metadata-new p strong {
     display: block;
     color: var(--text);
@@ -173,7 +174,7 @@ body.modal-open {
     margin-top: 5px;
 }
 
-/* БЛОК ФУНКЦИЙ МОДА */
+/* FEATURES */
 .modal-features-new {
     margin-bottom: 20px;
     text-align: center;
@@ -191,18 +192,16 @@ body.modal-open {
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(0, 179, 255, 0.5);
 }
-/* Увеличение контраста текста функций */
 #modal-features {
     font-size: 14px;
-    color: var(--text); 
+    color: var(--text);
     line-height: 1.5;
     white-space: pre-wrap;
     margin: 0;
-    font-family: inherit;
-    text-align: center; 
+    text-align: center;
 }
 
-/* БЛОК ОПИСАНИЯ */
+/* DESCRIPTION */
 .modal-description-new {
     padding-top: 10px;
     text-align: center;
