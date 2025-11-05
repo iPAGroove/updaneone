@@ -47,7 +47,6 @@ export function openModal(data) {
     document.getElementById('modal-time-ago').textContent = timeAgo;
     
     // Функции мода: Заменяем запятые на переносы строк И УДАЛЯЕМ ЗАПЯТЫЕ
-    // Заменяем запятую и пробел на перенос строки, затем удаляем все оставшиеся запятые
     document.getElementById('modal-features').textContent = data.features
         .replace(/, /g, '\n') // Заменяем ", " на новую строку
         .replace(/,/g, '\n'); // Заменяем оставшиеся одиночные запятые на новую строку
