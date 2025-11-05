@@ -136,7 +136,7 @@ body.modal-open {
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     margin-bottom: 20px;
-    background-color: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%); /* Фон для выделения */
+    background-color: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%);
     border-radius: 10px;
     padding: 10px;
 }
@@ -150,7 +150,6 @@ body.modal-open {
     padding: 0 5px;
     position: relative;
 }
-/* Разделители между колонками */
 .modal-metadata-new p:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -177,7 +176,6 @@ body.modal-open {
     margin-bottom: 20px;
     text-align: center;
     padding: 15px;
-    /* Улучшенный неоновый дизайн рамки */
     border: 1px solid var(--accent);
     border-radius: 10px;
     background-color: color-mix(in oklab, var(--bg) 80%, var(--accent) 5%);
@@ -189,12 +187,12 @@ body.modal-open {
     margin: 0 0 10px 0;
     text-transform: uppercase;
     letter-spacing: 1px;
-    text-shadow: 0 0 5px rgba(0, 179, 255, 0.5); /* Более сильное свечение */
+    text-shadow: 0 0 5px rgba(0, 179, 255, 0.5);
 }
-/* Форматирование <pre> для центрирования и сохранения переносов строк */
+/* Увеличение контраста текста функций */
 #modal-features {
     font-size: 14px;
-    color: var(--muted);
+    color: var(--text); /* ИЗМЕНЕНИЕ: Используем основной белый текст для лучшей читаемости */
     line-height: 1.5;
     white-space: pre-wrap;
     margin: 0;
