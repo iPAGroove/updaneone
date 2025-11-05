@@ -1,7 +1,7 @@
 const modalOverlay = document.getElementById('app-modal');
 
 /**
- * Функция для расчета прошедшего времени в формате "X ... назад".
+ * Функция для расчета прошедшего времени "X ... назад".
  */
 function timeSince(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
@@ -24,50 +24,52 @@ function timeSince(date) {
     return `${Math.floor(seconds)} сек. назад`;
 }
 
-
 /**
- * Открывает модалку и заполняет её контент.
+ * Открывает модальное окно и наполняет его данными.
  */
 export function openModal(data) {
     if (!modalOverlay || !data) return;
 
+    // Иконка + название
     document.getElementById('modal-icon').src = data.img;
     document.getElementById('modal-icon').alt = `Іконка ${data.title}`;
     document.getElementById('modal-title').textContent = data.title;
 
+    // Мета
     document.getElementById('modal-version').textContent = data.version;
     document.getElementById('modal-size').textContent = data.size;
+    document.getElementById('modal-time-ago').textContent = timeSince(new Date(data.uploadTime));
 
-    const timeAgo = timeSince(new Date(data.uploadTime));
-    document.getElementById('modal-time-ago').textContent = timeAgo;
-
-    // ✅ Ровное форматирование списка функций без лишних пробелов
+    // ✅ ФУНКЦИИ МОДА — ЧИСТО И ЦЕНТРИРОВАНО
     document.getElementById('modal-features').textContent =
         (data.features || '')
-            .replace(/,\s*/g, '\n') // запятые → перенос строки
-            .trim();                // убираем лишние пустые строки
-    
+            .replace(/функции мода/gi, '') // убираем дубли
+            .replace(/,\s*/g, '\n')        // запятые → перенос строки
+            .replace(/\n{2,}/g, '\n')      // убираем двойные пустые строки
+            .trim();
+
     // Описание
     document.getElementById('modal-desc').textContent = data.desc;
 
-    // CTA кнопка
+    // CTA
     const ctaButton = document.getElementById('modal-cta');
     ctaButton.href = data.link;
     ctaButton.textContent = `Установить`;
 
+    // Показ модалки
     modalOverlay.classList.add('visible');
     document.body.classList.add('modal-open');
 }
 
 /**
- * Закрытие модалки
+ * Закрытие модального окна.
  */
 function closeModal() {
-    if (!modalOverlay) return;
     modalOverlay.classList.remove('visible');
     document.body.classList.remove('modal-open');
 }
 
+// Закрытие по клику и Escape
 if (modalOverlay) {
     modalOverlay.addEventListener('click', (event) => {
         if (event.target === modalOverlay || event.target.closest('[data-action="close"]')) {
