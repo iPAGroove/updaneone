@@ -37,7 +37,6 @@ body.modal-open {
     transform: translateY(100%);
     transition: transform 0.3s ease-out;
     overflow-y: auto;
-
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -102,7 +101,7 @@ body.modal-open {
     box-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
 }
 
-/* ✅ Фикс заголовка */
+/* TITLE */
 .modal-app-title {
     font-size: 20px;
     margin: 0;
@@ -113,7 +112,7 @@ body.modal-open {
     text-overflow: ellipsis;
 }
 
-/* CTA Button */
+/* CTA */
 .modal-install-btn {
     width: 100%;
     font-size: 16px;
@@ -134,7 +133,7 @@ body.modal-open {
     transform: scale(1.02);
 }
 
-/* META BLOCK */
+/* META */
 .modal-metadata-new {
     display: flex;
     justify-content: space-between;
@@ -176,14 +175,14 @@ body.modal-open {
     text-shadow: 0 0 5px rgba(0, 179, 255, 0.5);
 }
 
-/* ✅ Ровный список без разрывов и центровки */
+/* ✅ Список ФУНКЦИЙ МОДА — центрирован */
 #modal-features {
     font-size: 15px;
     color: var(--text);
     white-space: pre-line;
-    line-height: 1.35;
+    line-height: 1.45;
     margin: 0;
-    text-align: left;
+    text-align: center;
 }
 
 /* DESCRIPTION */
