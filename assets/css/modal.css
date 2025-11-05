@@ -128,7 +128,7 @@ body.modal-open {
     transform: scale(1.02);
 }
 
-/* БЛОК МЕТАДАННЫХ: Версия / Размер / Время */
+/* БЛОК МЕТАДАННЫХ: Версия / Размер / Время (УЛУЧШЕННЫЙ СТИЛЬ) */
 .modal-metadata-new {
     display: flex;
     justify-content: space-between;
@@ -136,6 +136,9 @@ body.modal-open {
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     margin-bottom: 20px;
+    background-color: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%); /* Фон для выделения */
+    border-radius: 10px;
+    padding: 10px;
 }
 .modal-metadata-new p {
     flex: 1;
@@ -145,24 +148,40 @@ body.modal-open {
     color: var(--muted);
     line-height: 1.2;
     padding: 0 5px;
+    position: relative;
 }
-.modal-metadata-new p:first-child { text-align: left; }
-.modal-metadata-new p:last-child { text-align: right; }
+/* Разделители между колонками */
+.modal-metadata-new p:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 60%;
+    background-color: var(--border);
+}
+.modal-metadata-new p:first-child { text-align: left; padding-left: 0; }
+.modal-metadata-new p:last-child { text-align: right; padding-right: 0; }
 
 .modal-metadata-new p strong {
     display: block;
     color: var(--text);
     font-size: 15px;
     font-weight: 700;
+    margin-top: 5px;
 }
 
-/* БЛОК ФУНКЦИЙ МОДА */
+/* БЛОК ФУНКЦИЙ МОДА (УЛУЧШЕННЫЙ СТИЛЬ) */
 .modal-features-new {
     margin-bottom: 20px;
     text-align: center;
-    padding: 10px;
-    border: 1px dashed color-mix(in oklab, var(--accent) 30%, transparent);
+    padding: 15px;
+    /* Улучшенный неоновый дизайн рамки */
+    border: 1px solid var(--accent);
     border-radius: 10px;
+    background-color: color-mix(in oklab, var(--bg) 80%, var(--accent) 5%);
+    box-shadow: 0 0 15px rgba(0, 179, 255, 0.15);
 }
 .modal-features-new h4 {
     font-size: 16px;
@@ -170,7 +189,7 @@ body.modal-open {
     margin: 0 0 10px 0;
     text-transform: uppercase;
     letter-spacing: 1px;
-    text-shadow: 0 0 5px rgba(0, 179, 255, 0.3);
+    text-shadow: 0 0 5px rgba(0, 179, 255, 0.5); /* Более сильное свечение */
 }
 /* Форматирование <pre> для центрирования и сохранения переносов строк */
 #modal-features {
@@ -180,7 +199,7 @@ body.modal-open {
     white-space: pre-wrap;
     margin: 0;
     font-family: inherit;
-    text-align: center; /* Центрируем текст внутри блока */
+    text-align: center; 
 }
 
 /* БЛОК ОПИСАНИЯ */
