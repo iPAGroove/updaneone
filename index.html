@@ -61,6 +61,54 @@
     </div>
 </nav>
 
+<!-- === APP MODAL === -->
+<div class="modal-overlay" id="app-modal">
+    <div class="modal-content">
+        <button class="modal-close-btn" data-action="close">✕</button>
+
+        <div class="modal-header-new">
+            <img id="modal-icon" class="modal-icon" src="" alt="">
+            <div class="modal-info-col">
+                <h3 id="modal-title" class="modal-app-title">Название</h3>
+                <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
+            </div>
+        </div>
+
+        <div class="modal-metadata-new">
+            <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
+            <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
+            <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+        </div>
+
+        <div class="modal-features-new">
+            <h4>ФУНКЦИИ МОДА</h4>
+            <pre id="modal-features"></pre>
+        </div>
+
+        <div class="modal-description-new">
+            <p id="modal-desc"></p>
+        </div>
+    </div>
+</div>
+
+<!-- === FULL LIST MODAL === -->
+<div class="all-list-overlay" id="all-catalog-modal">
+    <div class="all-list-content">
+        <button class="all-close-btn" data-action="close-list">✕</button>
+        <h2 id="all-list-title">Каталог</h2>
+        <div id="all-list-container" class="all-list-scroll"></div>
+    </div>
+</div>
+
+<!-- === SEARCH MODAL === -->
+<div class="search-overlay" id="search-modal">
+    <div class="search-content">
+        <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
+        <p class="search-hint">Нажмите вне поиска, чтобы закрыть</p>
+        <div id="search-results" class="search-results"></div>
+    </div>
+</div>
+
 <!-- === MENU MODAL === -->
 <div class="menu-overlay" id="menu-modal">
     <div class="menu-content">
@@ -95,33 +143,17 @@
     </div>
 </div>
 
-<!-- === EMAIL LOGIN MODAL (no auto-login) === -->
+<!-- === EMAIL AUTH MODAL / FIXED (NO AUTO LOGIN) === -->
 <div id="email-modal" class="email-auth-overlay">
   <div class="email-modal-content">
     <button class="menu-close-btn" data-action="close-email">←</button>
     <h2 class="email-title">Вход / Регистрация</h2>
 
-    <input 
-        type="text" 
-        id="email-input" 
-        placeholder="Email" 
-        class="auth-input"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="none"
-        spellcheck="false"
-    >
+    <input type="text" id="email-input" placeholder="Email" class="auth-input"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
 
-    <input 
-        type="password" 
-        id="password-input" 
-        placeholder="Пароль" 
-        class="auth-input"
-        autocomplete="new-password"
-        autocorrect="off"
-        autocapitalize="none"
-        spellcheck="false"
-    >
+    <input type="password" id="password-input" placeholder="Пароль" class="auth-input"
+        autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false">
 
     <button class="email-submit-btn" id="email-login-btn">Войти</button>
     <button class="email-register-btn" id="email-register-btn">Создать аккаунт</button>
