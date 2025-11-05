@@ -1,6 +1,11 @@
 // ===============================
-// ЖДЕМ, ПОКА DOM БУДЕТ ГОТОВ
+// Меню + Авторизация + Смена Языка
 // ===============================
+
+import { loginWithGoogle, loginWithFacebook, loginAnon } from "./firebase/auth.js";
+import { onUserChanged } from "./firebase/user.js";
+
+// Ждем, пока DOM будет готов
 document.addEventListener("DOMContentLoaded", () => {
 
     const menuBtn = document.getElementById("menu-btn");
@@ -23,10 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.remove("modal-open");
     }
 
-    // Кнопка «Меню»
+    // Кнопка меню
     menuBtn.addEventListener("click", openMenuModal);
 
-    // Закрытие при клике по фону или стрелке ←
+    // Клик по фону или стрелке ←
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay || e.target.closest("[data-action='close-menu']")) {
             closeMenuModal();
@@ -40,13 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-
     // ===============================
     // 🌍 СМЕНА ЯЗЫКА
     // ===============================
     const changeLangBtn = document.querySelector(".change-lang-btn");
-
-    if (!changeLangBtn) return;
 
     let currentLang = localStorage.getItem("ursa_lang") || "ru";
 
@@ -74,10 +76,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     applyLang();
 
-    changeLangBtn.addEventListener("click", () => {
-        currentLang = currentLang === "ru" ? "en" : "ru";
-        localStorage.setItem("ursa_lang", currentLang);
-        applyLang();
+    if (changeLangBtn) {
+        changeLangBtn.addEventListener("click", () => {
+            currentLang = currentLang === "ru" ? "en" : "ru";
+            localStorage.setItem("ursa_lang", currentLang);
+            applyLang();
+        });
+    }
+
+    // ===============================
+    // 🔐 ВХОДЫ: Google / Facebook / Аноним
+    // ===============================
+
+    const googleBtn = document.querySelector(".google-auth");
+    const facebookBtn = document.querySelector(".facebook-auth");
+    const anonBtn = document.querySelector(".anon-auth");
+
+    if (googleBtn) googleBtn.addEventListener("click", loginWithGoogle);
+    if (facebookBtn) facebookBtn.addEventListener("click", loginWithFacebook);
+    if (anonBtn) anonBtn.addEventListener("click", loginAnon);
+
+    // ===============================
+    // 👤 Обновление UI при изменении пользователя
+    // ===============================
+    const nickEl = document.getElementById("user-nickname");
+    const avatarEl = document.getElementById("user-avatar");
+
+    onUserChanged((user) => {
+        if (!user) {
+            nickEl.textContent = "Гость";
+            avatarEl.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
+            return;
+        }
+
+        nickEl.textContent = user.displayName || "Пользователь";
+        avatarEl.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
     });
 
 });
