@@ -84,6 +84,8 @@ body.modal-open {
     gap: 15px;
     margin-bottom: 25px;
     align-items: flex-start;
+    /* УВЕЛИЧЕННЫЙ ОТСТУП СПРАВА, ЧТОБЫ КРЕСТИК НЕ НАЛЕЗАЛ НА ЗАГОЛОВОК */
+    padding-right: 45px; 
 }
 .modal-info-col {
     display: flex;
@@ -128,7 +130,7 @@ body.modal-open {
     transform: scale(1.02);
 }
 
-/* БЛОК МЕТАДАННЫХ: Версия / Размер / Время (УЛУЧШЕННЫЙ СТИЛЬ) */
+/* БЛОК МЕТАДАННЫХ: Версия / Размер / Время */
 .modal-metadata-new {
     display: flex;
     justify-content: space-between;
@@ -171,7 +173,7 @@ body.modal-open {
     margin-top: 5px;
 }
 
-/* БЛОК ФУНКЦИЙ МОДА (УЛУЧШЕННЫЙ СТИЛЬ) */
+/* БЛОК ФУНКЦИЙ МОДА */
 .modal-features-new {
     margin-bottom: 20px;
     text-align: center;
@@ -192,7 +194,7 @@ body.modal-open {
 /* Увеличение контраста текста функций */
 #modal-features {
     font-size: 14px;
-    color: var(--text); /* ИЗМЕНЕНИЕ: Используем основной белый текст для лучшей читаемости */
+    color: var(--text); 
     line-height: 1.5;
     white-space: pre-wrap;
     margin: 0;
