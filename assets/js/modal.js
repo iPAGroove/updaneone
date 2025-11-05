@@ -1,9 +1,7 @@
 const modalOverlay = document.getElementById('app-modal');
 
 /**
- * Функция для расчета времени, прошедшего с даты, в формате "X (дни/часы/минуты) назад".
- * @param {Date} date - Дата в миллисекундах или объект Date.
- * @returns {string} Строка с относительным временем.
+ * Функция для расчета прошедшего времени в формате "X ... назад".
  */
 function timeSince(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
@@ -28,44 +26,41 @@ function timeSince(date) {
 
 
 /**
- * Открывает модальное окно и наполняет его данными.
- * @param {object} data - Полный объект данных приложения, включая uploadTime.
+ * Открывает модалку и заполняет её контент.
  */
 export function openModal(data) {
     if (!modalOverlay || !data) return;
 
-    // 1. Наполнение контентом
     document.getElementById('modal-icon').src = data.img;
     document.getElementById('modal-icon').alt = `Іконка ${data.title}`;
     document.getElementById('modal-title').textContent = data.title;
-    
-    // Метаданные (Версия / Размер / Время)
+
     document.getElementById('modal-version').textContent = data.version;
     document.getElementById('modal-size').textContent = data.size;
-    
+
     const timeAgo = timeSince(new Date(data.uploadTime));
     document.getElementById('modal-time-ago').textContent = timeAgo;
-    
-    // Функции мода: Заменяем запятые на переносы строк И УДАЛЯЕМ ЗАПЯТЫЕ
-    document.getElementById('modal-features').textContent = data.features
-        .replace(/, /g, '\n') // Заменяем ", " на новую строку
-        .replace(/,/g, '\n'); // Заменяем оставшиеся одиночные запятые на новую строку
-    
-    // Описание (центрированное)
-    document.getElementById('modal-desc').textContent = data.desc;
-    
-    // 2. Настройка кнопки CTA: "УСТАНОВИТЬ"
-    const ctaButton = document.getElementById('modal-cta');
-    ctaButton.href = data.link; 
-    ctaButton.textContent = `Установить`; 
 
-    // 3. Отображение
+    // ✅ Ровное форматирование списка функций без лишних пробелов
+    document.getElementById('modal-features').textContent =
+        (data.features || '')
+            .replace(/,\s*/g, '\n') // запятые → перенос строки
+            .trim();                // убираем лишние пустые строки
+    
+    // Описание
+    document.getElementById('modal-desc').textContent = data.desc;
+
+    // CTA кнопка
+    const ctaButton = document.getElementById('modal-cta');
+    ctaButton.href = data.link;
+    ctaButton.textContent = `Установить`;
+
     modalOverlay.classList.add('visible');
-    document.body.classList.add('modal-open'); 
+    document.body.classList.add('modal-open');
 }
 
 /**
- * Закрывает модальное окно.
+ * Закрытие модалки
  */
 function closeModal() {
     if (!modalOverlay) return;
@@ -73,7 +68,6 @@ function closeModal() {
     document.body.classList.remove('modal-open');
 }
 
-// 4. Обработчики закрытия
 if (modalOverlay) {
     modalOverlay.addEventListener('click', (event) => {
         if (event.target === modalOverlay || event.target.closest('[data-action="close"]')) {
