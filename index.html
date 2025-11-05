@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="assets/css/header.css" />
     <link rel="stylesheet" href="assets/css/navigation.css" />
     <link rel="stylesheet" href="assets/css/catalog.css" />
-    <!-- НОВЫЙ CSS ДЛЯ МОДАЛЬНОГО ОКНА -->
     <link rel="stylesheet" href="assets/css/modal.css" />
 </head>
 <body>
@@ -82,7 +81,7 @@
         </div>
     </nav>
     
-    <!-- МОДАЛЬНОЕ ОКНО -->
+    <!-- МОДАЛЬНОЕ ОКНО (Обновленная структура) -->
     <div class="modal-overlay" id="app-modal">
         <div class="modal-content">
             <button class="modal-close-btn" data-action="close">✕</button>
@@ -92,7 +91,7 @@
                 <img id="modal-icon" class="modal-icon" src="" alt="Иконка приложения">
                 <div class="modal-info-col">
                     <h3 id="modal-title" class="modal-app-title">Название</h3>
-                    <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Открыть</a>
+                    <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
                 </div>
             </div>
 
@@ -106,7 +105,8 @@
             <!-- 3. ФУНКЦИИ МОДА -->
             <div class="modal-features-new">
                 <h4>ФУНКЦИИ МОДА</h4>
-                <p id="modal-features">Описание функций</p>
+                <!-- Используем <pre> для форматирования переносов строк, созданных JS -->
+                <pre id="modal-features"></pre> 
             </div>
 
             <!-- 4. ОПИСАНИЕ -->
