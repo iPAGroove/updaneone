@@ -145,7 +145,9 @@ async function loadDataFromFirestore() {
              ios: item['minimal iOS'] || 'N/A',
              size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : 'N/A',
              features: item.features_ru || item.features_en || 'Немає',
-             badge: item.vipOnly === true ? 'VIP' : (item.Badge || '') 
+             badge: item.vipOnly === true ? 'VIP' : (item.Badge || ''),
+             // Используем item.createdAt (строка ISO) для расчета времени
+             uploadTime: item.createdAt ? new Date(item.createdAt).getTime() : new Date().getTime()
         }));
 
         __ALL_ITEMS_DATA = transformedData; 
