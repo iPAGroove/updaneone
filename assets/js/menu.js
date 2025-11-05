@@ -2,43 +2,40 @@
 // Меню + Авторизация + Смена Языка
 // ===============================
 
-import { loginWithGoogle, loginWithFacebook, loginAnon } from "./firebase/auth.js";
+import { loginWithGoogle, loginWithFacebook } from "./firebase/auth.js";
 import { onUserChanged } from "./firebase/user.js";
 
-// Ждем, пока DOM будет готов
+// Ждем DOM
 document.addEventListener("DOMContentLoaded", () => {
 
     const menuBtn = document.getElementById("menu-btn");
     const overlay = document.getElementById("menu-modal");
 
     if (!menuBtn || !overlay) {
-        console.error("❌ Меню не найдено в DOM (menu-btn или menu-modal отсутствуют)");
+        console.error("❌ Меню не найдено (menu-btn или menu-modal отсутствуют)");
         return;
     }
 
-    // Открытие меню
+    // Открыть меню
     function openMenuModal() {
         overlay.classList.add("visible");
         document.body.classList.add("modal-open");
     }
 
-    // Закрытие меню
+    // Закрыть меню
     function closeMenuModal() {
         overlay.classList.remove("visible");
         document.body.classList.remove("modal-open");
     }
 
-    // Кнопка меню
     menuBtn.addEventListener("click", openMenuModal);
 
-    // Клик по фону или стрелке ←
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay || e.target.closest("[data-action='close-menu']")) {
             closeMenuModal();
         }
     });
 
-    // Закрытие по Esc
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && overlay.classList.contains("visible")) {
             closeMenuModal();
@@ -49,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // 🌍 СМЕНА ЯЗЫКА
     // ===============================
     const changeLangBtn = document.querySelector(".change-lang-btn");
-
     let currentLang = localStorage.getItem("ursa_lang") || "ru";
 
     const uiText = {
@@ -76,28 +72,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     applyLang();
 
-    if (changeLangBtn) {
-        changeLangBtn.addEventListener("click", () => {
-            currentLang = currentLang === "ru" ? "en" : "ru";
-            localStorage.setItem("ursa_lang", currentLang);
-            applyLang();
-        });
-    }
+    changeLangBtn?.addEventListener("click", () => {
+        currentLang = currentLang === "ru" ? "en" : "ru";
+        localStorage.setItem("ursa_lang", currentLang);
+        applyLang();
+    });
 
     // ===============================
-    // 🔐 ВХОДЫ: Google / Facebook / Аноним
+    // 🔐 ВХОДЫ
     // ===============================
 
-    const googleBtn = document.querySelector(".google-auth");
-    const facebookBtn = document.querySelector(".facebook-auth");
-    const anonBtn = document.querySelector(".anon-auth");
+    document.querySelector(".google-auth")?.addEventListener("click", loginWithGoogle);
+    document.querySelector(".facebook-auth")?.addEventListener("click", loginWithFacebook);
 
-    if (googleBtn) googleBtn.addEventListener("click", loginWithGoogle);
-    if (facebookBtn) facebookBtn.addEventListener("click", loginWithFacebook);
-    if (anonBtn) anonBtn.addEventListener("click", loginAnon);
+    // 🎯 Новый: открыть модалку Email логина
+    const emailAuthBtn = document.querySelector(".email-auth");
+    const emailModal = document.getElementById("email-auth-modal");
+
+    emailAuthBtn?.addEventListener("click", () => {
+        emailModal.classList.add("visible");
+    });
+
+    emailModal?.addEventListener("click", (e) => {
+        if (e.target === emailModal || e.target.closest("[data-action='close-email']")) {
+            emailModal.classList.remove("visible");
+        }
+    });
 
     // ===============================
-    // 👤 Обновление UI при изменении пользователя
+    // 👤 UI при изменении пользователя
     // ===============================
     const nickEl = document.getElementById("user-nickname");
     const avatarEl = document.getElementById("user-avatar");
@@ -109,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        nickEl.textContent = user.displayName || "Пользователь";
+        nickEl.textContent = user.displayName || user.email || "Пользователь";
         avatarEl.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
     });
 
