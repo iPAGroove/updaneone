@@ -61,7 +61,7 @@
     </div>
 </nav>
 
-<!-- === МОДАЛКА ПРИЛОЖЕНИЯ === -->
+<!-- === APP MODAL === -->
 <div class="modal-overlay" id="app-modal">
     <div class="modal-content">
         <button class="modal-close-btn" data-action="close">✕</button>
@@ -91,7 +91,7 @@
     </div>
 </div>
 
-<!-- === МОДАЛКА ПОЛНОГО СПИСКА === -->
+<!-- === FULL LIST MODAL === -->
 <div class="all-list-overlay" id="all-catalog-modal">
     <div class="all-list-content">
         <button class="all-close-btn" data-action="close-list">✕</button>
@@ -100,7 +100,7 @@
     </div>
 </div>
 
-<!-- === МОДАЛКА ПОИСКА === -->
+<!-- === SEARCH MODAL === -->
 <div class="search-overlay" id="search-modal">
     <div class="search-content">
         <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
@@ -109,7 +109,7 @@
     </div>
 </div>
 
-<!-- === МЕНЮ === -->
+<!-- === MENU MODAL === -->
 <div class="menu-overlay" id="menu-modal">
     <div class="menu-content">
         <button class="menu-close-btn" data-action="close-menu">←</button>
@@ -143,14 +143,14 @@
     </div>
 </div>
 
-<!-- === МОДАЛКА EMAIL LOGIN === -->
+<!-- === EMAIL LOGIN MODAL === -->
 <div id="email-modal" class="menu-overlay">
   <div class="menu-content email-modal-content">
     <button class="menu-close-btn" data-action="close-email">←</button>
     <h2 class="menu-title">Вход / Регистрация</h2>
 
-    <input type="email" id="email-input" placeholder="Email" class="auth-input">
-    <input type="password" id="password-input" placeholder="Пароль" class="auth-input">
+    <input type="email" id="email-input" placeholder="Email" class="auth-input" autocomplete="new-email">
+    <input type="password" id="password-input" placeholder="Пароль" class="auth-input" autocomplete="new-password">
 
     <button class="btn menu-action-btn" id="email-login-btn">Войти</button>
     <button class="btn menu-action-btn" id="email-register-btn">Создать аккаунт</button>
