@@ -1,6 +1,7 @@
-// Импорт необходимых модулей Firebase через CDN (ES Modules)
+// Импорт модулей
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { openModal } from './modal.js';
 
 // 1. Конфигурация Firebase
 const firebaseConfig = {
@@ -16,33 +17,21 @@ const firebaseConfig = {
 
 // Инициализация Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app); // Получаем инстанс Firestore
+const db = getFirestore(app); 
 
-// =========================================================================
-// Глобальное состояние (ЭКСПОРТИРУЕМ для navigation.js)
-// =========================================================================
-let __ALL_ITEMS_DATA = []; // Для хранения всех загруженных данных
-export let currentCategory = 'apps'; // Текущая активная категория (по умолчанию 'apps') - ЭКСПОРТ
+// Глобальное состояние
+let __ALL_ITEMS_DATA = []; 
+export let currentCategory = 'apps'; 
 
-// Функция для обновления категории, вызывается из navigation.js
 export function setCurrentCategory(newCategory) {
     currentCategory = newCategory;
 }
 
-// =========================================================================
-// 2. Функции рендеринга
-// =========================================================================
-
-/**
- * Генерирует HTML-разметку для одной карточки приложения.
- * @param {object} data - Объект с данными приложения.
- */
+// Функции рендеринга
 function createCardHtml(data) {
     const title = data.title || 'Unknown App';
     const subtitle = data.subtitle || 'No Info';
-    const img = data.img || 'https://placehold.co/52x52/141a24/9aa7bd?text=APP'; // Использовано placeholder-изображение
-    const cta = data.cta || 'Открыть';
-    const link = data.link || '#';
+    const img = data.img || 'https://placehold.co/52x52/141a24/9aa7bd?text=APP'; 
     const badge = data.badge || '';
     
     const badgeHtml = badge 
@@ -51,76 +40,78 @@ function createCardHtml(data) {
 
     return `
         <article class="card"
+            data-id="${data.id}" 
             data-title="${title}"
             data-subtitle="${subtitle}"
             data-desc="${data.desc || ''}"
             data-img="${img}"
             data-tags="${data.tags || ''}"
-            data-cta="${cta}"
-            data-link="${link}">
+            data-cta="Открыть"
+            data-link="${data.link || '#'}">
             
             <div class="card-media">
-                <img src="${img}" alt="${title} Icon" class="card-icon">
+                <img src="${img}" alt="Іконка ${title}" class="card-icon">
                 ${badgeHtml}
             </div>
             <div class="card-info">
                 <h3>${title}</h3>
                 <p class="meta">${subtitle}</p>
             </div>
-            <a href="${link}" class="card-cta" target="_blank">
-                <span>${cta}</span>
-            </a>
+            
+            <button class="card-cta open-modal-btn" data-id="${data.id}">
+                <span>Открыть</span>
+            </button>
         </article>
     `;
 }
 
-/**
- * Распределяет и рендерит карточки по секциям каталога, основываясь на активной категории.
- * @param {Array<object>} itemsData - Массив объектов с данными приложений.
- * @param {string} category - Текущая активная категория ('apps' или 'games').
- */
-function renderCatalog(itemsData, category) {
+function attachModalOpenListeners(carousel) {
+    carousel.addEventListener('click', (event) => {
+        const button = event.target.closest('.open-modal-btn');
+        if (button) {
+            const itemId = button.getAttribute('data-id');
+            const itemData = __ALL_ITEMS_DATA.find(item => item.id === itemId);
+            if (itemData) {
+                openModal(itemData);
+            }
+        }
+    });
+}
+
+export function displayCatalog() {
     const catalogContainer = document.getElementById('catalog');
     if (!catalogContainer) return;
 
     const collectionRows = catalogContainer.querySelectorAll('.collection-row');
-    const LIMIT = 12; // Лимит выборки для заполнения 3 рядов
+    const LIMIT = 12;
 
     collectionRows.forEach(row => {
         const carousel = row.querySelector('.card-carousel');
         const collectionTitle = row.querySelector('.collection-title').textContent.trim();
         
-        // Очищаем карусель, чтобы удалить все заглушки
         carousel.innerHTML = ''; 
 
-        // Фильтрация данных по категории и типу коллекции
-        let filteredData = itemsData.filter(item => {
-            // Преобразуем строку tags обратно в массив для точной проверки
+        let filteredData = __ALL_ITEMS_DATA.filter(item => {
             const tagsArray = item.tags.split(',').map(tag => tag.trim());
             const isVip = item.badge === 'VIP';
             
-            // 1. Основной фильтр: элемент должен иметь тег текущей категории
-            const matchesCategory = tagsArray.includes(category);
+            const matchesCategory = tagsArray.includes(currentCategory);
             if (!matchesCategory) return false;
 
-            // 2. Вторичный фильтр: по типу коллекции
             if (collectionTitle === 'VIP') {
-                return isVip; // В VIP-секции только VIP
+                return isVip; 
             } else {
-                // Popular и Update должны содержать не-VIP элементы
                 return !isVip;
             }
-        });
-        
-        // Сортировка (здесь просто срез)
-        filteredData = filteredData.slice(0, LIMIT);
+        }).slice(0, LIMIT);
 
-        // Рендеринг карточек
         filteredData.forEach(item => {
             carousel.insertAdjacentHTML('beforeend', createCardHtml(item));
         });
         
-        // Добавляем заглушки для визуального заполнения (до 12 элементов)
+        attachModalOpenListeners(carousel);
+        
+        // Добавляем заглушки
         const numItems = filteredData.length;
         const totalPlaceholders = LIMIT; 
         for (let i = numItems; i < totalPlaceholders; i++) {
@@ -129,54 +120,43 @@ function renderCatalog(itemsData, category) {
     });
 }
 
-/**
- * Обертка для рендеринга с использованием текущего состояния. (ЭКСПОРТИРУЕМ)
- */
-export function displayCatalog() {
-    renderCatalog(__ALL_ITEMS_DATA, currentCategory);
-}
-
-
-// =========================================================================
-// 3. Загрузка данных
-// =========================================================================
-
-/**
- * Загружает данные из коллекции 'ursa_ipas' и преобразует их.
- */
+// Загрузка данных
 async function loadDataFromFirestore() {
     try {
         const collectionRef = collection(db, 'ursa_ipas');
         const snapshot = await getDocs(collectionRef);
         
-        const rawData = snapshot.docs.map(doc => doc.data());
+        const rawData = snapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id 
+        }));
         
-        // --- ПРЕОБРАЗОВАНИЕ ПОЛЕЙ ПО ТВОЕЙ СТРУКТУРЕ ---
+        // Преобразование полей по твоей структуре
         const transformedData = rawData.map(item => ({
-             // Маппинг полей из Firestore (левая сторона) в JS-объект (правая сторона)
+             id: item.id,
              title: item.NAME || 'N/A', 
              subtitle: item.Version || 'N/A', 
-             desc: item.description_ru || item.description_en || '', 
+             desc: item.description_ru || item.description_en || 'Опис відсутній.', 
              img: item.iconUrl || 'https://placehold.co/52x52/141a24/9aa7bd?text=APP', 
-             tags: Array.isArray(item.tags) ? item.tags.join(',') : '', // Массив в строку
-             cta: 'Скачать', 
+             tags: Array.isArray(item.tags) ? item.tags.join(',') : '', 
+             cta: 'Открыть', 
              link: item.DownloadUrl || '#', 
-             // Логика бейджа: если vipOnly: true, ставим 'VIP'
+             version: item.Version || 'N/A', 
+             ios: item['minimal iOS'] || 'N/A',
+             size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : 'N/A',
+             features: item.features_ru || item.features_en || 'Немає',
              badge: item.vipOnly === true ? 'VIP' : (item.Badge || '') 
         }));
 
-        __ALL_ITEMS_DATA = transformedData; // Сохраняем все данные
+        __ALL_ITEMS_DATA = transformedData; 
         console.log(`Успешно загружено ${__ALL_ITEMS_DATA.length} приложений. Начинаю рендеринг.`);
-        displayCatalog(); // Отображаем каталог
+        displayCatalog(); 
 
     } catch (error) {
         console.error("❌ Критическая ошибка при загрузке данных из Firestore: ", error);
-        // Если ошибка, очищаем данные и рендерим пустые заглушки
         __ALL_ITEMS_DATA = [];
         displayCatalog(); 
     }
 }
 
-
-// Запуск загрузки данных
 loadDataFromFirestore();
