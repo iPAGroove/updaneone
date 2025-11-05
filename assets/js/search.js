@@ -1,0 +1,56 @@
+import { appsData } from "./app.js";
+import { openModal } from "./modal.js";
+
+const searchBtn = document.getElementById("search-btn");
+const overlay = document.getElementById("search-modal");
+const input = document.getElementById("search-input");
+const results = document.getElementById("search-results");
+
+// Открытие
+searchBtn.addEventListener("click", () => {
+    overlay.classList.add("visible");
+    document.body.classList.add("modal-open");
+    input.focus();
+});
+
+// Закрытие по клику вне поля / ESC
+overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) close();
+});
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+});
+function close() {
+    overlay.classList.remove("visible");
+    document.body.classList.remove("modal-open");
+    input.value = "";
+    results.innerHTML = "";
+}
+
+// Поиск
+input.addEventListener("input", () => {
+    const q = input.value.toLowerCase().trim();
+    results.innerHTML = "";
+
+    if (!q) return;
+
+    const filtered = appsData.filter(app =>
+        app.title.toLowerCase().includes(q) ||
+        app.desc.toLowerCase().includes(q) ||
+        (app.features || "").toLowerCase().includes(q)
+    );
+
+    filtered.forEach(app => {
+        const div = document.createElement("div");
+        div.className = "result-item";
+        div.innerHTML = `
+            <img src="${app.img}">
+            <span class="title">${app.title}</span>
+        `;
+        div.addEventListener("click", () => {
+            close();
+            openModal(app);
+        });
+        results.appendChild(div);
+    });
+});
