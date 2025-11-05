@@ -66,7 +66,8 @@ body.modal-open {
     right: 15px;
     background: var(--card);
     border: 1px solid var(--border);
-    color: var(--muted);
+    /* ИЗМЕНЕНИЕ: Крестик теперь красный */
+    color: #FF4D4D; /* Красный неоновый */
     font-size: 20px;
     width: 32px;
     height: 32px;
@@ -76,7 +77,7 @@ body.modal-open {
     transition: color 0.2s;
 }
 .modal-close-btn:hover {
-    color: var(--text);
+    color: #ff8888;
 }
 
 /* НОВЫЙ МАКЕТ */
@@ -173,11 +174,14 @@ body.modal-open {
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(0, 179, 255, 0.3);
 }
+/* Используем <pre> для функций мода, чтобы сохранить переносы строк */
 #modal-features {
     font-size: 14px;
     color: var(--muted);
     line-height: 1.5;
-    white-space: pre-wrap;
+    white-space: pre-wrap; /* Сохраняет переносы строк */
+    margin: 0; /* Убираем лишний отступ от <pre> */
+    font-family: inherit; /* Используем шрифт системы, а не моноширинный */
 }
 
 /* БЛОК ОПИСАНИЯ */
