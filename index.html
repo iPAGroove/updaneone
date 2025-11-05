@@ -13,106 +13,101 @@
     <link rel="stylesheet" href="assets/css/catalog.css" />
     <link rel="stylesheet" href="assets/css/modal.css" />
 
-    <!-- Новый стиль модалки для "Смотреть все" -->
+    <!-- Стиль модалки для полного списка -->
     <link rel="stylesheet" href="assets/css/all-catalog.css" />
 </head>
 <body>
 
-    <header class="topbar">
-        <div class="wrap">
-            <div class="brand"><span>URSA IPA</span></div>
-        </div>
-    </header>
+<header class="topbar">
+    <div class="wrap">
+        <div class="brand"><span>URSA IPA</span></div>
+    </div>
+</header>
 
-    <main>
-        <div class="wrap">
-            <div id="catalog" class="catalog" role="list">
+<main>
+    <div class="wrap">
+        <div id="catalog" class="catalog" role="list">
 
-                <!-- POPULAR -->
-                <section class="collection-row">
-                    <h2 class="collection-title">Popular</h2>
-                    <div class="card-carousel"></div>
-                    <button class="view-all-btn" data-collection="popular">Смотреть все</button>
-                </section>
+            <!-- POPULAR -->
+            <section class="collection-row">
+                <h2 class="collection-title">Popular</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
 
-                <!-- UPDATE -->
-                <section class="collection-row">
-                    <h2 class="collection-title">Update</h2>
-                    <div class="card-carousel"></div>
-                    <button class="view-all-btn" data-collection="update">Смотреть все</button>
-                </section>
+            <!-- UPDATE -->
+            <section class="collection-row">
+                <h2 class="collection-title">Update</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
 
-                <!-- VIP -->
-                <section class="collection-row">
-                    <h2 class="collection-title">VIP</h2>
-                    <div class="card-carousel"></div>
-                    <button class="view-all-btn" data-collection="vip">Смотреть все</button>
-                </section>
-
-            </div>
-        </div>
-    </main>
-
-    <!-- NAVIGATION -->
-    <nav class="tabbar" id="tabbar" role="tablist">
-        <div class="newdock">
-            <button class="nav-btn active" data-tab="apps">📱</button>
-            <button class="nav-btn" data-tab="games">🎮</button>
-            <button class="nav-btn" id="search-btn">🔍</button>
-            <button class="nav-btn" id="settings-btn">⚙️</button>
-        </div>
-    </nav>
-
-
-    <!-- === МОДАЛКА ПРИЛОЖЕНИЯ === -->
-    <div class="modal-overlay" id="app-modal">
-        <div class="modal-content">
-            <button class="modal-close-btn" data-action="close">✕</button>
-
-            <div class="modal-header-new">
-                <img id="modal-icon" class="modal-icon" src="" alt="">
-                <div class="modal-info-col">
-                    <h3 id="modal-title" class="modal-app-title">Название</h3>
-                    <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
-                </div>
-            </div>
-
-            <div class="modal-metadata-new">
-                <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
-                <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
-                <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
-            </div>
-
-            <div class="modal-features-new">
-                <h4>ФУНКЦИИ МОДА</h4>
-                <pre id="modal-features"></pre>
-            </div>
-
-            <div class="modal-description-new">
-                <p id="modal-desc"></p>
-            </div>
+            <!-- VIP -->
+            <section class="collection-row">
+                <h2 class="collection-title">VIP</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
 
         </div>
     </div>
+</main>
 
-
-    <!-- === НОВАЯ МОДАЛКА ДЛЯ "СМОТРЕТЬ ВСЕ" === -->
-    <div class="all-list-overlay" id="all-catalog-modal">
-        <div class="all-list-content">
-            <button class="all-close-btn" data-action="close-list">✕</button>
-            <h2 id="all-list-title">Каталог</h2>
-            <div id="all-list-container" class="all-list-scroll"></div>
-        </div>
+<!-- NAVIGATION -->
+<nav class="tabbar" id="tabbar" role="tablist">
+    <div class="newdock">
+        <button class="nav-btn active" data-tab="apps">📱</button>
+        <button class="nav-btn" data-tab="games">🎮</button>
+        <button class="nav-btn" id="search-btn">🔍</button>
+        <button class="nav-btn" id="settings-btn">⚙️</button>
     </div>
+</nav>
 
+<!-- === МОДАЛКА ПРИЛОЖЕНИЯ === -->
+<div class="modal-overlay" id="app-modal">
+    <div class="modal-content">
+        <button class="modal-close-btn" data-action="close">✕</button>
 
-    <!-- SCRIPTS -->
-    <script type="module" src="assets/js/app.js" defer></script>
-    <script type="module" src="assets/js/navigation.js" defer></script>
-    <script type="module" src="assets/js/modal.js" defer></script>
+        <div class="modal-header-new">
+            <img id="modal-icon" class="modal-icon" src="" alt="">
+            <div class="modal-info-col">
+                <h3 id="modal-title" class="modal-app-title">Название</h3>
+                <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
+            </div>
+        </div>
 
-    <!-- Новый JS модалки списка -->
-    <script type="module" src="assets/js/all-catalog.js" defer></script>
+        <div class="modal-metadata-new">
+            <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
+            <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
+            <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+        </div>
+
+        <div class="modal-features-new">
+            <h4>ФУНКЦИИ МОДА</h4>
+            <pre id="modal-features"></pre>
+        </div>
+
+        <div class="modal-description-new">
+            <p id="modal-desc"></p>
+        </div>
+
+    </div>
+</div>
+
+<!-- === МОДАЛКА ПОЛНОГО СПИСКА === -->
+<div class="all-list-overlay" id="all-catalog-modal">
+    <div class="all-list-content">
+        <button class="all-close-btn" data-action="close-list">✕</button>
+        <h2 id="all-list-title">Каталог</h2>
+        <div id="all-list-container" class="all-list-scroll"></div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script type="module" src="assets/js/app.js" defer></script>
+<script type="module" src="assets/js/navigation.js" defer></script>
+<script type="module" src="assets/js/modal.js" defer></script>
+<script type="module" src="assets/js/all-catalog.js" defer></script>
 
 </body>
 </html>
