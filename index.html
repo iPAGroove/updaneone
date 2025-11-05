@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="assets/css/modal.css" />
     <link rel="stylesheet" href="assets/css/all-catalog.css" />
     <link rel="stylesheet" href="assets/css/search.css" /> <!-- ✅ поиск -->
+    <link rel="stylesheet" href="assets/css/menu.css" /> <!-- 🚀 НОВЫЙ CSS -->
 </head>
 <body>
 
@@ -58,7 +59,7 @@
         <button class="nav-btn active" data-tab="apps">📱</button>
         <button class="nav-btn" data-tab="games">🎮</button>
         <button class="nav-btn" id="search-btn">🔍</button>
-        <button class="nav-btn" id="settings-btn">⚙️</button>
+        <button class="nav-btn" id="menu-btn">☰</button> <!-- 🚀 ИЗМЕНЕНО: Кнопка Меню -->
     </div>
 </nav>
 
@@ -114,12 +115,22 @@
     </div>
 </div>
 
+<!-- === МОДАЛКА МЕНЮ (НА ВЕСЬ ЭКРАН) === -->
+<div class="menu-overlay" id="menu-modal">
+    <div class="menu-content">
+        <button class="menu-close-btn" data-action="close-menu">✕</button>
+        <!-- Сюда будем добавлять содержимое позже -->
+        <h2 class="menu-title">МЕНЮ</h2>
+    </div>
+</div>
+
 <!-- SCRIPTS -->
 <script type="module" src="assets/js/app.js" defer></script>
 <script type="module" src="assets/js/navigation.js" defer></script>
 <script type="module" src="assets/js/modal.js" defer></script>
 <script type="module" src="assets/js/all-catalog.js" defer></script>
-<script type="module" src="assets/js/search.js" defer></script> <!-- ✅ поиск -->
+<script type="module" src="assets/js/search.js" defer></script>
+<script type="module" src="assets/js/menu.js" defer></script> <!-- 🚀 НОВЫЙ СКРИПТ -->
 
 </body>
 </html>
