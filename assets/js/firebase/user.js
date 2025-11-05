@@ -1,15 +1,23 @@
-import { onUserChanged, logout } from "./firebase/auth.js";
+// assets/js/firebase/user.js
 
-const avatar = document.getElementById("user-avatar");
-const nickname = document.getElementById("user-nickname");
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-onUserChanged(user => {
-    if (!user) {
-        avatar.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
-        nickname.textContent = "Гость";
-        return;
-    }
+const auth = getAuth();
 
-    nickname.textContent = user.displayName || "Пользователь";
-    avatar.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-});
+// callback → вызывается при изменении пользователя
+export function onUserChanged(callback) {
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            callback(null);
+            return;
+        }
+
+        callback({
+            uid: user.uid,
+            displayName: user.displayName || null,
+            photoURL: user.photoURL || null,
+            email: user.email || null,
+            isAnonymous: user.isAnonymous || false,
+        });
+    });
+}
