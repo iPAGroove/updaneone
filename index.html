@@ -81,7 +81,7 @@
         </div>
     </nav>
     
-    <!-- МОДАЛЬНОЕ ОКНО (Обновленная структура) -->
+    <!-- МОДАЛЬНОЕ ОКНО -->
     <div class="modal-overlay" id="app-modal">
         <div class="modal-content">
             <button class="modal-close-btn" data-action="close">✕</button>
@@ -97,15 +97,15 @@
 
             <!-- 2. МЕТАДАННЫЕ: ВЕРСИЯ / РАЗМЕР / ВРЕМЯ -->
             <div class="modal-metadata-new">
-                <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
-                <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
-                <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+                <p>Версия<strong class="meta-value"><span id="modal-version">N/A</span></strong></p>
+                <p>Размер<strong class="meta-value"><span id="modal-size">N/A</span></strong></p>
+                <p>Загружено<strong class="meta-value"><span id="modal-time-ago">N/A</span></strong></p>
             </div>
 
             <!-- 3. ФУНКЦИИ МОДА -->
             <div class="modal-features-new">
                 <h4>ФУНКЦИИ МОДА</h4>
-                <!-- Используем <pre> для форматирования переносов строк, созданных JS -->
+                <!-- Теперь здесь только один элемент <pre> для функций -->
                 <pre id="modal-features"></pre> 
             </div>
 
