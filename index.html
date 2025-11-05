@@ -24,6 +24,7 @@
     <main>
         <div class="wrap">
             <div id="catalog" class="catalog" role="list">
+
                 <section class="collection-row">
                     <h2 class="collection-title">Popular</h2>
                     <div class="card-carousel">
@@ -31,10 +32,10 @@
                         <article class="card placeholder"></article><article class="card placeholder"></article>
                         <article class="card placeholder"></article><article class="card placeholder"></article>
                         <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card placeholder"></article>
+                        <article class="card.placeholder"></article>
                     </div>
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
@@ -42,14 +43,14 @@
                 <section class="collection-row">
                     <h2 class="collection-title">Update</h2>
                     <div class="card-carousel">
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article>
                     </div>
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
@@ -57,17 +58,18 @@
                 <section class="collection-row">
                     <h2 class="collection-title">VIP</h2>
                     <div class="card-carousel">
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
+                        <article class="card.placeholder"></article>
                     </div>
                     <button class="view-all-btn">Смотреть все</button>
                 </section>
+
             </div>
         </div>
     </main>
@@ -86,7 +88,7 @@
         <div class="modal-content">
             <button class="modal-close-btn" data-action="close">✕</button>
 
-            <!-- 1. ИКОНКА, НАЗВАНИЕ, КНОПКА -->
+            <!-- 1. HEADER -->
             <div class="modal-header-new">
                 <img id="modal-icon" class="modal-icon" src="" alt="Иконка приложения">
                 <div class="modal-info-col">
@@ -95,18 +97,17 @@
                 </div>
             </div>
 
-            <!-- 2. МЕТАДАННЫЕ: ВЕРСИЯ / РАЗМЕР / ВРЕМЯ -->
+            <!-- 2. МЕТА -->
             <div class="modal-metadata-new">
-                <p>Версия<strong class="meta-value"><span id="modal-version">N/A</span></strong></p>
-                <p>Размер<strong class="meta-value"><span id="modal-size">N/A</span></strong></p>
-                <p>Загружено<strong class="meta-value"><span id="modal-time-ago">N/A</span></strong></p>
+                <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
+                <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
+                <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
             </div>
 
-            <!-- 3. ФУНКЦИИ МОДА -->
+            <!-- 3. ФУНКЦИИ -->
             <div class="modal-features-new">
                 <h4>ФУНКЦИИ МОДА</h4>
-                <!-- Здесь используется только <pre> для текста функций из JS. Дублирование удалено. -->
-                <pre id="modal-features"></pre> 
+                <pre id="modal-features"></pre>
             </div>
 
             <!-- 4. ОПИСАНИЕ -->
@@ -116,7 +117,6 @@
         </div>
     </div>
     
-    <!-- ПОДКЛЮЧЕНИЕ СКРИПТОВ -->
     <script type="module" src="assets/js/app.js" defer></script>
     <script type="module" src="assets/js/navigation.js" defer></script>
     <script type="module" src="assets/js/modal.js" defer></script>
