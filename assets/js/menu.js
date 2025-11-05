@@ -35,6 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === menuOverlay || e.target.closest("[data-action='close-menu']")) closeMenu();
     });
 
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenu();
+    });
+
 
     // ===============================
     // 🌍 Смена языка
@@ -80,20 +84,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
-    // ✉ Открыть окно email входа
+    // ✉ Email Login Modal
     // ===============================
     const emailBtn = document.querySelector(".email-auth");
     const emailModal = document.getElementById("email-modal");
 
-    emailBtn?.addEventListener("click", () => {
+    function openEmailModal() {
         closeMenu();
         emailModal.classList.add("visible");
-    });
+    }
+    function closeEmailModal() {
+        emailModal.classList.remove("visible");
+    }
+
+    emailBtn?.addEventListener("click", openEmailModal);
 
     emailModal?.addEventListener("click", (e) => {
-        if (e.target === emailModal || e.target.closest("[data-action='close-email']")) {
-            emailModal.classList.remove("visible");
-        }
+        if (e.target === emailModal || e.target.closest("[data-action='close-email']")) closeEmailModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeEmailModal();
     });
 
 
@@ -104,15 +115,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const passwordInput = document.getElementById("password-input");
 
     document.getElementById("email-login-btn")?.addEventListener("click", () => {
-        loginWithEmail(emailInput.value, passwordInput.value);
+        loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
     });
 
     document.getElementById("email-register-btn")?.addEventListener("click", () => {
-        registerWithEmail(emailInput.value, passwordInput.value);
+        registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
     });
 
     document.getElementById("email-reset-btn")?.addEventListener("click", () => {
-        resetPassword(emailInput.value);
+        resetPassword(emailInput.value.trim());
     });
 
 
