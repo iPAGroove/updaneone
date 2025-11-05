@@ -10,69 +10,58 @@ import {
     sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// Провайдеры
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
-// ============================
-// 🌐 Google Login
-// ============================
+// ==== GOOGLE ====
 export async function loginWithGoogle() {
     try {
         await signInWithPopup(auth, googleProvider);
         console.log("✅ Google вход выполнен");
     } catch (err) {
-        console.error("❌ Ошибка Google входа:", err.message || err);
+        console.error("❌ Ошибка Google входа:", err);
     }
 }
 
-// ============================
-// 📘 Facebook Login
-// ============================
+// ==== FACEBOOK ====
 export async function loginWithFacebook() {
     try {
         await signInWithPopup(auth, facebookProvider);
         console.log("✅ Facebook вход выполнен");
     } catch (err) {
-        console.error("❌ Ошибка Facebook входа:", err.message || err);
+        console.error("❌ Ошибка Facebook входа:", err);
     }
 }
 
-// ============================
-// ✉️ Email Login
-// ============================
+// ==== EMAIL ВХОД ====
 export async function loginWithEmail(email, password) {
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        console.log("✅ Вход по Email выполнен");
+        console.log("✅ Email вход выполнен");
     } catch (err) {
-        console.error("❌ Ошибка входа по Email:", err.message || err);
-        alert("Ошибка входа: " + err.message);
+        console.error("❌ Ошибка входа:", err.message);
+        alert(err.message);
     }
 }
 
-// ============================
-// 🆕 Email Register
-// ============================
+// ==== EMAIL РЕГИСТРАЦИЯ ====
 export async function registerWithEmail(email, password) {
     try {
         await createUserWithEmailAndPassword(auth, email, password);
-        console.log("✅ Регистрация выполнена");
+        console.log("✅ Аккаунт создан");
     } catch (err) {
-        console.error("❌ Ошибка регистрации:", err.message || err);
-        alert("Ошибка регистрации: " + err.message);
+        console.error("❌ Ошибка регистрации:", err.message);
+        alert(err.message);
     }
 }
 
-// ============================
-// 🔄 Reset Password
-// ============================
+// ==== RESET PASSWORD ====
 export async function resetPassword(email) {
     try {
         await sendPasswordResetEmail(auth, email);
-        alert("✅ Ссылка на сброс пароля отправлена на email");
+        alert("📩 Ссылка для восстановления отправлена на email");
     } catch (err) {
-        console.error("❌ Ошибка восстановления пароля:", err.message || err);
-        alert("Ошибка: " + err.message);
+        console.error("❌ Ошибка восстановления:", err.message);
+        alert(err.message);
     }
 }
