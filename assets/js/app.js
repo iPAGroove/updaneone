@@ -1,78 +1,79 @@
 assets/js/app.js
 
-// =========================================================================
-// !!! НАСТРОЙКИ FIREBASE !!!
-// 1. Раскомментируй Firebase SDK в index.html
-// 2. Вставь сюда свою конфигурацию проекта:
-const FIREBASE_CONFIG = {
-    // apiKey: "...",
-    // authDomain: "...",
-    // projectId: "ipa-panel", // Проверь, что этот ID совпадает
-    // storageBucket: "...",
-    // messagingSenderId: "...",
-    // appId: "..."
+// Импорт необходимых модулей Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+// 1. Твоя конфигурация Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
+    authDomain: "ipa-panel.firebaseapp.com",
+    databaseURL: "https://ipa-panel-default-rtdb.firebaseio.com",
+    projectId: "ipa-panel",
+    storageBucket: "ipa-panel.firebasestorage.app",
+    messagingSenderId: "239982196215",
+    appId: "1:239982196215:web:9de387c51952da428daaf2",
+    measurementId: "G-YP1XRFEDXM"
 };
-// const app = firebase.initializeApp(FIREBASE_CONFIG);
-// const db = firebase.firestore();
+
+// Инициализация Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app); // Получаем инстанс Firestore
+// getAnalytics(app); // Аналитику можно не импортировать, если она не нужна прямо сейчас
+
+// =========================================================================
+// 2. Функции рендеринга
 // =========================================================================
 
-
-// Функция для создания HTML-разметки одной карточки
+/**
+ * Генерирует HTML-разметку для одной карточки приложения.
+ * @param {object} data - Объект с данными приложения.
+ */
 function createCardHtml(data) {
-    // Разметка для бейджа (если есть data.badge)
-    const badgeHtml = data.badge 
-        ? `<div class="card-badge">${data.badge}</div>` 
+    // Безопасное получение данных с дефолтными значениями
+    const title = data.title || 'Unknown App';
+    const subtitle = data.subtitle || 'No Info';
+    const img = data.img || 'https://picsum.photos/seed/default/52';
+    const cta = data.cta || 'Открыть';
+    const link = data.link || '#';
+    const badge = data.badge || '';
+    
+    const badgeHtml = badge 
+        ? `<div class="card-badge">${badge}</div>` 
         : '';
-        
-    // data-badge нужен для CSS, но для пустого значения мы его не выводим
-    const dataBadgeAttr = data.badge ? `data-badge="${data.badge}"` : '';
 
     return `
         <article class="card"
-            data-title="${data.title || ''}"
-            data-subtitle="${data.subtitle || ''}"
+            data-title="${title}"
+            data-subtitle="${subtitle}"
             data-desc="${data.desc || ''}"
-            data-img="${data.img || ''}"
+            data-img="${img}"
             data-tags="${data.tags || ''}"
-            data-cta="${data.cta || 'Скачать'}"
-            data-link="${data.link || '#'}">
+            data-cta="${cta}"
+            data-link="${link}">
             
             <div class="card-media">
-                <img src="${data.img || 'https://picsum.photos/52'}" alt="${data.title || 'App'} Icon" class="card-icon">
+                <img src="${img}" alt="${title} Icon" class="card-icon">
                 ${badgeHtml}
             </div>
             <div class="card-info">
-                <h3>${data.title || 'Название не указано'}</h3>
-                <p class="meta">${data.subtitle || 'Описание отсутствует'}</p>
+                <h3>${title}</h3>
+                <p class="meta">${subtitle}</p>
             </div>
-            <a href="${data.link || '#'}" class="card-cta" target="_blank">
-                <span>${data.cta || 'Открыть'}</span>
+            <a href="${link}" class="card-cta" target="_blank">
+                <span>${cta}</span>
             </a>
         </article>
     `;
 }
 
-// ГЛАВНАЯ ФУНКЦИЯ: Загрузка данных и рендеринг каталога
-async function loadAndRenderCatalog(itemsData) {
+/**
+ * Распределяет и рендерит карточки по секциям каталога.
+ * @param {Array<object>} itemsData - Массив объектов с данными приложений.
+ */
+function renderCatalog(itemsData) {
     const catalogContainer = document.getElementById('catalog');
     if (!catalogContainer) return;
-
-    // --- MOCKUP ДАННЫХ (УДАЛИ ЭТОТ БЛОК после подключения Firebase) ---
-    // Этот массив имитирует данные, которые ты получишь из Firestore
-    const mockData = [
-        { title: "Subway Surfers", subtitle: "v3.17 • Mod Menu", desc: "...", img: "https://picsum.photos/seed/ursa1/800/420", tags: "Runner,Offline", cta: "Скачать", link: "#", badge: "VIP" },
-        { title: "Minecraft PE", subtitle: "v1.20 • Full Unlock", desc: "...", img: "https://picsum.photos/seed/ursa2/800/420", tags: "Sandbox,Paid", cta: "Установить", link: "#", badge: "New" },
-        { title: "Shadow Fight 3", subtitle: "v1.28 • Unlimited", desc: "...", img: "https://picsum.photos/seed/ursa3/800/420", tags: "Fighting", cta: "Скачать", link: "#", badge: "" },
-        // Дублируем для заполнения
-        { title: "Game 4", subtitle: "v1.0", desc: "...", img: "https://picsum.photos/seed/ursa4/800/420", tags: "Game", cta: "Скачать", link: "#", badge: "" },
-        { title: "Game 5", subtitle: "v1.1", desc: "...", img: "https://picsum.photos/seed/ursa5/800/420", tags: "Game", cta: "Скачать", link: "#", badge: "VIP" },
-        { title: "Game 6", subtitle: "v1.2", desc: "...", img: "https://picsum.photos/seed/ursa6/800/420", tags: "Game", cta: "Скачать", link: "#", badge: "" },
-        { title: "Game 7", subtitle: "v1.3", desc: "...", img: "https://picsum.photos/seed/ursa7/800/420", tags: "Game", cta: "Скачать", link: "#", badge: "" },
-        { title: "Game 8", subtitle: "v1.4", desc: "...", img: "https://picsum.photos/seed/ursa8/800/420", tags: "Game", cta: "Скачать", link: "#", badge: "" },
-    ];
-    itemsData = mockData;
-    // -----------------------------------------------------------------
-
 
     // Находим все секции коллекций
     const collectionRows = catalogContainer.querySelectorAll('.collection-row');
@@ -81,77 +82,76 @@ async function loadAndRenderCatalog(itemsData) {
         const carousel = row.querySelector('.card-carousel');
         const collectionTitle = row.querySelector('.collection-title').textContent.trim();
         
-        // 1. Очищаем карусель, чтобы удалить все заглушки
+        // Очищаем карусель, чтобы удалить все заглушки
         carousel.innerHTML = ''; 
 
-        // 2. Фильтрация данных для конкретной секции
+        // Логика фильтрации по коллекциям:
         let filteredData = [];
         
         if (collectionTitle === 'Popular') {
-            // Например, первые 8 элементов
+            // Берем 8 самых популярных (можно добавить поле 'popular' в Firestore)
             filteredData = itemsData.slice(0, 8); 
         } else if (collectionTitle === 'Update') {
-            // Элементы, помеченные как 'New' или отфильтрованные по дате
-            filteredData = itemsData.filter(item => item.badge === 'New' || item.subtitle.includes('v1.20')).slice(0, 8);
+            // Элементы, помеченные как 'New' или отфильтрованные по дате/версии
+            filteredData = itemsData.filter(item => item.badge === 'New' || (item.subtitle && item.subtitle.includes('v3'))).slice(0, 8);
         } else if (collectionTitle === 'VIP') {
             // Только элементы с бейджем 'VIP'
             filteredData = itemsData.filter(item => item.badge === 'VIP').slice(0, 8);
         }
 
-        // 3. Рендеринг карточек
+        // Рендеринг карточек
         filteredData.forEach(item => {
             carousel.insertAdjacentHTML('beforeend', createCardHtml(item));
         });
         
-        // 4. Добавляем заглушки для визуального заполнения (до 12 элементов)
+        // Добавляем заглушки для визуального заполнения (до 12 элементов)
         const numItems = filteredData.length;
-        const totalPlaceholders = 12; // 3 ряда по 4 на десктопе, или просто для заполнения
+        const totalPlaceholders = 12; 
         for (let i = numItems; i < totalPlaceholders; i++) {
             carousel.insertAdjacentHTML('beforeend', '<article class="card placeholder"></article>');
         }
     });
 }
 
-// -------------------------------------------------------------------------
-// Адаптация для Firestore (после настройки)
-// -------------------------------------------------------------------------
+// =========================================================================
+// 3. Загрузка данных из Firestore
+// =========================================================================
+
+/**
+ * Загружает данные из коллекции 'ursa_ipas' и преобразует их.
+ */
 async function loadDataFromFirestore() {
-    // В Firestore у тебя путь: /ursa_ipas/{docId}. 
-    // Предположим, что все данные находятся в одной коллекции 'ursa_ipas'
-    /*
     try {
-        const snapshot = await db.collection('ursa_ipas').get();
+        // Указываем путь к коллекции 'ursa_ipas'
+        const collectionRef = collection(db, 'ursa_ipas');
+        const snapshot = await getDocs(collectionRef);
+        
+        // Преобразуем документы Firestore в нужный формат
         const rawData = snapshot.docs.map(doc => doc.data());
         
-        // Тут нужно преобразовать поля из Firestore в формат, который ожидает createCardHtml:
-        // { title: '...', subtitle: '...', img: '...', link: '...', badge: '...' }
-        // Если структура твоих документов Firestore отличается от этого, 
-        // измени логику преобразования (например, item.app_name -> item.title)
-        
+        // Преобразование полей (нужно адаптировать, если поля в базе называются иначе!)
         const transformedData = rawData.map(item => ({
-             title: item.Name, // Пример, если в базе поле называется Name
-             subtitle: item.Version, // Пример
-             desc: item.Description, // Пример
-             img: item.IconURL, // Пример
-             tags: item.Tags, // Пример
-             cta: 'Скачать', // Фиксированное значение
-             link: item.DownloadLink, // Пример
-             badge: item.Badge || '' // Если поля нет, будет пустая строка
+             // ПРОВЕРЬ эти названия полей! Они должны совпадать с твоей структурой Firestore.
+             title: item.Name || item.title, 
+             subtitle: item.Version || item.subtitle, 
+             desc: item.Description || item.desc, 
+             img: item.IconURL || item.iconUrl, 
+             tags: item.Tags || item.tags,
+             cta: item.CTA || 'Скачать', // Используй твой CTA, если есть
+             link: item.DownloadLink || item.link, 
+             badge: item.Badge || '' 
         }));
 
-        loadAndRenderCatalog(transformedData);
+        console.log(`Успешно загружено ${transformedData.length} приложений.`);
+        renderCatalog(transformedData);
 
     } catch (error) {
-        console.error("Ошибка загрузки данных из Firestore: ", error);
-        // Если ошибка, можно запустить рендеринг с пустыми данными или заглушками
-        loadAndRenderCatalog([]); 
+        console.error("❌ Ошибка загрузки данных из Firestore: ", error);
+        // Если ошибка, можно показать пустой каталог
+        renderCatalog([]); 
     }
-    */
-    
-    // Пока Firebase не подключен, запускаем с мок-данными:
-    loadAndRenderCatalog();
 }
 
 
-// Запуск скрипта после загрузки DOM
-document.addEventListener('DOMContentLoaded', loadDataFromFirestore);
+// Запуск скрипта
+loadDataFromFirestore();
