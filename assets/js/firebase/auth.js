@@ -1,53 +1,43 @@
-// Firebase Core
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-// Auth
+// assets/js/firebase/auth.js
+
 import {
     getAuth,
     signInWithPopup,
-    GoogleAuthProvider,
-    FacebookAuthProvider,
     signInAnonymously,
-    onAuthStateChanged,
-    signOut
+    GoogleAuthProvider,
+    FacebookAuthProvider
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// Your Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
-    authDomain: "ipa-panel.firebaseapp.com",
-    projectId: "ipa-panel",
-    storageBucket: "ipa-panel.firebasestorage.app",
-    messagingSenderId: "239982196215",
-    appId: "1:239982196215:web:9de387c51952da428daaf2"
-};
+const auth = getAuth();
 
-// Init
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-
-// Providers
-const googleProvider = new GoogleAuthProvider();
-const facebookProvider = new FacebookAuthProvider();
-
-// === LOGIN FUNCTIONS ===
-export function loginWithGoogle() {
-    return signInWithPopup(auth, googleProvider);
+// Google вход
+export async function loginWithGoogle() {
+    try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        console.log("✅ Google вход выполнен");
+    } catch (err) {
+        console.error("❌ Ошибка Google входа:", err);
+    }
 }
 
-export function loginWithFacebook() {
-    return signInWithPopup(auth, facebookProvider);
+// Facebook вход
+export async function loginWithFacebook() {
+    try {
+        const provider = new FacebookAuthProvider();
+        await signInWithPopup(auth, provider);
+        console.log("✅ Facebook вход выполнен");
+    } catch (err) {
+        console.error("❌ Ошибка Facebook входа:", err);
+    }
 }
 
-export function loginAnon() {
-    return signInAnonymously(auth);
-}
-
-// === LOGOUT ===
-export function logout() {
-    return signOut(auth);
-}
-
-// === AUTH STATE LISTENER ===
-export function onUserChanged(callback) {
-    onAuthStateChanged(auth, callback);
+// Анонимный вход
+export async function loginAnon() {
+    try {
+        await signInAnonymously(auth);
+        console.log("✅ Анонимный вход выполнен");
+    } catch (err) {
+        console.error("❌ Ошибка анонимного входа:", err);
+    }
 }
