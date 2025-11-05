@@ -1,9 +1,8 @@
 // assets/js/cert-manager.js
 
-import { auth, db, app } from "./app.js";
+import { auth, db, app } from "../app.js";
 import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { updateCertUI } from "./firebase/user.js";
 
 const storage = getStorage(app);
 
@@ -105,10 +104,8 @@ importCertBtn?.addEventListener('click', async () => {
         // 4. Обновление UI и закрытие
         setTimeout(async () => {
             closeCertModal();
-            // Принудительное обновление UI сертификата в меню после загрузки
-            // Требуется, чтобы в menu.js мы передали нужные DOM-элементы в updateCertUI,
-            // но в данном примере мы просто ждем, пока onAuthStateChanged сработает
-            // или добавим в 'menu.js' функцию для обновления.
+            // После закрытия модалки onAuthStateChanged в user.js сработает
+            // и обновит меню
         }, 1500);
 
     } catch (error) {
