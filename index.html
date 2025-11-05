@@ -126,7 +126,7 @@
             <div class="login-buttons">
                 <button class="auth-btn google-auth" title="Google">G</button>
                 <button class="auth-btn facebook-auth" title="Facebook">f</button>
-                <button class="auth-btn anon-auth" title="Анонимно">👤</button>
+                <button class="auth-btn email-auth" title="Email">✉️</button>
             </div>
         </div>
 
@@ -141,6 +141,21 @@
         <button class="btn menu-action-btn about-us-btn">О нас</button>
 
     </div>
+</div>
+
+<!-- === МОДАЛКА EMAIL LOGIN === -->
+<div id="email-modal" class="menu-overlay">
+  <div class="menu-content email-modal-content">
+    <button class="menu-close-btn" data-action="close-email">←</button>
+    <h2 class="menu-title">Вход / Регистрация</h2>
+
+    <input type="email" id="email-input" placeholder="Email" class="auth-input">
+    <input type="password" id="password-input" placeholder="Пароль" class="auth-input">
+
+    <button class="btn menu-action-btn" id="email-login-btn">Войти</button>
+    <button class="btn menu-action-btn" id="email-register-btn">Создать аккаунт</button>
+    <button class="btn menu-action-btn" id="email-reset-btn">Забыли пароль?</button>
+  </div>
 </div>
 
 <!-- === SCRIPTS === -->
