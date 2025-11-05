@@ -234,3 +234,112 @@
     }
     .user-profile { padding-top: 0; }
 }
+/* ===========================
+   EMAIL AUTH MODAL
+   =========================== */
+
+.email-auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: .3s ease;
+}
+
+.email-auth-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.email-auth-content {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 24px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 0 40px rgba(0,179,255,0.4);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.email-close-btn {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,179,255,0.3);
+    cursor: pointer;
+    transition: .25s;
+}
+.email-close-btn:hover {
+    box-shadow: 0 0 20px rgba(0,179,255,0.7);
+    transform: translateX(-2px);
+}
+
+.email-title {
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.email-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 15px;
+}
+.email-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 14px rgba(0,179,255,0.4);
+}
+
+.email-submit-btn,
+.email-register-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    transition: .25s;
+}
+
+.email-submit-btn {
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    color: #001018;
+    box-shadow: 0 0 18px rgba(0,179,255,0.45);
+}
+.email-submit-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 28px rgba(0,179,255,0.7);
+}
+
+.email-register-btn {
+    background: var(--bg-elev);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+}
+.email-register-btn:hover {
+    background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%);
+}
