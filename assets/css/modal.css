@@ -14,7 +14,7 @@ body.modal-open {
     -webkit-backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* Для мобильных - снизу */
+    align-items: flex-end; 
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
@@ -22,28 +22,27 @@ body.modal-open {
 .modal-overlay.visible {
     opacity: 1;
     pointer-events: all;
-    align-items: center; /* Для десктопа - по центру */
+    align-items: center;
 }
 .modal-content {
     background: var(--bg-elev);
     border: 1px solid var(--border);
     border-radius: var(--radius) var(--radius) 0 0;
     width: 100%;
-    max-width: 400px; /* Фиксированная ширина */
+    max-width: 400px;
     max-height: 90vh;
-    height: auto; /* Авто-высота для скролла, если нужно */
+    height: auto;
     padding: 20px;
     box-shadow: 0 -10px 40px rgba(0, 179, 255, 0.2);
     transform: translateY(100%);
     transition: transform 0.3s ease-out;
-    overflow-y: auto; /* Включаем скролл, если контент не помещается */
+    overflow-y: auto;
     
-    /* Добавляем стили для прокрутки, чтобы скрыть полосу прокрутки в WebKit */
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 .modal-content::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
 }
 .modal-overlay.visible .modal-content {
     transform: translateY(0);
@@ -51,8 +50,8 @@ body.modal-open {
 @media (min-width: 601px) {
     .modal-content {
         border-radius: var(--radius);
-        max-width: 400px; /* Фиксированная ширина на десктопе */
-        max-height: 600px; /* Фиксированная высота для десктопа (контролируемый размер) */
+        max-width: 400px;
+        max-height: 600px; 
         transform: scale(0.95);
         transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
@@ -66,8 +65,7 @@ body.modal-open {
     right: 15px;
     background: var(--card);
     border: 1px solid var(--border);
-    /* ИЗМЕНЕНИЕ: Крестик теперь красный */
-    color: #FF4D4D; /* Красный неоновый */
+    color: #FF4D4D; /* Красный крестик */
     font-size: 20px;
     width: 32px;
     height: 32px;
@@ -85,15 +83,15 @@ body.modal-open {
     display: flex;
     gap: 15px;
     margin-bottom: 25px;
-    align-items: flex-start; /* Иконка слева вверху */
+    align-items: flex-start;
 }
 .modal-info-col {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: flex-start; /* Название и кнопка справа */
+    align-items: flex-start;
     flex-grow: 1;
-    min-height: 80px; /* Чтобы обеспечить выравнивание с иконкой */
+    min-height: 80px;
 }
 .modal-icon {
     width: 80px;
@@ -108,7 +106,7 @@ body.modal-open {
     font-size: 24px;
     margin: 0;
     color: var(--text);
-    align-self: flex-start; /* Название слева */
+    align-self: flex-start;
 }
 .modal-install-btn {
     width: 100%;
@@ -124,7 +122,7 @@ body.modal-open {
     cursor: pointer;
     box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
     transition: background-color 0.2s, transform 0.1s;
-    margin-top: 10px; /* Отступ от названия */
+    margin-top: 10px;
 }
 .modal-install-btn:hover {
     transform: scale(1.02);
@@ -146,7 +144,7 @@ body.modal-open {
     margin: 0;
     color: var(--muted);
     line-height: 1.2;
-    padding: 0 5px; /* Немного отступа между колонками */
+    padding: 0 5px;
 }
 .modal-metadata-new p:first-child { text-align: left; }
 .modal-metadata-new p:last-child { text-align: right; }
@@ -174,20 +172,21 @@ body.modal-open {
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(0, 179, 255, 0.3);
 }
-/* Используем <pre> для функций мода, чтобы сохранить переносы строк */
+/* Форматирование <pre> для центрирования и сохранения переносов строк */
 #modal-features {
     font-size: 14px;
     color: var(--muted);
     line-height: 1.5;
-    white-space: pre-wrap; /* Сохраняет переносы строк */
-    margin: 0; /* Убираем лишний отступ от <pre> */
-    font-family: inherit; /* Используем шрифт системы, а не моноширинный */
+    white-space: pre-wrap;
+    margin: 0;
+    font-family: inherit;
+    text-align: center; /* Центрируем текст внутри блока */
 }
 
 /* БЛОК ОПИСАНИЯ */
 .modal-description-new {
     padding-top: 10px;
-    text-align: center; /* Центрируем описание */
+    text-align: center;
 }
 #modal-desc {
     font-size: 15px;
