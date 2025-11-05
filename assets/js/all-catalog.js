@@ -1,16 +1,25 @@
 import { openModal } from "./modal.js";
-import { appsData } from "./app.js"; // используем те же данные что и для карточек
+import { appsData, currentCategory } from "./app.js";
 
+// DOM элементы
 const overlay = document.getElementById("all-catalog-modal");
 const container = document.getElementById("all-list-container");
 const title = document.getElementById("all-list-title");
 
-// открытие
-function openListModal(listTitle, items) {
-    title.textContent = listTitle;
+// открыть список
+function openListModal() {
+    // Название сверху → просто отображаем текущую категорию
+    title.textContent = currentCategory === "apps" ? "Приложения" : "Игры";
+
     container.innerHTML = "";
 
-    items.forEach(app => {
+    // выбираем только элементы по текущей категории
+    const filtered = appsData.filter(app =>
+        app.tags.split(",").map(t => t.trim()).includes(currentCategory)
+    );
+
+    // вставляем карточки
+    filtered.forEach(app => {
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
@@ -25,35 +34,22 @@ function openListModal(listTitle, items) {
     document.body.classList.add("modal-open");
 }
 
-// закрытие
+// закрыть список
 function closeListModal() {
     overlay.classList.remove("visible");
     document.body.classList.remove("modal-open");
 }
 
+// клик по фону / кнопке закрытия
 overlay.addEventListener("click", (e) => {
     if (e.target === overlay || e.target.closest("[data-action='close-list']")) {
         closeListModal();
     }
 });
 
-// обработчик кнопок "Смотреть все"
+// обработчик всех кнопок "Смотреть все"
 document.querySelectorAll(".view-all-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-        const collectionType = btn.dataset.collection;
-
-        let selected = [];
-
-        if (collectionType === "popular") {
-            selected = appsData.filter(a => a.tags?.includes("popular"));
-        } 
-        else if (collectionType === "update") {
-            selected = appsData.filter(a => a.tags?.includes("update"));
-        } 
-        else if (collectionType === "vip") {
-            selected = appsData.filter(a => a.vip === true);
-        }
-
-        openListModal(btn.parentElement.querySelector(".collection-title").textContent, selected);
+        openListModal();
     });
 });
