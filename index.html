@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="assets/css/navigation.css" />
     <link rel="stylesheet" href="assets/css/catalog.css" />
     <link rel="stylesheet" href="assets/css/modal.css" />
+
+    <!-- Новый стиль модалки для "Смотреть все" -->
+    <link rel="stylesheet" href="assets/css/all-catalog.css" />
 </head>
 <body>
 
@@ -28,48 +31,22 @@
                 <!-- POPULAR -->
                 <section class="collection-row">
                     <h2 class="collection-title">Popular</h2>
-                    <div class="card-carousel">
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card placeholder"></article>
-                        <article class="card placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article>
-                    </div>
-                    <button class="view-all-btn">Смотреть все</button>
+                    <div class="card-carousel"></div>
+                    <button class="view-all-btn" data-collection="popular">Смотреть все</button>
                 </section>
 
                 <!-- UPDATE -->
                 <section class="collection-row">
                     <h2 class="collection-title">Update</h2>
-                    <div class="card-carousel">
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article>
-                    </div>
-                    <button class="view-all-btn">Смотреть все</button>
+                    <div class="card-carousel"></div>
+                    <button class="view-all-btn" data-collection="update">Смотреть все</button>
                 </section>
 
                 <!-- VIP -->
                 <section class="collection-row">
                     <h2 class="collection-title">VIP</h2>
-                    <div class="card-carousel">
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article><article class="card.placeholder"></article>
-                        <article class="card.placeholder"></article>
-                    </div>
-                    <button class="view-all-btn">Смотреть все</button>
+                    <div class="card-carousel"></div>
+                    <button class="view-all-btn" data-collection="vip">Смотреть все</button>
                 </section>
 
             </div>
@@ -85,14 +62,15 @@
             <button class="nav-btn" id="settings-btn">⚙️</button>
         </div>
     </nav>
-    
-    <!-- MODAL -->
+
+
+    <!-- === МОДАЛКА ПРИЛОЖЕНИЯ === -->
     <div class="modal-overlay" id="app-modal">
         <div class="modal-content">
             <button class="modal-close-btn" data-action="close">✕</button>
 
             <div class="modal-header-new">
-                <img id="modal-icon" class="modal-icon" src="" alt="Иконка приложения">
+                <img id="modal-icon" class="modal-icon" src="" alt="">
                 <div class="modal-info-col">
                     <h3 id="modal-title" class="modal-app-title">Название</h3>
                     <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
@@ -111,14 +89,30 @@
             </div>
 
             <div class="modal-description-new">
-                <p id="modal-desc">Подробное описание...</p>
+                <p id="modal-desc"></p>
             </div>
 
         </div>
     </div>
-    
+
+
+    <!-- === НОВАЯ МОДАЛКА ДЛЯ "СМОТРЕТЬ ВСЕ" === -->
+    <div class="all-list-overlay" id="all-catalog-modal">
+        <div class="all-list-content">
+            <button class="all-close-btn" data-action="close-list">✕</button>
+            <h2 id="all-list-title">Каталог</h2>
+            <div id="all-list-container" class="all-list-scroll"></div>
+        </div>
+    </div>
+
+
+    <!-- SCRIPTS -->
     <script type="module" src="assets/js/app.js" defer></script>
     <script type="module" src="assets/js/navigation.js" defer></script>
     <script type="module" src="assets/js/modal.js" defer></script>
+
+    <!-- Новый JS модалки списка -->
+    <script type="module" src="assets/js/all-catalog.js" defer></script>
+
 </body>
 </html>
