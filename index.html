@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="assets/css/header.css" />
     <link rel="stylesheet" href="assets/css/navigation.css" />
     <link rel="stylesheet" href="assets/css/catalog.css" />
-    <link rel="stylesheet" href="assets/css/modal.css" /> <!-- ОСТАВЛЯЕМ -->
+    <!-- НОВЫЙ CSS ДЛЯ МОДАЛЬНОГО ОКНА -->
+    <link rel="stylesheet" href="assets/css/modal.css" />
 </head>
 <body>
 
@@ -81,38 +82,43 @@
         </div>
     </nav>
     
-    <!-- НОВОЕ: HTML для Модального окна (скрыто по умолчанию) -->
-    <div id="app-modal" class="modal-overlay">
+    <!-- МОДАЛЬНОЕ ОКНО -->
+    <div class="modal-overlay" id="app-modal">
         <div class="modal-content">
             <button class="modal-close-btn" data-action="close">✕</button>
-            <div class="modal-header">
+
+            <!-- 1. ИКОНКА, НАЗВАНИЕ, КНОПКА -->
+            <div class="modal-header-new">
                 <img id="modal-icon" class="modal-icon" src="" alt="Иконка приложения">
-                <div class="modal-title-group">
-                    <h2 id="modal-title" class="modal-app-title"></h2>
-                    <p id="modal-subtitle" class="modal-app-subtitle"></p>
-                </div>
-            </div>
-            
-            <div class="modal-body">
-                <p id="modal-desc" class="modal-description"></p>
-                <div class="modal-details">
-                    <p><strong>Версия:</strong> <span id="modal-version"></span></p>
-                    <p><strong>Мин. iOS:</strong> <span id="modal-ios"></span></p>
-                    <p><strong>Теги:</strong> <span id="modal-tags"></span></p>
-                    <p><strong>Размер:</strong> <span id="modal-size"></span></p>
-                    <p><strong>Функции мода:</strong> <span id="modal-features"></span></p>
+                <div class="modal-info-col">
+                    <h3 id="modal-title" class="modal-app-title">Название</h3>
+                    <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Открыть</a>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <a id="modal-cta" href="#" class="btn modal-install-btn" target="_blank">Открыть (Установить)</a>
+            <!-- 2. МЕТАДАННЫЕ: ВЕРСИЯ / РАЗМЕР / ВРЕМЯ -->
+            <div class="modal-metadata-new">
+                <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
+                <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
+                <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+            </div>
+
+            <!-- 3. ФУНКЦИИ МОДА -->
+            <div class="modal-features-new">
+                <h4>ФУНКЦИИ МОДА</h4>
+                <p id="modal-features">Описание функций</p>
+            </div>
+
+            <!-- 4. ОПИСАНИЕ -->
+            <div class="modal-description-new">
+                <p id="modal-desc">Подробное описание...</p>
             </div>
         </div>
     </div>
-
+    
     <!-- ПОДКЛЮЧЕНИЕ СКРИПТОВ -->
     <script type="module" src="assets/js/app.js" defer></script>
     <script type="module" src="assets/js/navigation.js" defer></script>
-    <script type="module" src="assets/js/modal.js" defer></script> <!-- НОВОЕ -->
+    <script type="module" src="assets/js/modal.js" defer></script>
 </body>
 </html>
