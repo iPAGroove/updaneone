@@ -73,6 +73,7 @@ function renderCatalog(itemsData) {
 
     // Находим все секции коллекций
     const collectionRows = catalogContainer.querySelectorAll('.collection-row');
+    const LIMIT = 12; // Увеличиваем лимит выборки до 12
 
     collectionRows.forEach(row => {
         const carousel = row.querySelector('.card-carousel');
@@ -83,16 +84,42 @@ function renderCatalog(itemsData) {
 
         let filteredData = [];
         
-        // Логика фильтрации: используем свойства из Firestore
+        // --- ОБНОВЛЕННАЯ ЛОГИКА ФИЛЬТРАЦИИ ---
         if (collectionTitle === 'Popular') {
-            // Например, показываем все, которые не VIP, и берем первые 8
-            filteredData = itemsData.filter(item => item.badge !== 'VIP').slice(0, 8); 
+            // Фильтруем: не VIP И не 'games' (предполагаем, что tags - это строка, разделенная запятыми, 
+            // но в transformedData мы используем join, поэтому тут можно фильтровать по массиву, если его восстановить)
+            
+            // NOTE: item.tags в transformedData - это строка. Лучше фильтровать по исходному массиву в Firestore (если он доступен)
+            // Но в нашей структуре, где мы не можем изменить преобразование данных, мы будем работать со строкой.
+            
+            filteredData = itemsData.filter(item => {
+                // Преобразуем строку tags обратно в массив для точной проверки
+                const tagsArray = item.tags.split(',');
+                // Проверяем, что не VIP и не игра
+                const isNotVip = item.badge !== 'VIP';
+                const isApp = tagsArray.includes('apps') && !tagsArray.includes('games');
+                return isNotVip && isApp;
+            }).slice(0, LIMIT);
+             // Если не нашли 'apps', берем просто не VIP, как резервный вариант
+            if (filteredData.length === 0) {
+                 filteredData = itemsData.filter(item => item.badge !== 'VIP').slice(0, LIMIT);
+            }
         } else if (collectionTitle === 'Update') {
-            // Берем 8 самых новых (можно сортировать по updatedAt, но тут просто срез)
-            filteredData = itemsData.slice(0, 8);
+            // Берем 12 самых новых (все, кроме VIP, которые являются играми)
+             filteredData = itemsData.filter(item => {
+                const tagsArray = item.tags.split(',');
+                // Проверяем, что не VIP И игра
+                const isNotVip = item.badge !== 'VIP';
+                const isGame = tagsArray.includes('games') && !tagsArray.includes('apps');
+                return isNotVip && isGame;
+            }).slice(0, LIMIT);
+             // Если не нашли 'games', берем просто не VIP, как резервный вариант
+            if (filteredData.length === 0) {
+                 filteredData = itemsData.filter(item => item.badge !== 'VIP').slice(0, LIMIT);
+            }
         } else if (collectionTitle === 'VIP') {
-            // Только элементы с бейджем 'VIP'
-            filteredData = itemsData.filter(item => item.badge === 'VIP').slice(0, 8);
+            // Только элементы с бейджем 'VIP', берем 12
+            filteredData = itemsData.filter(item => item.badge === 'VIP').slice(0, LIMIT);
         }
 
         // Рендеринг карточек
@@ -100,9 +127,9 @@ function renderCatalog(itemsData) {
             carousel.insertAdjacentHTML('beforeend', createCardHtml(item));
         });
         
-        // Добавляем заглушки для визуального заполнения (для выравнивания)
+        // Добавляем заглушки для визуального заполнения (до 12 элементов)
         const numItems = filteredData.length;
-        const totalPlaceholders = 12; 
+        const totalPlaceholders = LIMIT; 
         for (let i = numItems; i < totalPlaceholders; i++) {
             carousel.insertAdjacentHTML('beforeend', '<article class="card placeholder"></article>');
         }
