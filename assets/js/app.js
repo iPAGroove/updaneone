@@ -19,10 +19,15 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app); // Получаем инстанс Firestore
 
 // =========================================================================
-// Глобальное состояние
+// Глобальное состояние (ЭКСПОРТИРУЕМ для navigation.js)
 // =========================================================================
 let __ALL_ITEMS_DATA = []; // Для хранения всех загруженных данных
-let currentCategory = 'apps'; // Текущая активная категория (по умолчанию 'apps')
+export let currentCategory = 'apps'; // Текущая активная категория (по умолчанию 'apps') - ЭКСПОРТ
+
+// Функция для обновления категории, вызывается из navigation.js
+export function setCurrentCategory(newCategory) {
+    currentCategory = newCategory;
+}
 
 // =========================================================================
 // 2. Функции рендеринга
@@ -107,7 +112,7 @@ function renderCatalog(itemsData, category) {
             }
         });
         
-        // Сортировка (например, 'Update' по дате, 'Popular' по популярности - здесь просто срез)
+        // Сортировка (здесь просто срез)
         filteredData = filteredData.slice(0, LIMIT);
 
         // Рендеринг карточек
@@ -125,15 +130,15 @@ function renderCatalog(itemsData, category) {
 }
 
 /**
- * Обертка для рендеринга с использованием текущего состояния.
+ * Обертка для рендеринга с использованием текущего состояния. (ЭКСПОРТИРУЕМ)
  */
-function displayCatalog() {
+export function displayCatalog() {
     renderCatalog(__ALL_ITEMS_DATA, currentCategory);
 }
 
 
 // =========================================================================
-// 3. Загрузка данных и обработка навигации
+// 3. Загрузка данных
 // =========================================================================
 
 /**
@@ -172,36 +177,6 @@ async function loadDataFromFirestore() {
     }
 }
 
-/**
- * Устанавливает обработчики событий для кнопок навигации.
- */
-function setupNavigationEvents() {
-    const tabbar = document.getElementById('tabbar');
-    if (!tabbar) return;
 
-    tabbar.addEventListener('click', (event) => {
-        const button = event.target.closest('.nav-btn');
-        if (!button) return;
-
-        const newCategory = button.getAttribute('data-tab');
-        
-        // Реагируем только на кнопки 'apps' и 'games'
-        if (newCategory === 'apps' || newCategory === 'games') {
-             // 1. Обновление активного класса
-            tabbar.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // 2. Обновление категории и рендеринг, только если категория изменилась
-            if (newCategory !== currentCategory) {
-                currentCategory = newCategory;
-                console.log(`Категория изменена на: ${currentCategory}`);
-                displayCatalog(); 
-            }
-        }
-    });
-}
-
-
-// Запуск скрипта
-setupNavigationEvents();
+// Запуск загрузки данных
 loadDataFromFirestore();
