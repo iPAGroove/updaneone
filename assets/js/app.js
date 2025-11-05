@@ -1,10 +1,8 @@
-assets/js/app.js
-
-// Импорт необходимых модулей Firebase
+// Импорт необходимых модулей Firebase через CDN (ES Modules)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// 1. Твоя конфигурация Firebase
+// 1. Конфигурация Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
     authDomain: "ipa-panel.firebaseapp.com",
@@ -19,7 +17,6 @@ const firebaseConfig = {
 // Инициализация Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app); // Получаем инстанс Firestore
-// getAnalytics(app); // Аналитику можно не импортировать, если она не нужна прямо сейчас
 
 // =========================================================================
 // 2. Функции рендеринга
@@ -30,7 +27,6 @@ const db = getFirestore(app); // Получаем инстанс Firestore
  * @param {object} data - Объект с данными приложения.
  */
 function createCardHtml(data) {
-    // Безопасное получение данных с дефолтными значениями
     const title = data.title || 'Unknown App';
     const subtitle = data.subtitle || 'No Info';
     const img = data.img || 'https://picsum.photos/seed/default/52';
@@ -82,18 +78,18 @@ function renderCatalog(itemsData) {
         const carousel = row.querySelector('.card-carousel');
         const collectionTitle = row.querySelector('.collection-title').textContent.trim();
         
-        // Очищаем карусель, чтобы удалить все заглушки
+        // Очищаем карусель, чтобы удалить все заглушки, включая плейсхолдеры
         carousel.innerHTML = ''; 
 
-        // Логика фильтрации по коллекциям:
         let filteredData = [];
         
+        // Логика фильтрации: используем свойства из Firestore
         if (collectionTitle === 'Popular') {
-            // Берем 8 самых популярных (можно добавить поле 'popular' в Firestore)
-            filteredData = itemsData.slice(0, 8); 
+            // Например, показываем все, которые не VIP, и берем первые 8
+            filteredData = itemsData.filter(item => item.badge !== 'VIP').slice(0, 8); 
         } else if (collectionTitle === 'Update') {
-            // Элементы, помеченные как 'New' или отфильтрованные по дате/версии
-            filteredData = itemsData.filter(item => item.badge === 'New' || (item.subtitle && item.subtitle.includes('v3'))).slice(0, 8);
+            // Берем 8 самых новых (можно сортировать по updatedAt, но тут просто срез)
+            filteredData = itemsData.slice(0, 8);
         } else if (collectionTitle === 'VIP') {
             // Только элементы с бейджем 'VIP'
             filteredData = itemsData.filter(item => item.badge === 'VIP').slice(0, 8);
@@ -104,7 +100,7 @@ function renderCatalog(itemsData) {
             carousel.insertAdjacentHTML('beforeend', createCardHtml(item));
         });
         
-        // Добавляем заглушки для визуального заполнения (до 12 элементов)
+        // Добавляем заглушки для визуального заполнения (для выравнивания)
         const numItems = filteredData.length;
         const totalPlaceholders = 12; 
         for (let i = numItems; i < totalPlaceholders; i++) {
@@ -114,7 +110,7 @@ function renderCatalog(itemsData) {
 }
 
 // =========================================================================
-// 3. Загрузка данных из Firestore
+// 3. Загрузка данных из Firestore (КРИТИЧЕСКИЙ БЛОК)
 // =========================================================================
 
 /**
@@ -122,32 +118,31 @@ function renderCatalog(itemsData) {
  */
 async function loadDataFromFirestore() {
     try {
-        // Указываем путь к коллекции 'ursa_ipas'
         const collectionRef = collection(db, 'ursa_ipas');
         const snapshot = await getDocs(collectionRef);
         
-        // Преобразуем документы Firestore в нужный формат
         const rawData = snapshot.docs.map(doc => doc.data());
         
-        // Преобразование полей (нужно адаптировать, если поля в базе называются иначе!)
+        // --- ПРЕОБРАЗОВАНИЕ ПОЛЕЙ ПО ТВОЕЙ СТРУКТУРЕ ---
         const transformedData = rawData.map(item => ({
-             // ПРОВЕРЬ эти названия полей! Они должны совпадать с твоей структурой Firestore.
-             title: item.Name || item.title, 
-             subtitle: item.Version || item.subtitle, 
-             desc: item.Description || item.desc, 
-             img: item.IconURL || item.iconUrl, 
-             tags: item.Tags || item.tags,
-             cta: item.CTA || 'Скачать', // Используй твой CTA, если есть
-             link: item.DownloadLink || item.link, 
-             badge: item.Badge || '' 
+             // Маппинг полей из Firestore (левая сторона) в JS-объект (правая сторона)
+             title: item.NAME || 'N/A', 
+             subtitle: item.Version || 'N/A', 
+             desc: item.description_ru || item.description_en || '', 
+             img: item.iconUrl || 'https://placehold.co/52x52/141a24/9aa7bd?text=APP', 
+             tags: Array.isArray(item.tags) ? item.tags.join(',') : '', // Массив в строку
+             cta: 'Скачать', 
+             link: item.DownloadUrl || '#', 
+             // Логика бейджа: если vipOnly: true, ставим 'VIP'
+             badge: item.vipOnly === true ? 'VIP' : (item.Badge || '') 
         }));
 
-        console.log(`Успешно загружено ${transformedData.length} приложений.`);
+        console.log(`Успешно загружено ${transformedData.length} приложений. Начинаю рендеринг.`);
         renderCatalog(transformedData);
 
     } catch (error) {
-        console.error("❌ Ошибка загрузки данных из Firestore: ", error);
-        // Если ошибка, можно показать пустой каталог
+        console.error("❌ Критическая ошибка при загрузке данных из Firestore: ", error);
+        // Если ошибка, рендерим только пустые заглушки
         renderCatalog([]); 
     }
 }
