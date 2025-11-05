@@ -12,9 +12,8 @@
     <link rel="stylesheet" href="assets/css/navigation.css" />
     <link rel="stylesheet" href="assets/css/catalog.css" />
     <link rel="stylesheet" href="assets/css/modal.css" />
-
-    <!-- Стиль модалки для полного списка -->
     <link rel="stylesheet" href="assets/css/all-catalog.css" />
+    <link rel="stylesheet" href="assets/css/search.css" /> <!-- ✅ поиск -->
 </head>
 <body>
 
@@ -90,7 +89,6 @@
         <div class="modal-description-new">
             <p id="modal-desc"></p>
         </div>
-
     </div>
 </div>
 
@@ -103,11 +101,20 @@
     </div>
 </div>
 
+<!-- === МОДАЛКА ПОИСКА === -->
+<div class="search-overlay" id="search-modal">
+    <div class="search-content">
+        <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
+        <div id="search-results" class="search-results"></div>
+    </div>
+</div>
+
 <!-- SCRIPTS -->
 <script type="module" src="assets/js/app.js" defer></script>
 <script type="module" src="assets/js/navigation.js" defer></script>
 <script type="module" src="assets/js/modal.js" defer></script>
 <script type="module" src="assets/js/all-catalog.js" defer></script>
+<script type="module" src="assets/js/search.js" defer></script> <!-- ✅ поиск -->
 
 </body>
 </html>
