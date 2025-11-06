@@ -1,4 +1,3 @@
-// assets/js/app.js
 // ===============================
 // Firebase + Catalog App Loader
 // ===============================
@@ -58,8 +57,6 @@ function createCardHtml(data) {
 }
 
 function attachModalOpenListeners(carousel) {
-    // 💡 ПРОФИКСЕНО: Привязываем слушатель к родительскому элементу. 
-    // Клик обрабатывается только если нажат именно CTA.
     carousel.addEventListener("click", (event) => {
         const btn = event.target.closest(".open-modal-btn");
         if (!btn) return;
@@ -78,39 +75,21 @@ export function displayCatalog() {
 
     rows.forEach(row => {
         const carousel = row.querySelector(".card-carousel");
-        const sectionTitleElement = row.querySelector(".collection-title");
-        const section = sectionTitleElement ? sectionTitleElement.textContent.trim() : "";
-        
+        const section = row.querySelector(".collection-title").textContent.trim();
         carousel.innerHTML = "";
 
         let items = appsData.filter(app => {
             const tags = (app.tags || "").toLowerCase().split(",").map(t => t.trim());
-            
             if (!tags.includes(currentCategory)) return false;
-            
             if (section === "VIP") return app.badge === "VIP";
-            // Включаем non-VIP элементы в Popular/Update
-            if (section === "Popular" || section === "Update") return app.badge !== "VIP";
-            
-            return true;
+            return app.badge !== "VIP";
         }).slice(0, LIMIT);
 
         items.forEach(app => carousel.insertAdjacentHTML("beforeend", createCardHtml(app)));
-        
-        // Добавляем плейсхолдеры для сохранения сетки 3x4
-        const placeholdersNeeded = LIMIT - items.length;
-        for (let i = 0; i < placeholdersNeeded; i++) {
-            carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
-        }
-        
         attachModalOpenListeners(carousel);
-        
-        // 💡 ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ: Если нет элементов, скрываем всю секцию. 
-        // Если элементы есть, принудительно показываем.
-        if (items.length === 0) {
-            row.style.display = 'none';
-        } else {
-            row.style.display = 'flex'; // Соответствует стилю в catalog.css: .collection-row { display: flex; flex-direction: column; }
+
+        for (let i = items.length; i < LIMIT; i++) {
+            carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
         }
     });
 }
@@ -129,7 +108,7 @@ async function loadDataFromFirestore() {
                 version: item.Version || "N/A",
                 desc: item.description_ru || item.description_en || "",
                 img: item.iconUrl || "https://placehold.co/200x200",
-                tags: Array.isArray(item.tags) ? item.tags.join(",").toLowerCase() : (item.tags || "").toLowerCase(),
+                tags: Array.isArray(item.tags) ? item.tags.join(",").toLowerCase() : "",
                 link: item.DownloadUrl || "#",
                 size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : "N/A",
                 features: item.features_ru || item.features_en || "",

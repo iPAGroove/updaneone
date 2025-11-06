@@ -16,30 +16,18 @@ searchBtn.addEventListener("click", () => {
 });
 
 // Закрытие
-export function closeSearchModal() { // 💡 Сделали экспорт, чтобы использовать в других модулях
+function close() {
     overlay.classList.remove("visible");
     document.body.classList.remove("modal-open");
     input.value = "";
     results.innerHTML = "";
     hint.style.display = "block";
 }
-
-// 💡 ИСПРАВЛЕНИЕ ПУНКТА 6: Переименовываем 'close' в 'closeSearchModal'
 overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) closeSearchModal();
+    if (e.target === overlay) close();
 });
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeSearchModal();
-});
-
-// 💡 ИСПРАВЛЕНИЕ ПУНКТА 6: Закрытие при клике на другие кнопки навигации
-document.querySelectorAll(".nav-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        // Если поиск открыт И нажатая кнопка не является кнопкой поиска
-        if (overlay.classList.contains("visible") && e.currentTarget.id !== "search-btn") {
-            closeSearchModal();
-        }
-    });
+    if (e.key === "Escape") close();
 });
 
 // Поиск
@@ -67,7 +55,7 @@ input.addEventListener("input", () => {
             <span class="title">${app.title}</span>
         `;
         div.addEventListener("click", () => {
-            closeSearchModal(); // 💡 Используем новое имя функции
+            close();
             openModal(app);
         });
         results.appendChild(div);

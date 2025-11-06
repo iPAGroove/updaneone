@@ -1,12 +1,6 @@
-/* assets/css/catalog.css (ФИНАЛЬНАЯ ВЕРСИЯ: Flexbox Scroll Fix) */
-
 /* === СЕКЦИИ === */
 .collection-row {
-    display: flex; 
-    flex-direction: column; 
-    gap: 14px;
-    width: 100%;
-    min-height: 100px; /* Фикс для видимости */
+    display: flex; flex-direction: column; gap: 14px;
 }
 
 /* Заголовок */
@@ -21,7 +15,6 @@
     border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
     color: var(--accent);
     text-shadow: 0 0 6px rgba(0, 179, 255, 0.6), 0 0 14px rgba(0, 179, 255, 0.3);
-    display: block !important;
 }
 
 /* Сетка каталога */
@@ -30,36 +23,24 @@
     display: grid; grid-template-columns: 1fr; gap: 36px; padding: 0;
 }
 
-/* Карусель - ПЕРЕКЛЮЧАЕМ НА FLEXBOX ДЛЯ НАДЕЖНОЙ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ */
+/* Карусель */
 .card-carousel {
-    display: flex; /* 💡 FIX: Используем Flexbox */
-    flex-direction: row; /* 💡 FIX: Горизонтальное расположение */
-    flex-wrap: nowrap; /* 💡 FIX: Обязательно, чтобы не переносились строки */
-    
-    overflow-x: auto; 
-    overflow-y: hidden;
-    
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(3, 1fr);
+    grid-auto-columns: 85%;
+    overflow-x: auto; overflow-y: hidden;
     gap: var(--gap); padding: 0 14px;
     -webkit-overflow-scrolling: touch; scrollbar-width: none;
-    
-    /* Добавляем минимальную ширину, чтобы прокрутка работала */
-    min-width: 100%;
 }
 .card-carousel::-webkit-scrollbar { display: none; }
 
 /* Карточка */
 .card-carousel .card {
-    /* Сбрасываем Grid-свойства, если они влияли */
-    width: 85vw; /* 💡 FIX: Фиксируем ширину карточки через Viewport Width */
-    flex-shrink: 0; /* 💡 FIX: Запрещаем сжиматься */
-    flex-grow: 0; /* 💡 FIX: Запрещаем растягиваться */
-    
     background: var(--card); border: 1px solid var(--border);
     border-radius: var(--radius); height: 72px;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 14px; position: relative; 
-    overflow: visible; 
-    cursor: pointer;
+    padding: 10px 14px; position: relative; overflow: hidden; cursor: pointer;
     color: var(--text); font-size: 16px;
 }
 .card.placeholder {
@@ -74,44 +55,19 @@
 }
 
 /* Инфо */
-.card-info { 
-    flex-grow: 1; 
-    min-width: 0; 
-    max-width: calc(100% - 52px - var(--gap) - 75px); 
-}
-.card-info h3 { 
-    margin: 0; 
-    line-height: 1.2; 
-    white-space: normal; 
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis; 
-    height: 30px; 
-}
-.card-info .meta { 
-    margin: 0; 
-    line-height: 1.2; 
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+.card-info { flex-grow: 1; min-width: 0; }
+.card-info h3 { margin: 0; line-height: 1.2; }
+.card-info .meta { margin: 0; line-height: 1.2; }
 
 /* CTA */
 .card-cta {
-    width: 75px;
-    flex-shrink: 0; 
-    height: 30px; 
-    padding: 0 5px; 
-    border-radius: 9px;
+    flex-shrink: 0; height: 30px; padding: 0 16px; border-radius: 9px;
     margin-left: var(--gap); display: inline-flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: 700; text-decoration: none;
     background: var(--bg-elev); border: 1px solid var(--border); color: var(--accent);
     cursor: pointer; transition: background .2s ease;
 }
 .card-cta:active { background: color-mix(in oklab, var(--bg-elev) 80%, #000 20%); }
-.card-cta span {
-    white-space: nowrap;
-}
 
 /* Бейдж */
 .card-badge {
@@ -127,27 +83,14 @@
     border: none; color: #001018; font-weight: 700; border-radius: 12px; padding: 9px 20px;
     font-size: 15px; cursor: pointer; box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
     transition: transform .25s ease, box-shadow .25s ease;
-    display: block !important;
 }
 .view-all-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 179, 255, 0.65); }
 
 /* Десктоп */
 @media (min-width: 521px) {
-    /* Возвращаем Grid для десктопа */
     .card-carousel {
-        display: grid;
         grid-template-rows: repeat(3, 1fr);
-        grid-auto-flow: unset; 
-        grid-auto-columns: unset; 
-        overflow-x: hidden;
+        grid-auto-flow: unset; grid-auto-columns: unset; overflow-x: hidden;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        min-width: 0;
-    }
-    .card-carousel .card {
-        width: auto; 
-        flex-shrink: 1; /* Разрешаем сжиматься */
-        flex-grow: 1; /* Разрешаем растягиваться */
-        min-width: 0;
-        max-width: none;
     }
 }
