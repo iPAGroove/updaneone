@@ -1,329 +1,184 @@
-/* FULL SCREEN MENU MODAL */
-.menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.95);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    z-index: 1500;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .3s ease;
-}
-.menu-overlay.visible {
-    opacity: 1;
-    pointer-events: all;
-}
-.menu-content {
-    width: 100%;
-    height: 100%;
-    padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px);
-    position: relative;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-}
-/* Close button */
-.menu-close-btn {
-    position: absolute;
-    top: calc(env(safe-area-inset-top) + 20px);
-    right: 20px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--accent);
-    font-size: 26px; /* чуть больше, чем крестик */
-    width: 42px;
-    height: 42px;
-    border-radius: 12px; /* квадрат с мягкими углами = стильнее */
-    cursor: pointer;
-    transition: .25s;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 12px rgba(0,179,255,0.25);
-}
-/* Hover эффект — мягкое свечение */
-.menu-close-btn:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 22px rgba(0,179,255,0.55);
-    transform: translateX(-2px);
-}
-/* 1. User Profile */
-.user-profile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 25px;
-    padding-top: 30px;
-}
-.avatar {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--accent);
-    box-shadow: 0 0 15px rgba(0, 179, 255, 0.6);
-    margin-bottom: 10px;
-}
-.nickname {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 22px;
-    color: var(--text);
-    margin: 0;
-    letter-spacing: 1px;
-}
-/* 2. Login Options */
-.login-options {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 25px;
-}
-.login-prompt {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-.login-buttons {
-    display: flex;
-    gap: 20px;
-}
-.auth-btn {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--accent);
-    font-size: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: .2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 10px rgba(0, 179, 255, 0.2);
-}
-.auth-btn:hover {
-    background: color-mix(in oklab, var(--card) 90%, var(--accent) 10%);
-    border-color: var(--accent);
-}
-.auth-btn.anon-auth {
-    font-size: 24px;
-}
-/* 3. Certificate Card */
-.certificate-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 15px;
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.cert-info-placeholder {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 15px;
-    text-align: center;
-}
-.add-cert-btn {
-    width: auto;
-    padding: 8px 20px;
-    font-size: 14px;
-    border-radius: 8px;
-    box-shadow: none;
-}
-/* ===========================
-   BUTTON HIERARCHY (URSA STYLE)
-   =========================== */
-/* Base */
-.menu-action-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: .25s;
-}
-/* 4. Главная кнопка — Выбрать план */
-.select-plan-btn {
-    background: linear-gradient(90deg, var(--accent), #00e0ff);
-    color: #001018;
-    box-shadow: 0 0 18px rgba(0,179,255,0.45);
-}
-.select-plan-btn:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 28px rgba(0,179,255,0.7);
-}
-/* 5. Второстепенная — Купить сертификат */
-.buy-cert-btn {
-    background: var(--bg-elev);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    box-shadow: 0 0 12px rgba(0,179,255,0.25);
-}
-.buy-cert-btn:hover {
-    background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%);
-}
-/* 6. Тихие информационные кнопки */
-.change-lang-btn,
-.about-us-btn {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--muted);
-}
-.change-lang-btn:hover,
-.about-us-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-/* DESKTOP */
-@media (min-width: 601px) {
-    .menu-content {
-        max-width: 600px;
-        max-height: 90vh;
-        background: var(--bg-elev);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        box-shadow: 0 0 60px rgba(0,179,255,0.4);
-        padding: 40px 30px;
-    }
-    .menu-close-btn {
-        top: 15px;
-        right: 15px;
-    }
-    .user-profile, .login-options, .certificate-card, .menu-action-btn {
-        width: 100%;
-        max-width: 400px;
-        align-self: center;
-    }
-    .user-profile { padding-top: 0; }
-}
-/* ===========================
-   EMAIL AUTH MODAL (URSA GLASS)
-   =========================== */
-#email-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    z-index: 2500;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: .35s ease;
-}
-#email-modal.visible {
-    opacity: 1;
-    pointer-events: all;
-}
-.email-modal-content {
-    background: var(--bg-elev);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 28px 24px;
-    width: 90%;
-    max-width: 420px;
-    box-shadow: 0 0 40px rgba(0,179,255,0.4);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-/* Close Button */
-.email-modal-content .menu-close-btn {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 22px;
-    width: 42px;
-    height: 42px;
-    color: var(--accent);
-    box-shadow: 0 0 12px rgba(0,179,255,0.3);
-    cursor: pointer;
-    transition: .25s;
-}
-.email-modal-content .menu-close-btn:hover {
-    box-shadow: 0 0 22px rgba(0,179,255,0.7);
-}
-/* Title */
-.email-modal-content h2 {
-    font-family: 'Orbitron', sans-serif;
-    text-align: center;
-    color: var(--text);
-    margin-top: 18px;
-    margin-bottom: 4px;
-    font-size: 22px;
-}
-/* Inputs */
-.auth-input {
-    width: 100%;
-    padding: 13px 14px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 16px;
-}
-.auth-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 14px rgba(0,179,255,0.4);
-}
-/* Buttons */
-#email-login-btn,
-#email-register-btn,
-#email-reset-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    transition: .25s;
-}
-#email-login-btn {
-    background: linear-gradient(90deg, var(--accent), #00e0ff);
-    color: #001018;
-    box-shadow: 0 0 18px rgba(0,179,255,0.45);
-}
-#email-login-btn:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 28px rgba(0,179,255,0.7);
-}
-#email-register-btn {
-    background: var(--bg-elev);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-}
-#email-register-btn:hover {
-    background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%);
-}
-#email-reset-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-}
-#email-reset-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>URSA IPA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/core.css" />
+    <link rel="stylesheet" href="assets/css/header.css" />
+    <link rel="stylesheet" href="assets/css/navigation.css" />
+    <link rel="stylesheet" href="assets/css/catalog.css" />
+    <link rel="stylesheet" href="assets/css/modal.css" />
+    <link rel="stylesheet" href="assets/css/all-catalog.css" />
+    <link rel="stylesheet" href="assets/css/search.css" />
+    <link rel="stylesheet" href="assets/css/menu.css" />
+</head>
+<body>
+<header class="topbar">
+    <div class="wrap">
+        <div class="brand"><span>URSA IPA</span></div>
+    </div>
+</header>
+
+<main>
+    <div class="wrap">
+        <div id="catalog" class="catalog" role="list">
+            <section class="collection-row">
+                <h2 class="collection-title">Popular</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
+
+            <section class="collection-row">
+                <h2 class="collection-title">Update</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
+
+            <section class="collection-row">
+                <h2 class="collection-title">VIP</h2>
+                <div class="card-carousel"></div>
+                <button class="view-all-btn">Смотреть все</button>
+            </section>
+        </div>
+    </div>
+</main>
+
+<!-- NAVIGATION -->
+<nav class="tabbar" id="tabbar" role="tablist">
+    <div class="newdock">
+        <button class="nav-btn active" data-tab="apps">📱</button>
+        <button class="nav-btn" data-tab="games">🎮</button>
+        <button class="nav-btn" id="search-btn">🔍</button>
+        <button class="nav-btn" id="menu-btn">☰</button>
+    </div>
+</nav>
+
+<!-- === APP MODAL === -->
+<div class="modal-overlay" id="app-modal">
+    <div class="modal-content">
+        <button class="modal-close-btn" data-action="close">✕</button>
+
+        <div class="modal-header-new">
+            <img id="modal-icon" class="modal-icon" src="" alt="">
+            <div class="modal-info-col">
+                <h3 id="modal-title" class="modal-app-title">Название</h3>
+                <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
+            </div>
+        </div>
+
+        <div class="modal-metadata-new">
+            <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
+            <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
+            <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+        </div>
+
+        <div class="modal-features-new">
+            <h4>ФУНКЦИИ МОДА</h4>
+            <pre id="modal-features"></pre>
+        </div>
+
+        <div class="modal-description-new">
+            <p id="modal-desc"></p>
+        </div>
+    </div>
+</div>
+
+<!-- === FULL LIST MODAL === -->
+<div class="all-list-overlay" id="all-catalog-modal">
+    <div class="all-list-content">
+        <button class="all-close-btn" data-action="close-list">✕</button>
+        <h2 id="all-list-title">Каталог</h2>
+        <div id="all-list-container" class="all-list-scroll"></div>
+    </div>
+</div>
+
+<!-- === SEARCH MODAL === -->
+<div class="search-overlay" id="search-modal">
+    <div class="search-content">
+        <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
+        <p class="search-hint">Нажмите вне поиска, чтобы закрыть</p>
+        <div id="search-results" class="search-results"></div>
+    </div>
+</div>
+
+<!-- === MENU MODAL === -->
+<div class="menu-overlay" id="menu-modal">
+    <div class="menu-content">
+        <button class="menu-close-btn" data-action="close-menu">←</button>
+
+        <div class="user-profile">
+            <img id="user-avatar" src="https://placehold.co/100x100/121722/00b3ff?text=User" class="avatar" alt="">
+            <h3 id="user-nickname" class="nickname">Гость</h3>
+        </div>
+
+        <div class="login-options">
+            <p class="login-prompt">Войти через:</p>
+            <div class="login-buttons">
+                <button class="auth-btn google-auth" title="Google">G</button>
+                <button class="auth-btn facebook-auth" title="Facebook">f</button>
+                <button class="auth-btn email-auth" title="Email">✉️</button>
+            </div>
+        </div>
+
+        <div class="certificate-card">
+            <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
+            <button class="btn add-cert-btn">Добавить сертификат</button>
+        </div>
+
+        <button class="btn menu-action-btn select-plan-btn">Выбрать план</button>
+        <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
+        <button class="btn menu-action-btn change-lang-btn">Сменить язык</button>
+        <button class="btn menu-action-btn about-us-btn">О нас</button>
+    </div>
+</div>
+
+<!-- === EMAIL AUTH MODAL === -->
+<div id="email-modal" class="email-auth-overlay">
+  <div class="email-modal-content">
+    <button class="menu-close-btn" data-action="close-email">←</button>
+    <h2 class="email-title">Вход / Регистрация</h2>
+
+    <input type="text" id="email-input" placeholder="Email" class="auth-input"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+    <input type="password" id="password-input" placeholder="Пароль" class="auth-input"
+        autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false">
+
+    <button class="email-login-btn" id="email-login-btn">Войти</button>
+    <button class="email-register-btn" id="email-register-btn">Создать аккаунт</button>
+    <button class="email-reset-btn" id="email-reset-btn">Забыли пароль?</button>
+  </div>
+</div>
+
+<!-- === CERT IMPORT MODAL === -->
+<div id="cert-modal" class="email-auth-overlay">
+  <div class="email-modal-content">
+    <button class="menu-close-btn" data-action="close-cert">←</button>
+    <h2 class="email-title">Импорт сертификата</h2>
+
+    <label class="auth-label">Файл .p12</label>
+    <input type="file" id="cert-p12" accept=".p12" class="auth-input">
+
+    <label class="auth-label">Файл .mobileprovision</label>
+    <input type="file" id="cert-mobileprovision" accept=".mobileprovision" class="auth-input">
+
+    <label class="auth-label">Пароль для .p12 (если есть)</label>
+    <input type="password" id="cert-password" placeholder="Пароль (необязательно)" class="auth-input">
+
+    <button class="email-login-btn" id="cert-import-btn">Импортировать</button>
+  </div>
+</div>
+
+<!-- === SCRIPTS === -->
+<script type="module" src="assets/js/app.js"></script>
+<script type="module" src="assets/js/firebase/auth.js"></script>
+<script type="module" src="assets/js/firebase/user.js"></script>
+<script type="module" src="assets/js/navigation.js"></script>
+<script type="module" src="assets/js/modal.js"></script>
+<script type="module" src="assets/js/all-catalog.js"></script>
+<script type="module" src="assets/js/search.js"></script>
+<script type="module" src="assets/js/menu.js"></script>
+</body>
+</html>
