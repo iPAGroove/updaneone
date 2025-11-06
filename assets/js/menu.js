@@ -1,5 +1,5 @@
 // ===============================
-// Меню + Авторизация + Email Login + Смена Языка + Импорт Сертификата
+// Меню + Авторизация + Email Login + Импорт Сертификата
 // ===============================
 import {
     loginWithGoogle,
@@ -18,17 +18,14 @@ import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs
 const storage = getStorage();
 
 // ===============================
-// 🔍 Парсим UDID / UUID и дату из mobileprovision
-// Ищем ProvisionedDevices или используем UUID как ID для Enterprise/Development profiles.
+// 🔍 Парсим UDID / UUID и дату из .mobileprovision
 // ===============================
 async function parseMobileProvision(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-
         reader.onload = function(event) {
             try {
                 const text = event.target.result;
-
                 const xmlStart = text.indexOf("<?xml");
                 const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
                 const xml = text.substring(xmlStart, xmlEnd);
@@ -38,9 +35,7 @@ async function parseMobileProvision(file) {
 
                 if (udidMatch) {
                     const udidList = [...udidMatch[1].matchAll(/<string>([^<]+)<\/string>/g)];
-                    if (udidList.length > 0) {
-                        profileID = udidList[0][1];
-                    }
+                    if (udidList.length > 0) profileID = udidList[0][1];
                 }
 
                 if (!profileID) {
@@ -50,11 +45,8 @@ async function parseMobileProvision(file) {
                 const expiryDate = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] || null;
 
                 resolve({ udid: profileID, expiryDate });
-            } catch (err) {
-                reject(err);
-            }
+            } catch (err) { reject(err); }
         };
-
         reader.readAsText(file);
     });
 }
@@ -75,12 +67,10 @@ function renderCertificateBlock() {
         return;
     }
 
-    // ✅ Проверяем статус сертификата
     const isExpired = new Date(expiry) < new Date();
     const status = isExpired ? "❌ Отозван" : "✅ Активен";
     const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
 
-    // ✅ Вывод с статусом
     card.innerHTML = `
         <p><strong>ID Профиля:</strong> ${udid.length > 30 ? udid.substring(0, 8) + '...' : udid}</p>
         <p><strong>Действует до:</strong> ${expiry}</p>
@@ -103,8 +93,7 @@ async function importCertificate() {
     if (!user) return alert("Сначала выполните вход.");
 
     const parsed = await parseMobileProvision(mp);
-
-    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь информацию о профиле (UUID/дату). Проверьте файл.");
+    if (!parsed.udid || !parsed.expiryDate) return alert("Ошибка чтения файла профиля.");
 
     const uid = user.uid;
     const folder = `signers/${uid}/`;
@@ -120,21 +109,23 @@ async function importCertificate() {
             createdAt: new Date().toISOString()
         }, { merge: true });
 
+        // ✅ сохраняем сертификат для signer.js
         localStorage.setItem("ursa_cert_udid", parsed.udid);
         localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
+        localStorage.setItem("ursa_signer_id", uid); // ← ВОТ ЭТА СТРОКА РЕШАЕТ ПРОБЛЕМУ 🚀
 
         document.getElementById("cert-modal").classList.remove("visible");
         renderCertificateBlock();
         openMenu();
 
     } catch (error) {
-        console.error("Ошибка при загрузке файлов:", error);
-        alert("Ошибка при загрузке файлов. Попробуйте снова.");
+        console.error(error);
+        alert("Ошибка при загрузке сертификата.");
     }
 }
 
 // ===============================
-// 📌 Меню UI
+// Меню UI
 // ===============================
 function openMenu() {
     document.getElementById("menu-modal").classList.add("visible");
@@ -155,10 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
         openMenu();
     });
 
-    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
-        if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']")) closeMenu();
-    });
-
     document.getElementById("cert-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
             document.getElementById("cert-modal").classList.remove("visible");
@@ -169,10 +156,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cert-import-btn").onclick = importCertificate;
 
     document.body.addEventListener("click", (e) => {
-        if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
+        if (e.target.classList.contains("add-cert-btn"))
+            document.getElementById("cert-modal").classList.add("visible");
+
         if (e.target.classList.contains("delete-cert-btn")) {
             localStorage.removeItem("ursa_cert_udid");
             localStorage.removeItem("ursa_cert_exp");
+            localStorage.removeItem("ursa_signer_id"); // ✅ удаляем тоже
             renderCertificateBlock();
         }
     });
