@@ -10,7 +10,7 @@ import {
 } from "./firebase/auth.js";
 
 import { onUserChanged } from "./firebase/user.js";
-import { auth, db } from "./firebase.js";
+import { auth, db } from "./app.js";
 
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
@@ -72,7 +72,7 @@ async function importCertificate() {
 
     const p12Url = await getDownloadURL(p12Ref);
     const mpUrl = await getDownloadURL(mpRef);
-    const expires = new Date(Date.now() + 31536000000).toISOString(); // +1 год
+    const expires = new Date(Date.now() + 31536000000).toISOString();
 
     await setDoc(doc(db, "ursa_signers", uid), {
         p12Url,
@@ -82,7 +82,6 @@ async function importCertificate() {
         createdAt: new Date().toISOString()
     }, { merge: true });
 
-    // localStorage обновление
     localStorage.setItem("ursa_signer_id", uid);
     localStorage.setItem("ursa_cert_account", user.email || uid);
     localStorage.setItem("ursa_cert_exp", expires);
@@ -92,11 +91,10 @@ async function importCertificate() {
     document.getElementById("menu-modal").classList.add("visible");
 }
 
+// ===============================
+// ГЛАВНОЕ
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
-
-    // ===============================
-    // 📌 Меню
-    // ===============================
     const menuBtn = document.getElementById("menu-btn");
     const menuOverlay = document.getElementById("menu-modal");
 
@@ -117,43 +115,19 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
 
     // ===============================
-    // 🌍 Смена языка
-    // ===============================
-    const changeLangBtn = document.querySelector(".change-lang-btn");
-    let currentLang = localStorage.getItem("ursa_lang") || "ru";
-
-    const uiText = {
-        ru: { selectPlan: "Выбрать план", buyCert: "Купить сертификат", changeLang: "Сменить язык", aboutUs: "О нас" },
-        en: { selectPlan: "Select Plan", buyCert: "Buy Certificate", changeLang: "Change Language", aboutUs: "About Us" }
-    };
-    function applyLang() {
-        document.querySelector(".select-plan-btn").textContent = uiText[currentLang].selectPlan;
-        document.querySelector(".buy-cert-btn").textContent = uiText[currentLang].buyCert;
-        document.querySelector(".change-lang-btn").textContent = uiText[currentLang].changeLang;
-        document.querySelector(".about-us-btn").textContent = uiText[currentLang].aboutUs;
-    }
-    applyLang();
-
-    changeLangBtn?.addEventListener("click", () => {
-        currentLang = currentLang === "ru" ? "en" : "ru";
-        localStorage.setItem("ursa_lang", currentLang);
-        applyLang();
-    });
-
-    // ===============================
-    // 🔐 Соц вход
-    // ===============================
-    document.querySelector(".google-auth")?.addEventListener("click", async () => { await loginWithGoogle(); closeMenu(); });
-    document.querySelector(".facebook-auth")?.addEventListener("click", async () => { await loginWithFacebook(); closeMenu(); });
-
-    // ===============================
-    // ✉ Email auth
+    // ✉ Email Auth
     // ===============================
     const emailBtn = document.querySelector(".email-auth");
     const emailModal = document.getElementById("email-modal");
+    const emailInput = document.getElementById("email-input");
+    const passwordInput = document.getElementById("password-input");
 
-    emailBtn?.addEventListener("click", () => { closeMenu(); emailModal.classList.add("visible"); });
-    emailModal.addEventListener("click", (e) => { if (e.target === emailModal || e.target.closest("[data-action='close-email']")) emailModal.classList.remove("visible"); });
+    emailBtn?.addEventListener("click", () => { closeMenu();  emailModal.classList.add("visible"); });
+    emailModal.addEventListener("click", (e) => {
+        if (e.target === emailModal || e.target.closest("[data-action='close-email']")) {
+            emailModal.classList.remove("visible");
+        }
+    });
 
     document.getElementById("email-login-btn")?.addEventListener("click", async () => {
         await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
@@ -167,10 +141,18 @@ document.addEventListener("DOMContentLoaded", () => {
         openMenu();
     });
 
-    document.getElementById("email-reset-btn")?.addEventListener("click", () => resetPassword(emailInput.value.trim()));
+    document.getElementById("email-reset-btn")?.addEventListener("click", () => {
+        resetPassword(emailInput.value.trim());
+    });
 
     // ===============================
-    // 👤 Профиль
+    // 🔐 Соц вход
+    // ===============================
+    document.querySelector(".google-auth")?.addEventListener("click", async () => { await loginWithGoogle(); closeMenu(); });
+    document.querySelector(".facebook-auth")?.addEventListener("click", async () => { await loginWithFacebook(); closeMenu(); });
+
+    // ===============================
+    // 👤 Обновление профиля
     // ===============================
     onUserChanged((user) => {
         document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
@@ -178,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ===============================
-    // 💳 Модалка сертификата
+    // Сертификат
     // ===============================
     document.body.addEventListener("click", (e) => {
         if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
