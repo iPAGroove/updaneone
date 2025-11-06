@@ -30,60 +30,61 @@ function timeSince(date) {
 export function openModal(data) {
     if (!modalOverlay || !data) return;
 
-    // ==========================================
-    // 🔥 Привязываем реальную ссылку на IPA
-    // ==========================================
-    data.link = data.DownloadUrl; // ← ВАЖНО! (ИСПРАВЛЯЕТ Invalid URL)
-    
-    // ==========================================
-    // Заголовок + иконка + метаданные
-    // ==========================================
-    document.getElementById('modal-icon').src = data.iconUrl;
-    document.getElementById('modal-title').textContent = data.NAME;
-    document.getElementById('modal-version').textContent = data.Version;
-    document.getElementById('modal-time-ago').textContent = timeSince(new Date(data.updatedAt));
+    // ===============================
+    // 🔧 ФОЛЛБЭКИ НА СТАРЫЕ / НОВЫЕ ПОЛЯ
+    // ===============================
+    const icon = data.img || data.iconUrl || "";
+    const title = data.title || data.NAME || "Без названия";
+    const version = data.version || data.Version || "N/A";
+    const size = data.size || (data.sizeBytes ? (data.sizeBytes/1_000_000).toFixed(1) + " MB" : "N/A");
+    const uploadTime = data.uploadTime || data.updatedAt || new Date().toISOString();
+    const link = data.link || data.DownloadUrl; // ← КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ
 
-    // Размер конвертируем
-    const sizeMB = data.sizeBytes ? (data.sizeBytes / 1_000_000).toFixed(1) + " MB" : "N/A";
-    document.getElementById('modal-size').textContent = sizeMB;
+    // ===============================
+    // Заполняем UI
+    // ===============================
+    document.getElementById('modal-icon').src = icon;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-version').textContent = version;
+    document.getElementById('modal-size').textContent = size;
+    document.getElementById('modal-time-ago').textContent = timeSince(new Date(uploadTime));
 
-    // ==========================================
-    // Функции мода (RU > EN fallback)
-    // ==========================================
-    const features = data.features_ru || data.features_en || "";
-    const formattedFeatures = features.replace(/,\s*/g, '\n').trim();
-    document.getElementById('modal-features').textContent = formattedFeatures;
+    // --- функции мода ---
+    const features = data.features || data.features_ru || data.features_en || "";
+    const featuresFormatted = features.replace(/,\s*/g, '\n').trim();
+    document.getElementById('modal-features').textContent = featuresFormatted;
 
-    // ==========================================
-    // Описание (RU > EN fallback)
-    // ==========================================
-    let desc = (data.description_ru || data.description_en || "").trim();
+    // --- описание ---
+    let desc = (data.desc || data.description_ru || data.description_en || "").trim();
     if (
         desc.toLowerCase() === "функции мода" ||
         desc.toLowerCase() === "hack features" ||
-        desc === formattedFeatures ||
-        desc.replace(/\s+/g, '') === formattedFeatures.replace(/\s+/g, '')
+        desc === "" ||
+        desc === featuresFormatted ||
+        desc.replace(/\s+/g, '') === featuresFormatted.replace(/\s+/g, '')
     ) {
         desc = "";
     }
     document.getElementById('modal-desc').textContent = desc;
 
-    // ==========================================
-    // Кнопка Установить → installIPA(data)
-    // ==========================================
+    // ===============================
+    // 🚀 УСТАНОВКА (в signer уходит правильная ссылка)
+    // ===============================
     const ctaButton = document.getElementById('modal-cta');
     ctaButton.textContent = "Установить";
     ctaButton.removeAttribute("href");
 
     ctaButton.onclick = (e) => {
         e.preventDefault();
-        installIPA(data); // ← Запускаем signer
+        installIPA({
+            ...data,
+            link // ← ВАЖНО, теперь значение гарантированно есть
+        });
     };
 
-    // Очистить прогресс-линии при повторном открытии
+    // Очистка прогресса при открытии
     if (dlRow) dlRow.innerHTML = "";
 
-    // Показать окно
     modalOverlay.classList.add('visible');
     document.body.classList.add('modal-open');
 }
@@ -91,8 +92,6 @@ export function openModal(data) {
 function closeModal() {
     modalOverlay.classList.remove('visible');
     document.body.classList.remove('modal-open');
-
-    // Очистить прогресс после закрытия
     if (dlRow) dlRow.innerHTML = "";
 }
 
