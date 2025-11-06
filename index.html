@@ -17,7 +17,8 @@
     <link rel="stylesheet" href="assets/css/search.css" />
     <link rel="stylesheet" href="assets/css/menu.css" />
 </head>
-<body>
+
+<body autocomplete="off">
 
 <header class="topbar">
     <div class="wrap">
@@ -103,7 +104,7 @@
 <!-- === SEARCH MODAL === -->
 <div class="search-overlay" id="search-modal">
     <div class="search-content">
-        <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
+        <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
         <p class="search-hint">Нажмите вне поиска, чтобы закрыть</p>
         <div id="search-results" class="search-results"></div>
     </div>
@@ -147,8 +148,10 @@
     <button class="menu-close-btn" data-action="close-email">←</button>
     <h2 class="email-title">Вход / Регистрация</h2>
 
-    <input type="text" id="email-input" placeholder="Email" class="auth-input">
-    <input type="password" id="password-input" placeholder="Пароль" class="auth-input">
+    <input type="text" id="email-input" placeholder="Email" class="auth-input"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" name="">
+    <input type="password" id="password-input" placeholder="Пароль" class="auth-input"
+        autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" name="">
 
     <button class="email-submit-btn" id="email-login-btn">Войти</button>
     <button class="email-register-btn" id="email-register-btn">Создать аккаунт</button>
@@ -156,14 +159,20 @@
   </div>
 </div>
 
-<!-- === CERTIFICATE UPLOAD MODAL === -->
+<!-- === CERTIFICATE UPLOAD MODAL (2 FILES) === -->
 <div id="cert-modal" class="email-auth-overlay">
   <div class="email-modal-content">
     <button class="menu-close-btn" data-action="close-cert">←</button>
     <h2 class="email-title">Импорт сертификата</h2>
 
-    <input type="file" id="cert-file" accept=".p12,.mobileprovision" class="auth-input">
-    <input type="password" id="cert-pass" placeholder="Пароль (если есть)" class="auth-input">
+    <label class="login-prompt">Файл сертификата (.p12)</label>
+    <input type="file" id="cert-file-p12" accept=".p12" class="auth-input">
+
+    <label class="login-prompt">Provision профайл (.mobileprovision)</label>
+    <input type="file" id="cert-file-mobile" accept=".mobileprovision" class="auth-input">
+
+    <input type="password" id="cert-pass" placeholder="Пароль (если есть)" class="auth-input"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
 
     <button class="email-login-btn" id="cert-upload-btn">Импортировать</button>
   </div>
