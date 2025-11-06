@@ -4,15 +4,16 @@
     background: rgba(0,0,0,0.95);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     z-index: 1500; display: flex; justify-content: center; 
-    /* 🛑 ИСПРАВЛЕНИЕ: Для лучшего скролла на мобильных, начинаем сверху */
-    align-items: flex-start; 
+    /* ✅ ФИКС: Возвращаем центрирование для полноэкранного вида */
+    align-items: center; 
     opacity: 0; pointer-events: none; transition: opacity .3s ease;
 }
 .menu-overlay.visible { opacity: 1; pointer-events: all; }
 
 .menu-content {
-    /* На мобильных устройствах меню занимает весь экран (width: 100%, height: 100%) */
-    width: 100%; height: 100%;
+    width: 100%; 
+    /* ✅ ФИКС: Оставляем 100% для корректного отображения на iOS */
+    height: 100%; 
     /* Паддинги, включая safe-area, обеспечивают пространство */
     padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px);
     position: relative; 
@@ -38,8 +39,8 @@
 .user-profile {
     display: flex; flex-direction: column; align-items: center;
     margin-bottom: 25px; 
-    /* Убираем лишний паддинг, так как он уже есть в .menu-content. Оставим для визуального разделения. */
-    padding-top: 5px; 
+    /* ✅ ФИКС: Удаляем лишний padding-top, чтобы не было двойного отступа */
+    padding-top: 0; 
 }
 .avatar {
     width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
@@ -71,13 +72,13 @@
 /* 3. Certificate Card */
 .certificate-card {
     background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 18px; /* Увеличиваем паддинг */
-    margin-bottom: 20px; /* Увеличиваем отступ */
-    display: flex; flex-direction: column; align-items: stretch; /* Растягиваем элементы внутри */
+    padding: 18px; 
+    margin-bottom: 20px; 
+    display: flex; flex-direction: column; align-items: stretch; 
     gap: 10px;
 }
 .certificate-card p {
-    word-break: break-all; /* Для длинных UDID/UUID */
+    word-break: break-all; 
     color: var(--muted);
     font-size: 15px;
     text-align: left;
@@ -119,7 +120,7 @@
     
     .menu-content {
         max-width: 600px; max-height: 90vh; 
-        /* Убираем height: 100% на десктопе, чтобы max-height работал корректно */
+        /* ✅ ФИКС: Убираем height: 100% на десктопе, чтобы max-height работал корректно */
         height: auto; 
         background: var(--bg-elev);
         border: 1px solid var(--border); border-radius: var(--radius);
@@ -133,7 +134,7 @@
 }
 
 /* EMAIL & CERT MODALS COMMON */
-/* ... (оставляем без изменений, они выглядят хорошо) ... */
+/* ... (оставляем без изменений) ... */
 #email-modal, #cert-modal {
     position: fixed; inset: 0; background: rgba(0,0,0,0.85);
     backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
