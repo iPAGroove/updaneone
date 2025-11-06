@@ -18,15 +18,15 @@ import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs
 const storage = getStorage();
 
 // ===============================
-// 🔍 Правильный парсер .mobileprovision → XML
+// 🔍 Парсим UDID и дату из mobileprovision
 // ===============================
 async function parseMobileProvision(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
+
         reader.onload = function(event) {
             try {
-                const buffer = new Uint8Array(event.target.result);
-                const text = new TextDecoder().decode(buffer);
+                const text = event.target.result;
 
                 const xmlStart = text.indexOf("<?xml");
                 const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
@@ -40,12 +40,13 @@ async function parseMobileProvision(file) {
                 reject(err);
             }
         };
-        reader.readAsArrayBuffer(file); // ✅ Обязателен для корректного извлечения
+
+        reader.readAsText(file);
     });
 }
 
 // ===============================
-// 📌 Сертификат UI
+// 📌 Обновить UI сертификата
 // ===============================
 function renderCertificateBlock() {
     const card = document.querySelector(".certificate-card");
@@ -80,8 +81,9 @@ async function importCertificate() {
     const user = auth.currentUser;
     if (!user) return alert("Сначала выполните вход.");
 
+    // ✅ Парсим реальный UDID и дату
     const parsed = await parseMobileProvision(mp);
-    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные. Проверь файл.");
+    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь информацию из сертификата");
 
     const uid = user.uid;
     const folder = `signers/${uid}/`;
@@ -96,32 +98,23 @@ async function importCertificate() {
         createdAt: new Date().toISOString()
     }, { merge: true });
 
+    // ✅ Сохраняем UI данные
     localStorage.setItem("ursa_cert_udid", parsed.udid);
     localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
 
+    // ✅ Закрываем модалку → возвращаемся в меню
     document.getElementById("cert-modal").classList.remove("visible");
     renderCertificateBlock();
     openMenu();
 }
 
 // ===============================
-// 📌 Меню UI + скрытие других окон (как было раньше)
+// 📌 Меню UI
 // ===============================
 function openMenu() {
-
-    // ✅ Скрываем ВСЕ другие модалки, чтобы не конфликтовали
-    document.getElementById("app-modal")?.classList.remove("visible");
-    document.getElementById("all-catalog-modal")?.classList.remove("visible");
-    document.getElementById("search-modal")?.classList.remove("visible");
-    document.getElementById("email-modal")?.classList.remove("visible");
-    document.getElementById("cert-modal")?.classList.remove("visible");
-
-    renderCertificateBlock();
-
     document.getElementById("menu-modal").classList.add("visible");
     document.body.classList.add("modal-open");
 }
-
 function closeMenu() {
     document.getElementById("menu-modal").classList.remove("visible");
     document.body.classList.remove("modal-open");
@@ -132,16 +125,16 @@ function closeMenu() {
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Открытие меню
-    document.getElementById("menu-btn")?.addEventListener("click", openMenu);
-
-    // Закрытие меню
-    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
-        if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
-            closeMenu();
+    document.getElementById("menu-btn")?.addEventListener("click", () => {
+        renderCertificateBlock();
+        openMenu();
     });
 
-    // Назад в модалке сертификата
+    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
+        if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']")) closeMenu();
+    });
+
+    // ✅ Кнопка Назад на окне сертификата
     document.getElementById("cert-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
             document.getElementById("cert-modal").classList.remove("visible");
@@ -151,11 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("cert-import-btn").onclick = importCertificate;
 
-    // Добавить / удалить сертификат
+    // Кнопка Добавить / Удалить сертификат
     document.body.addEventListener("click", (e) => {
-        if (e.target.classList.contains("add-cert-btn"))
-            document.getElementById("cert-modal").classList.add("visible");
-
+        if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
         if (e.target.classList.contains("delete-cert-btn")) {
             localStorage.removeItem("ursa_cert_udid");
             localStorage.removeItem("ursa_cert_exp");
@@ -163,7 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Email модалка
+    // ===============================
+    // Email Auth
+    // ===============================
     const emailModal = document.getElementById("email-modal");
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
@@ -192,11 +185,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("email-reset-btn")?.addEventListener("click", () => resetPassword(emailInput.value.trim()));
 
-    // Социальная авторизация
+    // ===============================
+    // Соц авторизация
+    // ===============================
     document.querySelector(".google-auth")?.addEventListener("click", async () => { await loginWithGoogle(); closeMenu(); });
     document.querySelector(".facebook-auth")?.addEventListener("click", async () => { await loginWithFacebook(); closeMenu(); });
 
+    // ===============================
     // Профиль
+    // ===============================
     onUserChanged((user) => {
         document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
         document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
