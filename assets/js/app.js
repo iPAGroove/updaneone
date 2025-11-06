@@ -1,3 +1,4 @@
+// assets/js/app.js
 // ===============================
 // Firebase + Catalog App Loader
 // ===============================
@@ -57,20 +58,13 @@ function createCardHtml(data) {
 }
 
 function attachModalOpenListeners(carousel) {
+    // 💡 ПРОФИКСЕНО: Привязываем слушатель к родительскому элементу. 
+    // Клик обрабатывается только если нажат именно CTA.
     carousel.addEventListener("click", (event) => {
-        // Проверяем, был ли клик по кнопке "Открыть"
         const btn = event.target.closest(".open-modal-btn");
-        
-        // Если клик не по кнопке, проверяем, был ли клик по самой карточке,
-        // но убеждаемся, что это не клик по плейсхолдеру
-        const card = event.target.closest(".card:not(.placeholder)");
-
-        const targetElement = btn || card;
-        if (!targetElement) return;
-
-        const id = targetElement.dataset.id;
+        if (!btn) return;
+        const id = btn.dataset.id;
         const data = appsData.find(app => app.id === id);
-        
         if (data) openModal(data);
     });
 }
@@ -80,30 +74,22 @@ function attachModalOpenListeners(carousel) {
 // ===============================
 export function displayCatalog() {
     const rows = document.querySelectorAll(".collection-row");
-    // 💡 Уменьшаем лимит для лучшей совместимости с мобильными,
-    // так как в CSS используется grid-template-rows: repeat(3, 1fr);
-    // и 12 карточек могут выглядеть как 4 столбца по 3 ряда
-    const LIMIT = 12; 
+    const LIMIT = 12;
 
     rows.forEach(row => {
         const carousel = row.querySelector(".card-carousel");
         const sectionTitleElement = row.querySelector(".collection-title");
-        
-        // Используем текст заголовка для фильтрации
         const section = sectionTitleElement ? sectionTitleElement.textContent.trim() : "";
-
-        // Сбрасываем карусель перед заполнением
+        
         carousel.innerHTML = "";
 
         let items = appsData.filter(app => {
             const tags = (app.tags || "").toLowerCase().split(",").map(t => t.trim());
             
-            // Фильтруем по текущей категории (apps/games)
             if (!tags.includes(currentCategory)) return false;
             
-            // Фильтруем по секции (VIP/Update/Popular)
             if (section === "VIP") return app.badge === "VIP";
-            // 'Popular' и 'Update' не должны быть VIP, но должны быть 'apps' или 'games'
+            // Включаем non-VIP элементы в Popular/Update
             if (section === "Popular" || section === "Update") return app.badge !== "VIP";
             
             return true;
@@ -111,14 +97,12 @@ export function displayCatalog() {
 
         items.forEach(app => carousel.insertAdjacentHTML("beforeend", createCardHtml(app)));
         
-        // 💡 Здесь мы просто добавляем плейсхолдеры, чтобы сетка сохранила структуру 3 ряда
-        // Если элементов 10, нужно 2 плейсхолдера для заполнения 12 ячеек в 3 ряда (4 столбца)
+        // Добавляем плейсхолдеры для сохранения сетки 3x4
         const placeholdersNeeded = LIMIT - items.length;
         for (let i = 0; i < placeholdersNeeded; i++) {
             carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
         }
         
-        // 💡 Аттачим слушатель один раз после заполнения
         attachModalOpenListeners(carousel);
     });
 }
@@ -133,12 +117,10 @@ async function loadDataFromFirestore() {
             const item = doc.data();
             return {
                 id: doc.id,
-                // Используем NAME как title
-                title: item.NAME || "Без названия", 
+                title: item.NAME || "Без названия",
                 version: item.Version || "N/A",
                 desc: item.description_ru || item.description_en || "",
                 img: item.iconUrl || "https://placehold.co/200x200",
-                // Убеждаемся, что tags всегда строка
                 tags: Array.isArray(item.tags) ? item.tags.join(",").toLowerCase() : (item.tags || "").toLowerCase(),
                 link: item.DownloadUrl || "#",
                 size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : "N/A",
