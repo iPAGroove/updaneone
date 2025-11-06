@@ -1,6 +1,5 @@
-// assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Смена Языка
+// Меню + Авторизация + Email Login + Смена Языка + Сертификат
 // ===============================
 
 import {
@@ -12,9 +11,7 @@ import {
 } from "./firebase/auth.js";
 
 import { onUserChanged } from "./firebase/user.js";
-import { onUserChanged, updateCertUI } from "./firebase/user.js"; // ⚠️ Импорт updateCertUI
-
-import { openCertModal } from "./cert-manager.js"; // 🔑 Импорт для работы с сертификатом
+import { uploadCertificate, getCertificate, deleteCertificate } from "./firebase/cert.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -27,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function openMenu() {
         menuOverlay.classList.add("visible");
         document.body.classList.add("modal-open");
+        renderCertUI(); // ✅ всегда перерисовываем блок сертификата
     }
     function closeMenu() {
         menuOverlay.classList.remove("visible");
@@ -34,11 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     menuBtn?.addEventListener("click", openMenu);
-
     menuOverlay?.addEventListener("click", (e) => {
         if (e.target === menuOverlay || e.target.closest("[data-action='close-menu']")) closeMenu();
     });
-
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeMenu();
     });
@@ -81,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
-    // 🔐 Google / Facebook вход
+    // 🔐 Авторизация
     // ===============================
     document.querySelector(".google-auth")?.addEventListener("click", async () => {
         await loginWithGoogle();
@@ -95,45 +91,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
-    // ✉ Email Login Modal
+    // ✉ Email Modal
     // ===============================
     const emailBtn = document.querySelector(".email-auth");
     const emailModal = document.getElementById("email-modal");
 
-    function openEmailModal() {
-        closeMenu();
-        emailModal.classList.add("visible");
-    }
-    function closeEmailModal() {
-        emailModal.classList.remove("visible");
-    }
+    function openEmailModal() { closeMenu(); emailModal.classList.add("visible"); }
+    function closeEmailModal() { emailModal.classList.remove("visible"); }
 
     emailBtn?.addEventListener("click", openEmailModal);
-
     emailModal?.addEventListener("click", (e) => {
         if (e.target === emailModal || e.target.closest("[data-action='close-email']")) closeEmailModal();
     });
-
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeEmailModal();
     });
 
-    // ===============================
-    // ✉ Email вход / регистрация / восстановление
-    // ===============================
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
 
     document.getElementById("email-login-btn")?.addEventListener("click", async () => {
         await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-        closeEmailModal();
-        openMenu();
+        closeEmailModal(); openMenu();
     });
 
     document.getElementById("email-register-btn")?.addEventListener("click", async () => {
         await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-        closeEmailModal();
-        openMenu();
+        closeEmailModal(); openMenu();
     });
 
     document.getElementById("email-reset-btn")?.addEventListener("click", () => {
@@ -142,56 +126,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
-    // 🔑 Обработка Сертификата (передаем управление в cert-manager.js)
+    // ✅ CERTIFICATE UPLOAD MODAL
     // ===============================
-    const addCertBtn = document.getElementById("add-cert-btn");
-    
-    // Передаем функцию закрытия меню в cert-manager для вызова после нажатия
-    addCertBtn?.addEventListener("click", () => openCertModal(closeMenu));
+    const certModal = document.getElementById("cert-modal");
+    const addCertBtn = document.querySelector(".add-cert-btn");
+
+    function openCertModal() {
+        closeMenu();
+        certModal.classList.add("visible");
+    }
+    function closeCertModal() {
+        certModal.classList.remove("visible");
+    }
+
+    addCertBtn?.addEventListener("click", openCertModal);
+    certModal?.addEventListener("click", (e) => {
+        if (e.target === certModal || e.target.closest("[data-action='close-cert']")) closeCertModal();
+    });
+
+    document.getElementById("cert-upload-btn")?.addEventListener("click", async () => {
+        const file = document.getElementById("cert-file").files[0];
+        const pass = document.getElementById("cert-pass").value.trim();
+
+        if (!file) return alert("Выберите файл сертификата.");
+
+        await uploadCertificate(file, pass);
+        closeCertModal();
+        openMenu();
+    });
 
 
     // ===============================
-    // 👤 Обновление UI (СРАЗУ, без перезагрузки)
+    // 🧩 Рендер UI сертификата
+    // ===============================
+    async function renderCertUI() {
+        const certBlock = document.querySelector(".certificate-card");
+        const certData = await getCertificate();
+
+        if (!certData) {
+            certBlock.innerHTML = `
+                <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
+                <button class="btn add-cert-btn">Добавить сертификат</button>
+            `;
+            certBlock.querySelector(".add-cert-btn").addEventListener("click", openCertModal);
+            return;
+        }
+
+        certBlock.innerHTML = `
+            <p class="cert-info-placeholder">
+                UDID: <b>${certData.udid}</b><br>
+                Доступен до: <b>${certData.expiresAt}</b>
+            </p>
+            <button class="btn buy-cert-btn delete-cert-btn">Удалить сертификат</button>
+        `;
+
+        certBlock.querySelector(".delete-cert-btn").addEventListener("click", async () => {
+            await deleteCertificate();
+            renderCertUI();
+        });
+    }
+
+
+    // ===============================
+    // 👤 Обновление UI пользователя
     // ===============================
     const nickEl = document.getElementById("user-nickname");
     const avatarEl = document.getElementById("user-avatar");
-
-    // ⚠️ DOM-элементы для секции сертификата
-    const certPlaceholder = document.getElementById('cert-info-placeholder');
-    const certDisplay = document.getElementById('cert-info-display');
-    const certUdidEl = document.getElementById('cert-udid');
-    const certExpiryEl = document.getElementById('cert-expiry');
-    const deleteCertBtn = document.querySelector('.delete-cert-btn');
-
-    // ⚠️ Обработчик для кнопки удаления сертификата
-    deleteCertBtn?.addEventListener('click', async () => {
-        if (confirm("Вы уверены, что хотите удалить этот сертификат?")) {
-            // TODO: Реализовать логику удаления сертификата
-            alert("Функция удаления пока не реализована.");
-        }
-    });
 
     onUserChanged((user) => {
         if (!user) {
             nickEl.textContent = "Гость";
             avatarEl.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
-            
-            // Скрываем данные, показываем кнопку "Добавить"
-            certDisplay.style.display = 'none';
-            certPlaceholder.style.display = 'flex';
+            renderCertUI();
             return;
         }
 
         nickEl.textContent = user.displayName || user.email || "Пользователь";
         avatarEl.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
 
-        // ⚠️ Обновляем UI сертификата
-        updateCertUI(user.uid, {
-            displayEl: certDisplay,
-            placeholderEl: certPlaceholder,
-            udidEl: certUdidEl,
-            expiryEl: certExpiryEl
-        });
+        renderCertUI();
     });
 
 });
