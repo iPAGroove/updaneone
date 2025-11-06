@@ -1,8 +1,13 @@
-/* assets/css/catalog.css (Финальная версия с iOS Fix) */
+/* assets/css/catalog.css (Финальная версия с исправлением видимости) */
 
 /* === СЕКЦИИ === */
 .collection-row {
-    display: flex; flex-direction: column; gap: 14px;
+    display: flex; 
+    flex-direction: column; 
+    gap: 14px;
+    /* 💡 НОВОЕ ИСПРАВЛЕНИЕ: Гарантируем видимость и предотвращаем схлопывание */
+    width: 100%;
+    min-height: 100px; 
 }
 
 /* Заголовок */
@@ -17,6 +22,8 @@
     border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
     color: var(--accent);
     text-shadow: 0 0 6px rgba(0, 179, 255, 0.6), 0 0 14px rgba(0, 179, 255, 0.3);
+    /* 💡 ДОБАВЛЕНО: Убедимся, что заголовок не скрыт */
+    display: block !important;
 }
 
 /* Сетка каталога */
@@ -31,9 +38,8 @@
     grid-auto-flow: column;
     grid-template-rows: repeat(3, 1fr);
     
-    /* ❌ grid-auto-columns: 85%; часто игнорируется в iOS/Safari */
-    /* 💡 iOS FIX 1: Явно ограничиваем размер столбца и используем flex-shrink */
-    grid-auto-columns: 85vw; /* Используем viewport width для гарантированного размера */
+    /* iOS FIX 1: Явно ограничиваем размер столбца */
+    grid-auto-columns: 85vw; 
     
     overflow-x: auto; overflow-y: hidden;
     gap: var(--gap); padding: 0 14px;
@@ -47,11 +53,11 @@
     border-radius: var(--radius); height: 72px;
     display: flex; align-items: center; justify-content: space-between;
     padding: 10px 14px; position: relative; 
-    overflow: visible; /* Разрешаем overflow для переноса текста */
+    overflow: visible; 
     cursor: pointer;
     color: var(--text); font-size: 16px;
     
-    /* 💡 iOS FIX 2: Принудительно устанавливаем минимальную и максимальную ширину */
+    /* iOS FIX 2: Принудительно устанавливаем ширину */
     width: 100%; 
     min-width: 100%;
     max-width: 100%;
@@ -84,7 +90,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis; 
-    height: 30px; /* Фиксируем высоту для 2 строк */
+    height: 30px; 
 }
 .card-info .meta { 
     margin: 0; 
@@ -124,6 +130,8 @@
     border: none; color: #001018; font-weight: 700; border-radius: 12px; padding: 9px 20px;
     font-size: 15px; cursor: pointer; box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
     transition: transform .25s ease, box-shadow .25s ease;
+    /* 💡 ДОБАВЛЕНО: Убедимся, что кнопка не скрыта */
+    display: block !important;
 }
 .view-all-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 179, 255, 0.65); }
 
