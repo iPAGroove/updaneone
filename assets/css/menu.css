@@ -1,156 +1,190 @@
 /* FULL SCREEN MENU MODAL */
 .menu-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.95);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    z-index: 1500; display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.95);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    z-index: 1500; display: flex; justify-content: center; 
+    /* 🛑 ИСПРАВЛЕНИЕ: Для лучшего скролла на мобильных, начинаем сверху */
+    align-items: flex-start; 
+    opacity: 0; pointer-events: none; transition: opacity .3s ease;
 }
 .menu-overlay.visible { opacity: 1; pointer-events: all; }
 
 .menu-content {
-    width: 100%; height: 100%;
-    padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px);
-    position: relative; overflow-y: auto;
-    display: flex; flex-direction: column; align-items: stretch; gap: 15px;
+    /* На мобильных устройствах меню занимает весь экран (width: 100%, height: 100%) */
+    width: 100%; height: 100%;
+    /* Паддинги, включая safe-area, обеспечивают пространство */
+    padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px);
+    position: relative; 
+    /* Обеспечиваем скролл, если контент не умещается */
+    overflow-y: auto; 
+    display: flex; flex-direction: column; align-items: stretch; gap: 15px;
 }
 
 /* Close button */
 .menu-close-btn {
-    position: absolute; top: calc(env(safe-area-inset-top) + 20px); right: 20px;
-    background: var(--card); border: 1px solid var(--border); color: var(--accent);
-    font-size: 26px; width: 42px; height: 42px; border-radius: 12px;
-    cursor: pointer; transition: .25s; z-index: 10;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 12px rgba(0,179,255,0.25);
+    position: absolute; top: calc(env(safe-area-inset-top) + 20px); right: 20px;
+    background: var(--card); border: 1px solid var(--border); color: var(--accent);
+    font-size: 26px; width: 42px; height: 42px; border-radius: 12px;
+    cursor: pointer; transition: .25s; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 12px rgba(0,179,255,0.25);
 }
 .menu-close-btn:hover {
-    border-color: var(--accent); box-shadow: 0 0 22px rgba(0,179,255,0.55); transform: translateX(-2px);
+    border-color: var(--accent); box-shadow: 0 0 22px rgba(0,179,255,0.55); transform: translateX(-2px);
 }
 
 /* 1. User Profile */
 .user-profile {
-    display: flex; flex-direction: column; align-items: center;
-    margin-bottom: 25px; padding-top: 30px;
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 25px; 
+    /* Убираем лишний паддинг, так как он уже есть в .menu-content. Оставим для визуального разделения. */
+    padding-top: 5px; 
 }
 .avatar {
-    width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
-    border: 3px solid var(--accent); box-shadow: 0 0 15px rgba(0, 179, 255, 0.6);
-    margin-bottom: 10px;
+    width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--accent); box-shadow: 0 0 15px rgba(0, 179, 255, 0.6);
+    margin-bottom: 10px;
 }
 .nickname { font-family: 'Orbitron', sans-serif; font-size: 22px; color: var(--text); margin: 0; letter-spacing: 1px; }
 
 /* 2. Login Options */
 .login-options {
-    display: flex; flex-direction: column; align-items: center;
-    margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 25px;
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 25px;
 }
 .login-prompt { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
 .login-buttons { display: flex; gap: 20px; }
 .auth-btn {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: var(--card); border: 1px solid var(--border); color: var(--accent);
-    font-size: 20px; font-weight: 700; cursor: pointer; transition: .2s;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 10px rgba(0, 179, 255, 0.2);
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--card); border: 1px solid var(--border); color: var(--accent);
+    font-size: 20px; font-weight: 700; cursor: pointer; transition: .2s;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 179, 255, 0.2);
 }
 .auth-btn:hover {
-    background: color-mix(in oklab, var(--card) 90%, var(--accent) 10%);
-    border-color: var(--accent);
+    background: color-mix(in oklab, var(--card) 90%, var(--accent) 10%);
+    border-color: var(--accent);
 }
 .auth-btn.anon-auth { font-size: 24px; }
 
 /* 3. Certificate Card */
 .certificate-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; /* Увеличиваем паддинг */
+    margin-bottom: 20px; /* Увеличиваем отступ */
+    display: flex; flex-direction: column; align-items: stretch; /* Растягиваем элементы внутри */
+    gap: 10px;
 }
-.cert-info-placeholder { color: var(--muted); font-size: 14px; margin-bottom: 15px; text-align: center; }
-.add-cert-btn { width: auto; padding: 8px 20px; font-size: 14px; border-radius: 8px; box-shadow: none; }
+.certificate-card p {
+    word-break: break-all; /* Для длинных UDID/UUID */
+    color: var(--muted);
+    font-size: 15px;
+    text-align: left;
+}
+.certificate-card strong { color: var(--text); font-weight: 700; margin-right: 5px; }
+
+.cert-info-placeholder { color: var(--muted); font-size: 14px; margin-bottom: 15px; text-align: center; align-self: center; }
+.add-cert-btn, .delete-cert-btn { 
+    width: 100%; 
+    padding: 10px 20px; 
+    font-size: 15px; 
+    border-radius: 10px; 
+    box-shadow: 0 0 10px rgba(0,179,255,0.25);
+}
+.add-cert-btn { margin-top: 5px; }
+
 
 /* BUTTON HIERARCHY */
 .menu-action-btn {
-    width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; text-transform: uppercase; transition: .25s;
+    width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; text-transform: uppercase; transition: .25s;
 }
 .select-plan-btn {
-    background: linear-gradient(90deg, var(--accent), #00e0ff); color: #001018;
-    box-shadow: 0 0 18px rgba(0,179,255,0.45);
+    background: linear-gradient(90deg, var(--accent), #00e0ff); color: #001018;
+    box-shadow: 0 0 18px rgba(0,179,255,0.45);
 }
 .select-plan-btn:hover { transform: scale(1.03); box-shadow: 0 0 28px rgba(0,179,255,0.7); }
 .buy-cert-btn {
-    background: var(--bg-elev); border: 1px solid var(--accent); color: var(--accent);
-    box-shadow: 0 0 12px rgba(0,179,255,0.25);
+    background: var(--bg-elev); border: 1px solid var(--accent); color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,179,255,0.25);
 }
 .buy-cert-btn:hover { background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%); }
 .change-lang-btn, .about-us-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); }
 .change-lang-btn:hover, .about-us-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* DESKTOP */
+/* DESKTOP (Modal Centered) */
 @media (min-width: 601px) {
-    .menu-content {
-        max-width: 600px; max-height: 90vh; background: var(--bg-elev);
-        border: 1px solid var(--border); border-radius: var(--radius);
-        box-shadow: 0 0 60px rgba(0,179,255,0.4); padding: 40px 30px;
-    }
-    .menu-close-btn { top: 15px; right: 15px; }
-    .user-profile, .login-options, .certificate-card, .menu-action-btn {
-        width: 100%; max-width: 400px; align-self: center;
-    }
-    .user-profile { padding-top: 0; }
+    /* Для десктопа возвращаем центрирование в overlay */
+    .menu-overlay { align-items: center; } 
+    
+    .menu-content {
+        max-width: 600px; max-height: 90vh; 
+        /* Убираем height: 100% на десктопе, чтобы max-height работал корректно */
+        height: auto; 
+        background: var(--bg-elev);
+        border: 1px solid var(--border); border-radius: var(--radius);
+        box-shadow: 0 0 60px rgba(0,179,255,0.4); padding: 40px 30px;
+    }
+    .menu-close-btn { top: 15px; right: 15px; }
+    .user-profile, .login-options, .certificate-card, .menu-action-btn {
+        width: 100%; max-width: 400px; align-self: center;
+    }
+    .user-profile { padding-top: 0; }
 }
 
 /* EMAIL & CERT MODALS COMMON */
+/* ... (оставляем без изменений, они выглядят хорошо) ... */
 #email-modal, #cert-modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-    z-index: 2500; display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: .35s ease;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    z-index: 2500; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: .35s ease;
 }
 #email-modal.visible, #cert-modal.visible { opacity: 1; pointer-events: all; }
 
 .email-modal-content {
-    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 18px;
-    padding: 28px 24px; width: 90%; max-width: 420px;
-    box-shadow: 0 0 40px rgba(0,179,255,0.4);
-    position: relative; display: flex; flex-direction: column; gap: 18px;
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 18px;
+    padding: 28px 24px; width: 90%; max-width: 420px;
+    box-shadow: 0 0 40px rgba(0,179,255,0.4);
+    position: relative; display: flex; flex-direction: column; gap: 18px;
 }
 .email-modal-content .menu-close-btn {
-    position: absolute; top: 14px; right: 14px;
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    font-size: 22px; width: 42px; height: 42px; color: var(--accent);
-    box-shadow: 0 0 12px rgba(0,179,255,0.3); cursor: pointer; transition: .25s;
+    position: absolute; top: 14px; right: 14px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    font-size: 22px; width: 42px; height: 42px; color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,179,255,0.3); cursor: pointer; transition: .25s;
 }
 .email-modal-content .menu-close-btn:hover { box-shadow: 0 0 22px rgba(0,179,255,0.7); }
 
 .email-modal-content h2 {
-    font-family: 'Orbitron', sans-serif; text-align: center; color: var(--text);
-    margin-top: 18px; margin-bottom: 4px; font-size: 22px;
+    font-family: 'Orbitron', sans-serif; text-align: center; color: var(--text);
+    margin-top: 18px; margin-bottom: 4px; font-size: 22px;
 }
 
 /* Inputs + labels */
 .auth-label {
-    font-size: 13px; color: var(--muted); margin-top: 4px;
+    font-size: 13px; color: var(--muted); margin-top: 4px;
 }
 .auth-input {
-    width: 100%; padding: 13px 14px; background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; color: var(--text); font-size: 16px;
+    width: 100%; padding: 13px 14px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text); font-size: 16px;
 }
 .auth-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 14px rgba(0,179,255,0.4); }
 
 /* Buttons */
 #email-login-btn, #email-register-btn, #email-reset-btn, #cert-import-btn {
-    width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; transition: .25s;
+    width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; transition: .25s;
 }
 #email-login-btn, #cert-import-btn {
-    background: linear-gradient(90deg, var(--accent), #00e0ff); color: #001018;
-    box-shadow: 0 0 18px rgba(0,179,255,0.45);
+    background: linear-gradient(90deg, var(--accent), #00e0ff); color: #001018;
+    box-shadow: 0 0 18px rgba(0,179,255,0.45);
 }
 #email-login-btn:hover, #cert-import-btn:hover { transform: scale(1.03); box-shadow: 0 0 28px rgba(0,179,255,0.7); }
 #email-register-btn {
-    background: var(--bg-elev); border: 1px solid var(--accent); color: var(--accent);
+    background: var(--bg-elev); border: 1px solid var(--accent); color: var(--accent);
 }
 #email-register-btn:hover { background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%); }
 #email-reset-btn {
-    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
 }
 #email-reset-btn:hover { border-color: var(--accent); color: var(--accent); }
