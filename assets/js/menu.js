@@ -18,7 +18,7 @@ import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs
 const storage = getStorage();
 
 // ===============================
-// 🔍 Парсим UDID и дату из mobileprovision
+// 🔍 Корректный парсер .mobileprovision (работает всегда)
 // ===============================
 async function parseMobileProvision(file) {
     return new Promise((resolve, reject) => {
@@ -26,27 +26,31 @@ async function parseMobileProvision(file) {
 
         reader.onload = function(event) {
             try {
-                const text = event.target.result;
+                const buffer = new Uint8Array(event.target.result);
+                const text = new TextDecoder().decode(buffer);
 
                 const xmlStart = text.indexOf("<?xml");
                 const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
                 const xml = text.substring(xmlStart, xmlEnd);
 
-                const udid = xml.match(/<key>UDID<\/key>\s*<string>([^<]+)<\/string>/)?.[1] || null;
-                const expiryDate = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] || null;
+                const udidMatch = xml.match(/<key>UDID<\/key>\s*<string>([^<]+)<\/string>/);
+                const dateMatch = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/);
 
-                resolve({ udid, expiryDate });
+                resolve({
+                    udid: udidMatch ? udidMatch[1] : null,
+                    expiryDate: dateMatch ? dateMatch[1].split("T")[0] : null
+                });
             } catch (err) {
                 reject(err);
             }
         };
 
-        reader.readAsText(file);
+        reader.readAsArrayBuffer(file); // ✅ ВАЖНО
     });
 }
 
 // ===============================
-// 📌 Обновить UI сертификата
+// 📌 Обновление UI сертификата
 // ===============================
 function renderCertificateBlock() {
     const card = document.querySelector(".certificate-card");
@@ -81,7 +85,7 @@ async function importCertificate() {
     const user = auth.currentUser;
     if (!user) return alert("Сначала выполните вход.");
 
-    // ✅ Парсим реальный UDID и дату
+    // ✅ Получаем реальные данные
     const parsed = await parseMobileProvision(mp);
     if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь информацию из сертификата");
 
@@ -98,11 +102,11 @@ async function importCertificate() {
         createdAt: new Date().toISOString()
     }, { merge: true });
 
-    // ✅ Сохраняем UI данные
+    // ✅ Сохранить локально
     localStorage.setItem("ursa_cert_udid", parsed.udid);
     localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
 
-    // ✅ Закрываем модалку → возвращаемся в меню
+    // ✅ Возврат в меню
     document.getElementById("cert-modal").classList.remove("visible");
     renderCertificateBlock();
     openMenu();
@@ -134,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']")) closeMenu();
     });
 
-    // ✅ Кнопка Назад на окне сертификата
+    // Кнопка Назад в сертификате
     document.getElementById("cert-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
             document.getElementById("cert-modal").classList.remove("visible");
@@ -144,7 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("cert-import-btn").onclick = importCertificate;
 
-    // Кнопка Добавить / Удалить сертификат
     document.body.addEventListener("click", (e) => {
         if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
         if (e.target.classList.contains("delete-cert-btn")) {
@@ -154,9 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ===============================
     // Email Auth
-    // ===============================
     const emailModal = document.getElementById("email-modal");
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
@@ -185,15 +186,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("email-reset-btn")?.addEventListener("click", () => resetPassword(emailInput.value.trim()));
 
-    // ===============================
-    // Соц авторизация
-    // ===============================
+    // Соц вход
     document.querySelector(".google-auth")?.addEventListener("click", async () => { await loginWithGoogle(); closeMenu(); });
     document.querySelector(".facebook-auth")?.addEventListener("click", async () => { await loginWithFacebook(); closeMenu(); });
 
-    // ===============================
     // Профиль
-    // ===============================
     onUserChanged((user) => {
         document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
         document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
