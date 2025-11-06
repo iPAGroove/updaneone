@@ -60,23 +60,31 @@
     background: color-mix(in oklab, var(--card) 90%, var(--accent) 10%);
     border-color: var(--accent);
 }
+.auth-btn.anon-auth { font-size: 24px; }
 
 /* 3. Certificate Card */
 .certificate-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px 16px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    min-height: 135px; /* ✅ стало чуть выше и стабильнее */
+    gap: 8px;
+    min-height: 135px; /* ✅ немного выше чтобы кнопка не уезжала */
     box-shadow: 0 0 14px rgba(0,179,255,0.16);
     transition: .25s;
 }
 .certificate-card:hover {
     border-color: var(--accent);
     box-shadow: 0 0 22px rgba(0,179,255,0.38);
+}
+
+.cert-info-placeholder {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 4px;
 }
 
 .cert-info {
@@ -87,7 +95,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 8px 10px;
-    flex: 1; /* ✅ тянем инфоблок, кнопка останется снизу */
+    flex: 1; /* ✅ тянется — кнопка остается внизу */
 }
 
 .cert-row {
@@ -143,6 +151,16 @@
     background: linear-gradient(90deg, var(--accent), #00e0ff); color: #001018;
     box-shadow: 0 0 18px rgba(0,179,255,0.45);
 }
+.select-plan-btn:hover { transform: scale(1.03); box-shadow: 0 0 28px rgba(0,179,255,0.7); }
+
+.buy-cert-btn {
+    background: var(--bg-elev); border: 1px solid var(--accent); color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,179,255,0.25);
+}
+.buy-cert-btn:hover { background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%); }
+
+.change-lang-btn, .about-us-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+.change-lang-btn:hover, .about-us-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 /* DESKTOP */
 @media (min-width: 601px) {
@@ -151,4 +169,60 @@
         border: 1px solid var(--border); border-radius: var(--radius);
         box-shadow: 0 0 60px rgba(0,179,255,0.4); padding: 40px 30px;
     }
+    .menu-close-btn { top: 15px; right: 15px; }
+    .user-profile, .login-options, .certificate-card, .menu-action-btn {
+        width: 100%; max-width: 400px; align-self: center;
+    }
+    .user-profile { padding-top: 0; }
 }
+
+/* EMAIL & CERT MODALS COMMON */
+#email-modal, #cert-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    z-index: 2500; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: .35s ease;
+}
+#email-modal.visible, #cert-modal.visible { opacity: 1; pointer-events: all; }
+
+.email-modal-content {
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 18px;
+    padding: 28px 24px; width: 90%; max-width: 420px;
+    box-shadow: 0 0 40px rgba(0,179,255,0.4);
+    position: relative; display: flex; flex-direction: column; gap: 18px;
+}
+.email-modal-content .menu-close-btn {
+    position: absolute; top: 14px; right: 14px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    font-size: 22px; width: 42px; height: 42px; color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,179,255,0.3); cursor: pointer; transition: .25s;
+}
+.email-modal-content .menu-close-btn:hover { box-shadow: 0 0 22px rgba(0,179,255,0.7); }
+
+/* Inputs */
+.auth-label {
+    font-size: 13px; color: var(--muted); margin-top: 4px;
+}
+.auth-input {
+    width: 100%; padding: 13px 14px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text); font-size: 16px;
+}
+.auth-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 14px rgba(0,179,255,0.4); }
+
+/* Buttons */
+#email-login-btn, #email-register-btn, #email-reset-btn, #cert-import-btn {
+    width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; transition: .25s;
+}
+#email-login-btn, #cert-import-btn {
+    background: linear-gradient(90deg, var(--accent), #00e0ff); color: #001018;
+    box-shadow: 0 0 18px rgba(0,179,255,0.45);
+}
+#email-login-btn:hover, #cert-import-btn:hover { transform: scale(1.03); box-shadow: 0 0 28px rgba(0,179,255,0.7); }
+#email-register-btn {
+    background: var(--bg-elev); border: 1px solid var(--accent); color: var(--accent);
+}
+#email-register-btn:hover { background: color-mix(in oklab, var(--bg-elev) 80%, var(--accent) 20%); }
+#email-reset-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+}
+#email-reset-btn:hover { border-color: var(--accent); color: var(--accent); }
