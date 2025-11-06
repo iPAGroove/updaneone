@@ -10,7 +10,7 @@ import {
 } from "./firebase/auth.js";
 import { onUserChanged } from "./firebase/user.js";
 // 🆕 Импорт функции для загрузки и обновления UI сертификата
-import { loadUserCertificateData } from "./certificate.js"; 
+import { loadUserCertificateData, openAddCertModal } from "./certificate.js"; // 💡 openAddCertModal теперь экспортируется
 
 document.addEventListener("DOMContentLoaded", () => {
     // ===============================
@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===============================
     const menuBtn = document.getElementById("menu-btn");
     const menuOverlay = document.getElementById("menu-modal");
+
+    // 💡 Функции open/close Menu
     function openMenu() {
         menuOverlay.classList.add("visible");
         document.body.classList.add("modal-open");
@@ -26,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         menuOverlay.classList.remove("visible");
         document.body.classList.remove("modal-open");
     }
+
     menuBtn?.addEventListener("click", openMenu);
     menuOverlay?.addEventListener("click", (e) => {
         if (e.target === menuOverlay || e.target.closest("[data-action='close-menu']")) closeMenu();
@@ -33,8 +36,23 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeMenu();
     });
+
+    // ===============================
+    // 🔗 Логика открытия модалки сертификата (ПЕРЕМЕЩЕНО СЮДА)
+    // ===============================
+    const openCertModalBtn = document.getElementById("open-cert-modal-btn");
+    
+    openCertModalBtn?.addEventListener("click", () => {
+        // 1. Сначала закрываем основное меню
+        closeMenu(); 
+        // 2. Затем открываем модалку сертификата
+        // openAddCertModal должна быть экспортирована из certificate.js
+        openAddCertModal(); 
+    });
+    
     // ===============================
     // 🌍 Смена языка
+    // ... (остальной код смены языка) ...
     // ===============================
     const changeLangBtn = document.querySelector(".change-lang-btn");
     let currentLang = localStorage.getItem("ursa_lang") || "ru";
@@ -66,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     // ===============================
     // 🔐 Google / Facebook вход
+    // ... (логика входа) ...
     // ===============================
     document.querySelector(".google-auth")?.addEventListener("click", async () => {
         await loginWithGoogle();
@@ -80,13 +99,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===============================
     const emailBtn = document.querySelector(".email-auth");
     const emailModal = document.getElementById("email-modal");
-    function openEmailModal() {
+
+    // 💡 В openEmailModal мы уже закрываем основное меню!
+    function openEmailModal() { 
         closeMenu();
         emailModal.classList.add("visible");
     }
     function closeEmailModal() {
         emailModal.classList.remove("visible");
     }
+
     emailBtn?.addEventListener("click", openEmailModal);
     emailModal?.addEventListener("click", (e) => {
         if (e.target === emailModal || e.target.closest("[data-action='close-email']")) closeEmailModal();
@@ -96,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     // ===============================
     // ✉ Email вход / регистрация / восстановление
+    // ... (логика входа/регистрации) ...
     // ===============================
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
@@ -117,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===============================
     const nickEl = document.getElementById("user-nickname");
     const avatarEl = document.getElementById("user-avatar");
-    
+
     onUserChanged((user) => {
         if (!user) {
             nickEl.textContent = "Гость";
@@ -126,10 +149,10 @@ document.addEventListener("DOMContentLoaded", () => {
             loadUserCertificateData(null); 
             return;
         }
-        
+
         nickEl.textContent = user.displayName || user.email || "Пользователь";
         avatarEl.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-        
+
         // 🆕 Загрузка и отображение данных сертификата при входе
         loadUserCertificateData(user); 
     });
