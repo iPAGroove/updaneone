@@ -1,3 +1,5 @@
+/* assets/css/catalog.css (ФИНАЛЬНАЯ ВЕРСИЯ) */
+
 /* === СЕКЦИИ === */
 .collection-row {
     display: flex; flex-direction: column; gap: 14px;
@@ -41,7 +43,7 @@
     border-radius: var(--radius); height: 72px;
     display: flex; align-items: center; justify-content: space-between;
     padding: 10px 14px; position: relative; 
-    /* 💡 ИСПРАВЛЕНИЕ 1: Разрешаем overflow для переноса текста */
+    /* 💡 ИСПРАВЛЕНО: Разрешаем overflow для переноса текста (Пункт 2) */
     overflow: visible; 
     cursor: pointer;
     color: var(--text); font-size: 16px;
@@ -61,13 +63,13 @@
 .card-info { 
     flex-grow: 1; 
     min-width: 0; 
-    /* 💡 ИСПРАВЛЕНИЕ 2: Ограничиваем ширину инфо-блока, чтобы всегда оставалось место для CTA (75px) */
+    /* 💡 ИСПРАВЛЕНО: Ограничиваем ширину инфо-блока (Пункт 2) */
     max-width: calc(100% - 52px - var(--gap) - 75px); 
 }
 .card-info h3 { 
     margin: 0; 
     line-height: 1.2; 
-    /* 💡 ИСПРАВЛЕНИЕ 3: Перенос в 2 строки */
+    /* 💡 ИСПРАВЛЕНО: Перенос в 2 строки (Пункт 2) */
     white-space: normal; 
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -84,7 +86,7 @@
 
 /* CTA */
 .card-cta {
-    /* 💡 ИСПРАВЛЕНИЕ 4: Фиксируем ширину кнопки "Открыть" */
+    /* 💡 ИСПРАВЛЕНО: Фиксируем ширину кнопки "Открыть" (Пункт 2) */
     width: 75px;
     flex-shrink: 0; 
     height: 30px; 
@@ -96,7 +98,6 @@
     cursor: pointer; transition: background .2s ease;
 }
 .card-cta:active { background: color-mix(in oklab, var(--bg-elev) 80%, #000 20%); }
-/* 💡 Дополнительно: убедимся, что текст кнопки не переносится */
 .card-cta span {
     white-space: nowrap;
 }
