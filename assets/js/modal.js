@@ -1,4 +1,3 @@
-assets/js/modal.js
 const modalOverlay = document.getElementById('app-modal');
 function timeSince(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
