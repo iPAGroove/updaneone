@@ -103,13 +103,8 @@
             </div>
         </div>
         <div class="certificate-card">
-            <div id="cert-info-display" style="display: none;">
-                <p>UDID: <strong><span id="cert-udid">N/A</span></strong></p>
-                <p>Доступен до: <strong><span id="cert-expiry-date">N/A</span></strong></p>
-                <button class="btn delete-cert-btn">Удалить сертификат</button>
-            </div>
             <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
-            <button class="btn add-cert-btn" id="open-cert-modal-btn">Добавить сертификат</button>
+            <button class="btn add-cert-btn">Добавить сертификат</button>
         </div>
         <button class="btn menu-action-btn select-plan-btn">Выбрать план</button>
         <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
@@ -130,15 +125,30 @@
     <button class="email-reset-btn" id="email-reset-btn">Забыли пароль?</button>
   </div>
 </div>
-<div id="add-cert-modal" class="email-auth-overlay">
-    <div class="email-modal-content">
-        <button class="menu-close-btn" data-action="close-add-cert">←</button>
-        <h2 class="email-title">Добавить сертификат (.p12)</h2>
-        <input type="file" id="cert-file-input" accept=".p12" class="auth-input" style="padding: 10px;">
-        <input type="password" id="cert-password-input" placeholder="Пароль сертификата (если есть)" class="auth-input"
-            autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-        <button class="email-submit-btn" id="cert-import-btn">Импортировать</button>
-        <p id="cert-message" style="text-align: center; color: var(--accent); font-size: 14px;"></p>
+<div id="cert-modal" class="cert-upload-overlay">
+    <div class="cert-modal-content">
+        <button class="menu-close-btn" data-action="close-cert">←</button>
+        <h2 class="cert-title">Добавить сертификат</h2>
+        <p class="cert-subtitle">Загрузите файлы **.p12** и **.mobileprovision** и введите пароль.</p>
+        
+        <label for="p12-file" class="file-label">
+            <span class="file-icon">🔒</span>
+            <span id="p12-filename">Выберите файл .p12</span>
+            <input type="file" id="p12-file" accept=".p12" required>
+        </label>
+        
+        <label for="provision-file" class="file-label">
+            <span class="file-icon">📄</span>
+            <span id="provision-filename">Выберите файл .mobileprovision</span>
+            <input type="file" id="provision-file" accept=".mobileprovision" required>
+        </label>
+        
+        <input type="password" id="cert-password-input" placeholder="Пароль от файла .p12" class="auth-input"
+            autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" required>
+        
+        <button class="cert-submit-btn" id="upload-cert-btn">
+            Загрузить сертификат
+        </button>
     </div>
 </div>
 <script type="module" src="assets/js/app.js"></script>
@@ -149,5 +159,5 @@
 <script type="module" src="assets/js/all-catalog.js"></script>
 <script type="module" src="assets/js/search.js"></script>
 <script type="module" src="assets/js/menu.js"></script>
-<script type="module" src="assets/js/certificate.js"></script> </body>
+</body>
 </html>
