@@ -11,6 +11,7 @@ import {
 
 import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
+import { closeSearchModal } from "./search.js"; // 💡 Импортируем для закрытия поиска
 
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
@@ -94,19 +95,28 @@ async function importCertificate() {
     const mp = document.getElementById("cert-mobileprovision").files[0];
     const password = document.getElementById("cert-password").value.trim() || "";
 
-    if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
+    if (!p12) return alert("Выберите файл **.p12**");
+    if (!mp) return alert("Выберите файл **.mobileprovision**");
 
     const user = auth.currentUser;
     if (!user) return alert("Сначала выполните вход.");
 
-    const parsed = await parseMobileProvision(mp);
-
-    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь информацию о профиле (UUID/дату). Проверьте файл.");
-
-    const uid = user.uid;
-    const folder = `signers/${uid}/`;
+    // 💡 UI Feedback
+    document.getElementById("cert-import-btn").textContent = "Загрузка...";
+    document.getElementById("cert-import-btn").disabled = true;
 
     try {
+        const parsed = await parseMobileProvision(mp);
+
+        if (!parsed.udid || !parsed.expiryDate) {
+            // 💡 Улучшенное сообщение об ошибке парсинга
+            throw new Error("Не удалось извлечь информацию о профиле (UUID/дату). Проверьте файл .mobileprovision.");
+        }
+
+        const uid = user.uid;
+        const folder = `signers/${uid}/`;
+
+        // Загрузка файлов и сохранение данных в Firestore
         await uploadBytes(ref(storage, folder + p12.name), p12);
         await uploadBytes(ref(storage, folder + mp.name), mp);
 
@@ -119,26 +129,31 @@ async function importCertificate() {
 
         localStorage.setItem("ursa_cert_udid", parsed.udid);
         localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
-        localStorage.setItem("ursa_signer_id", uid); // ✅ ВАЖНО ДОБАВЛЕНО
+        localStorage.setItem("ursa_signer_id", uid);
 
         document.getElementById("cert-modal").classList.remove("visible");
         renderCertificateBlock();
         openMenu();
+        alert("✅ Сертификат успешно загружен и импортирован!"); // Уведомление об успехе
 
     } catch (error) {
+        // 💡 ИСПРАВЛЕНИЕ ПУНКТА 3: Более информативное сообщение об ошибке загрузки
         console.error("Ошибка при загрузке файлов:", error);
-        alert("Ошибка при загрузке файлов. Попробуйте снова.");
+        alert(`❌ Ошибка при загрузке файлов: ${error.message || "Проверьте файлы и подключение к сети."}`);
+    } finally {
+        document.getElementById("cert-import-btn").textContent = "Импортировать";
+        document.getElementById("cert-import-btn").disabled = false;
     }
 }
 
 // ===============================
 // 📌 Меню UI
 // ===============================
-function openMenu() {
+export function openMenu() { // 💡 Экспортируем
     document.getElementById("menu-modal").classList.add("visible");
     document.body.classList.add("modal-open");
 }
-function closeMenu() {
+export function closeMenu() { // 💡 Экспортируем
     document.getElementById("menu-modal").classList.remove("visible");
     document.body.classList.remove("modal-open");
 }
@@ -149,6 +164,7 @@ function closeMenu() {
 document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("menu-btn")?.addEventListener("click", () => {
+        closeSearchModal(); // Закрываем поиск, если он открыт
         renderCertificateBlock();
         openMenu();
     });
@@ -171,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target.classList.contains("delete-cert-btn")) {
             localStorage.removeItem("ursa_cert_udid");
             localStorage.removeItem("ursa_cert_exp");
-            localStorage.removeItem("ursa_signer_id"); // ✅ Удаляем тоже
+            localStorage.removeItem("ursa_signer_id"); 
             renderCertificateBlock();
         }
     });
@@ -206,8 +222,27 @@ document.addEventListener("DOMContentLoaded", () => {
         resetPassword(emailInput.value.trim())
     );
 
-    document.querySelector(".google-auth")?.addEventListener("click", async () => { await loginWithGoogle(); closeMenu(); });
-    document.querySelector(".facebook-auth")?.addEventListener("click", async () => { await loginWithFacebook(); closeMenu(); });
+    // 💡 ИСПРАВЛЕНИЕ ПУНКТА 4: После входа через Google/Facebook открываем меню
+    document.querySelector(".google-auth")?.addEventListener("click", async () => { 
+        await loginWithGoogle(); 
+        openMenu(); 
+    });
+    
+    document.querySelector(".facebook-auth")?.addEventListener("click", async () => { 
+        await loginWithFacebook(); 
+        openMenu(); 
+    });
+
+    // 💡 ИСПРАВЛЕНИЕ ПУНКТА 7: Закрытие меню при клике на другие кнопки навигации
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const menuModal = document.getElementById("menu-modal");
+            // Если меню открыто И нажатая кнопка не является кнопкой меню
+            if (menuModal.classList.contains("visible") && e.currentTarget.id !== "menu-btn") {
+                closeMenu();
+            }
+        });
+    });
 
     onUserChanged((user) => {
         document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
