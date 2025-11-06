@@ -1,5 +1,5 @@
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата
+// Меню + Авторизация + Email Login + Смена Языка + Импорт Сертификата
 // ===============================
 import {
     loginWithGoogle,
@@ -18,14 +18,16 @@ import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs
 const storage = getStorage();
 
 // ===============================
-// 🔍 Парсим UDID / UUID и дату из .mobileprovision
+// 🔍 Парсим UDID / UUID и дату из mobileprovision
 // ===============================
 async function parseMobileProvision(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
+
         reader.onload = function(event) {
             try {
                 const text = event.target.result;
+
                 const xmlStart = text.indexOf("<?xml");
                 const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
                 const xml = text.substring(xmlStart, xmlEnd);
@@ -35,7 +37,9 @@ async function parseMobileProvision(file) {
 
                 if (udidMatch) {
                     const udidList = [...udidMatch[1].matchAll(/<string>([^<]+)<\/string>/g)];
-                    if (udidList.length > 0) profileID = udidList[0][1];
+                    if (udidList.length > 0) {
+                        profileID = udidList[0][1];
+                    }
                 }
 
                 if (!profileID) {
@@ -45,8 +49,11 @@ async function parseMobileProvision(file) {
                 const expiryDate = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] || null;
 
                 resolve({ udid: profileID, expiryDate });
-            } catch (err) { reject(err); }
+            } catch (err) {
+                reject(err);
+            }
         };
+
         reader.readAsText(file);
     });
 }
@@ -93,7 +100,8 @@ async function importCertificate() {
     if (!user) return alert("Сначала выполните вход.");
 
     const parsed = await parseMobileProvision(mp);
-    if (!parsed.udid || !parsed.expiryDate) return alert("Ошибка чтения файла профиля.");
+
+    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь информацию о профиле (UUID/дату). Проверьте файл.");
 
     const uid = user.uid;
     const folder = `signers/${uid}/`;
@@ -109,23 +117,22 @@ async function importCertificate() {
             createdAt: new Date().toISOString()
         }, { merge: true });
 
-        // ✅ сохраняем сертификат для signer.js
         localStorage.setItem("ursa_cert_udid", parsed.udid);
         localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
-        localStorage.setItem("ursa_signer_id", uid); // ← ВОТ ЭТА СТРОКА РЕШАЕТ ПРОБЛЕМУ 🚀
+        localStorage.setItem("ursa_signer_id", uid); // ✅ ВАЖНО ДОБАВЛЕНО
 
         document.getElementById("cert-modal").classList.remove("visible");
         renderCertificateBlock();
         openMenu();
 
     } catch (error) {
-        console.error(error);
-        alert("Ошибка при загрузке сертификата.");
+        console.error("Ошибка при загрузке файлов:", error);
+        alert("Ошибка при загрузке файлов. Попробуйте снова.");
     }
 }
 
 // ===============================
-// Меню UI
+// 📌 Меню UI
 // ===============================
 function openMenu() {
     document.getElementById("menu-modal").classList.add("visible");
@@ -146,6 +153,10 @@ document.addEventListener("DOMContentLoaded", () => {
         openMenu();
     });
 
+    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
+        if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']")) closeMenu();
+    });
+
     document.getElementById("cert-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
             document.getElementById("cert-modal").classList.remove("visible");
@@ -156,13 +167,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cert-import-btn").onclick = importCertificate;
 
     document.body.addEventListener("click", (e) => {
-        if (e.target.classList.contains("add-cert-btn"))
-            document.getElementById("cert-modal").classList.add("visible");
-
+        if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
         if (e.target.classList.contains("delete-cert-btn")) {
             localStorage.removeItem("ursa_cert_udid");
             localStorage.removeItem("ursa_cert_exp");
-            localStorage.removeItem("ursa_signer_id"); // ✅ удаляем тоже
+            localStorage.removeItem("ursa_signer_id"); // ✅ Удаляем тоже
             renderCertificateBlock();
         }
     });
