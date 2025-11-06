@@ -82,7 +82,7 @@ function renderCertificateBlock() {
 
     // ✅ Вывод с статусом
     card.innerHTML = `
-        <p><strong>ID Профиля:</strong> ${udid.length > 30 ? udid.substring(0, 8) + '...' : udid}</p>
+        <p><strong>UDID:</strong> <span style="word-break: keep-all;">${udid}</span></p>
         <p><strong>Действует до:</strong> ${expiry}</p>
         <p style="font-weight:600;color:${statusColor};">Статус: ${status}</p>
         <button class="btn delete-cert-btn">Удалить сертификат</button>
