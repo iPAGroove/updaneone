@@ -1,13 +1,12 @@
-/* assets/css/catalog.css (Финальная версия с исправлением видимости) */
+/* assets/css/catalog.css (ФИНАЛЬНАЯ ВЕРСИЯ: Flexbox Scroll Fix) */
 
 /* === СЕКЦИИ === */
 .collection-row {
     display: flex; 
     flex-direction: column; 
     gap: 14px;
-    /* 💡 НОВОЕ ИСПРАВЛЕНИЕ: Гарантируем видимость и предотвращаем схлопывание */
     width: 100%;
-    min-height: 100px; 
+    min-height: 100px; /* Фикс для видимости */
 }
 
 /* Заголовок */
@@ -22,7 +21,6 @@
     border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
     color: var(--accent);
     text-shadow: 0 0 6px rgba(0, 179, 255, 0.6), 0 0 14px rgba(0, 179, 255, 0.3);
-    /* 💡 ДОБАВЛЕНО: Убедимся, что заголовок не скрыт */
     display: block !important;
 }
 
@@ -32,23 +30,30 @@
     display: grid; grid-template-columns: 1fr; gap: 36px; padding: 0;
 }
 
-/* Карусель */
+/* Карусель - ПЕРЕКЛЮЧАЕМ НА FLEXBOX ДЛЯ НАДЕЖНОЙ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ */
 .card-carousel {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: repeat(3, 1fr);
+    display: flex; /* 💡 FIX: Используем Flexbox */
+    flex-direction: row; /* 💡 FIX: Горизонтальное расположение */
+    flex-wrap: nowrap; /* 💡 FIX: Обязательно, чтобы не переносились строки */
     
-    /* iOS FIX 1: Явно ограничиваем размер столбца */
-    grid-auto-columns: 85vw; 
+    overflow-x: auto; 
+    overflow-y: hidden;
     
-    overflow-x: auto; overflow-y: hidden;
     gap: var(--gap); padding: 0 14px;
     -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    
+    /* Добавляем минимальную ширину, чтобы прокрутка работала */
+    min-width: 100%;
 }
 .card-carousel::-webkit-scrollbar { display: none; }
 
 /* Карточка */
 .card-carousel .card {
+    /* Сбрасываем Grid-свойства, если они влияли */
+    width: 85vw; /* 💡 FIX: Фиксируем ширину карточки через Viewport Width */
+    flex-shrink: 0; /* 💡 FIX: Запрещаем сжиматься */
+    flex-grow: 0; /* 💡 FIX: Запрещаем растягиваться */
+    
     background: var(--card); border: 1px solid var(--border);
     border-radius: var(--radius); height: 72px;
     display: flex; align-items: center; justify-content: space-between;
@@ -56,11 +61,6 @@
     overflow: visible; 
     cursor: pointer;
     color: var(--text); font-size: 16px;
-    
-    /* iOS FIX 2: Принудительно устанавливаем ширину */
-    width: 100%; 
-    min-width: 100%;
-    max-width: 100%;
 }
 .card.placeholder {
     justify-content: center; color: var(--muted); font-size: 14px; padding: 0;
@@ -77,13 +77,11 @@
 .card-info { 
     flex-grow: 1; 
     min-width: 0; 
-    /* Ограничиваем ширину инфо-блока (Пункт 2) */
     max-width: calc(100% - 52px - var(--gap) - 75px); 
 }
 .card-info h3 { 
     margin: 0; 
     line-height: 1.2; 
-    /* Перенос в 2 строки (Пункт 2) */
     white-space: normal; 
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -100,7 +98,6 @@
 
 /* CTA */
 .card-cta {
-    /* Фиксируем ширину кнопки "Открыть" (Пункт 2) */
     width: 75px;
     flex-shrink: 0; 
     height: 30px; 
@@ -130,21 +127,26 @@
     border: none; color: #001018; font-weight: 700; border-radius: 12px; padding: 9px 20px;
     font-size: 15px; cursor: pointer; box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
     transition: transform .25s ease, box-shadow .25s ease;
-    /* 💡 ДОБАВЛЕНО: Убедимся, что кнопка не скрыта */
     display: block !important;
 }
 .view-all-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 179, 255, 0.65); }
 
 /* Десктоп */
 @media (min-width: 521px) {
+    /* Возвращаем Grid для десктопа */
     .card-carousel {
+        display: grid;
         grid-template-rows: repeat(3, 1fr);
-        grid-auto-flow: unset; grid-auto-columns: unset; overflow-x: hidden;
+        grid-auto-flow: unset; 
+        grid-auto-columns: unset; 
+        overflow-x: hidden;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        min-width: 0;
     }
-    /* Для десктопа убираем фикс с viewport width */
     .card-carousel .card {
         width: auto; 
+        flex-shrink: 1; /* Разрешаем сжиматься */
+        flex-grow: 1; /* Разрешаем растягиваться */
         min-width: 0;
         max-width: none;
     }
