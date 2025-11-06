@@ -3,10 +3,14 @@
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.95);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    z-index: 1500; display: flex; justify-content: center; align-items: center;
+    z-index: -1; /* ✅ overlay не блокирует клики, пока не активен */
+    display: flex; justify-content: center; align-items: center;
     opacity: 0; pointer-events: none; transition: opacity .3s ease;
 }
-.menu-overlay.visible { opacity: 1; pointer-events: all; }
+
+.menu-overlay.visible {
+    opacity: 1; pointer-events: all; z-index: 1500; /* ✅ становится активным */
+}
 
 .menu-content {
     width: 100%;
