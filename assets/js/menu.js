@@ -86,10 +86,7 @@ async function importCertificate() {
 
     if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
 
-    // ✅ ЖДЁМ auth текущего пользователя (почта особенно!)
-    const user = await new Promise(res => {
-        const unsub = auth.onAuthStateChanged(u => { res(u); unsub(); });
-    });
+    const user = auth.currentUser;
     if (!user) return alert("Сначала выполните вход.");
 
     const parsed = await parseMobileProvision(mp);
@@ -109,7 +106,6 @@ async function importCertificate() {
             updatedAt: new Date().toISOString()
         }, { merge: true });
 
-        // ✅ Сохраняем локально
         localStorage.setItem("ursa_cert_udid", parsed.udid);
         localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
         localStorage.setItem("ursa_signer_id", uid);
@@ -124,7 +120,7 @@ async function importCertificate() {
 }
 
 // ===============================
-// 🧭 Открытие / Закрытие меню
+// 🧭 Меню
 // ===============================
 function openMenu() {
     document.getElementById("menu-modal").classList.add("visible");
@@ -140,21 +136,17 @@ function closeMenu() {
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ▶ открыть меню
     document.getElementById("menu-btn")?.addEventListener("click", () => {
         renderCertificateBlock();
         openMenu();
     });
 
-    // ◀ закрыть меню
-    document.getElementById("tabbar")?.addEventListener("click", closeMenu);
-
     document.getElementById("menu-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']")) closeMenu();
     });
 
-    // сертификаты
     document.getElementById("cert-import-btn").onclick = importCertificate;
+
     document.body.addEventListener("click", (e) => {
         if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
         if (e.target.classList.contains("delete-cert-btn")) {
@@ -165,9 +157,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Email auth
     const emailModal = document.getElementById("email-modal");
-    document.querySelector(".email-auth")?.addEventListener("click", () => { closeMenu(); emailModal.classList.add("visible"); });
+    const emailInput = document.getElementById("email-input");
+    const passwordInput = document.getElementById("password-input");
+
+    document.querySelector(".email-auth")?.addEventListener("click", () => {
+        closeMenu();
+        emailModal.classList.add("visible");
+    });
+
     emailModal.addEventListener("click", (e) => {
         if (e.target === emailModal || e.target.closest("[data-action='close-email']"))
             emailModal.classList.remove("visible");
@@ -185,13 +183,13 @@ document.addEventListener("DOMContentLoaded", () => {
         openMenu();
     });
 
-    document.getElementById("email-reset-btn")?.addEventListener("click", () => resetPassword(emailInput.value.trim()));
+    document.getElementById("email-reset-btn")?.addEventListener("click", () =>
+        resetPassword(emailInput.value.trim())
+    );
 
-    // Google / Facebook вход → открываем меню
     document.querySelector(".google-auth")?.addEventListener("click", async () => { await loginWithGoogle(); openMenu(); });
     document.querySelector(".facebook-auth")?.addEventListener("click", async () => { await loginWithFacebook(); openMenu(); });
 
-    // AVATAR / NAME UI
     onUserChanged((user) => {
         document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
         document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
