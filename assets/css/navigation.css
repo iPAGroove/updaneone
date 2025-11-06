@@ -1,54 +1,49 @@
 /* assets/css/navigation.css */
-
 /* === BOTTOM NAV (Аккуратная центрированная панель) === */
-
 .tabbar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
-    /* Прозрачный фон */
-    background: transparent;
-    border-top: none; 
-    backdrop-filter: none; -webkit-backdrop-filter: none;
-    
-    /* 💥 ФИКС: Уменьшаем общий padding для более тонкого вида панели */
-    padding: 6px 0 calc(env(safe-area-inset-bottom) + 6px); 
-    box-sizing: border-box;
-    width: 100%;
-    display: flex; 
-    justify-content: center; 
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+    /* Прозрачный фон */
+    background: transparent;
+    border-top: none; 
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    
+    /* 💥 ФИКС: Уменьшаем общий padding для более тонкого вида панели */
+    padding: 6px 0 calc(env(safe-area-inset-bottom) + 6px); 
+    box-sizing: border-box;
+    width: 100%;
+    display: flex; 
+    justify-content: center; 
 }
-
 .newdock {
-    display: grid; 
-    grid-template-columns: repeat(4,1fr); 
-    align-items: center;
-    background: color-mix(in oklab, var(--bg-elev) 94%, #000 6%);
-    border: 1px solid var(--border); 
-    border-radius: 26px;
-    
-    /* 💥 ФИКС: Уменьшаем внутренний padding дока */
-    padding: 6px 4px; 
-    
-    max-width: 420px;
-    box-shadow: 0 10px 24px rgba(0,0,0,.4);
-    
-    margin: 0 auto;
-    width: calc(100% - 28px); 
-    max-width: 420px; 
-    
-    /* 💥 ФИКС: Уменьшаем padding safe area */
-    padding-left: calc(6px + env(safe-area-inset-left)); 
-    padding-right: calc(6px + env(safe-area-inset-right)); 
+    display: grid; 
+    grid-template-columns: repeat(4,1fr); 
+    align-items: center;
+    background: color-mix(in oklab, var(--bg-elev) 94%, #000 6%);
+    border: 1px solid var(--border); 
+    border-radius: 26px;
+    
+    /* 💥 ФИКС: Уменьшаем внутренний padding дока */
+    padding: 6px 4px; 
+    
+    max-width: 420px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.4);
+    
+    margin: 0 auto;
+    width: calc(100% - 28px); 
+    max-width: 420px; 
+    
+    /* 💥 ФИКС: Уменьшаем padding safe area */
+    padding-left: calc(6px + env(safe-area-inset-left)); 
+    padding-right: calc(6px + env(safe-area-inset-right)); 
 }
-
 .nav-btn {
-    appearance: none; border: 0; background: transparent;
-    height: var(--nav-btn-h);
-    display: flex; align-items: center; justify-content: center;
-    position: relative; border-radius: 18px;
-    font-size: 24px; 
+    appearance: none; border: 0; background: transparent;
+    height: var(--nav-btn-h);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; border-radius: 18px;
+    font-size: 24px; 
 }
-
 .nav-btn.active {
-    background: var(--card); 
-    color: var(--accent);
+    background: var(--card); 
+    color: var(--accent);
 }
