@@ -262,8 +262,7 @@
 /* ===========================
    EMAIL AUTH MODAL (URSA GLASS)
    =========================== */
-#email-modal, /* 💡 Добавил #add-cert-modal для скрытия по умолчанию */
-#add-cert-modal {
+#email-modal {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.85);
@@ -273,12 +272,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    opacity: 0; /* <--- ГЛАВНОЕ СВОЙСТВО: Скрывает модалку по умолчанию */
+    opacity: 0;
     pointer-events: none;
     transition: .35s ease;
 }
-#email-modal.visible,
-#add-cert-modal.visible { /* 💡 Добавил #add-cert-modal.visible для отображения */
+#email-modal.visible {
     opacity: 1;
     pointer-events: all;
 }
