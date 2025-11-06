@@ -1,3 +1,4 @@
+// assets/js/menu.js
 // ===============================
 // Меню + Авторизация + Email Login + Смена Языка
 // ===============================
@@ -9,8 +10,8 @@ import {
     resetPassword
 } from "./firebase/auth.js";
 import { onUserChanged } from "./firebase/user.js";
-// 🆕 Импорт функции для загрузки и обновления UI сертификата
-import { loadUserCertificateData, openAddCertModal } from "./certificate.js"; // 💡 openAddCertModal теперь экспортируется
+// 🆕 Импорт функции для загрузки и обновления UI сертификата И функции открытия модалки
+import { loadUserCertificateData, openAddCertModal } from "./certificate.js"; // 💡 openAddCertModal теперь импортируется
 
 document.addEventListener("DOMContentLoaded", () => {
     // ===============================
@@ -45,14 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
     openCertModalBtn?.addEventListener("click", () => {
         // 1. Сначала закрываем основное меню
         closeMenu(); 
-        // 2. Затем открываем модалку сертификата
-        // openAddCertModal должна быть экспортирована из certificate.js
+        // 2. Затем открываем модалку сертификата (которая теперь экспортирована!)
         openAddCertModal(); 
     });
     
     // ===============================
     // 🌍 Смена языка
-    // ... (остальной код смены языка) ...
     // ===============================
     const changeLangBtn = document.querySelector(".change-lang-btn");
     let currentLang = localStorage.getItem("ursa_lang") || "ru";
@@ -84,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     // ===============================
     // 🔐 Google / Facebook вход
-    // ... (логика входа) ...
     // ===============================
     document.querySelector(".google-auth")?.addEventListener("click", async () => {
         await loginWithGoogle();
@@ -100,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const emailBtn = document.querySelector(".email-auth");
     const emailModal = document.getElementById("email-modal");
 
-    // 💡 В openEmailModal мы уже закрываем основное меню!
     function openEmailModal() { 
         closeMenu();
         emailModal.classList.add("visible");
@@ -118,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     // ===============================
     // ✉ Email вход / регистрация / восстановление
-    // ... (логика входа/регистрации) ...
     // ===============================
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
@@ -145,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!user) {
             nickEl.textContent = "Гость";
             avatarEl.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
-            // 🆕 Сброс UI сертификата при выходе
             loadUserCertificateData(null); 
             return;
         }
@@ -153,7 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
         nickEl.textContent = user.displayName || user.email || "Пользователь";
         avatarEl.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
 
-        // 🆕 Загрузка и отображение данных сертификата при входе
         loadUserCertificateData(user); 
     });
 });
