@@ -5,7 +5,6 @@ import { auth } from "./app.js";
 // ===============================
 // DOM Элементы
 // ===============================
-// 💡 openCertModalBtn удаляем из списка DOM-элементов, т.к. обработчик переехал в menu.js
 const addCertModal = document.getElementById("add-cert-modal");
 const certFileInput = document.getElementById("cert-file-input");
 const certPasswordInput = document.getElementById("cert-password-input");
@@ -23,7 +22,7 @@ const addCertBtn = document.getElementById("open-cert-modal-btn");
 // ===============================
 // Управление модальным окном (ЭКСПОРТИРУЕМ!)
 // ===============================
-export function openAddCertModal() { // 💡 ДОБАВЛЕНО 'export'
+export function openAddCertModal() { // 💡 ИСПРАВЛЕНО: Теперь с export!
     if (!auth.currentUser) {
         alert("⚠️ Для добавления сертификата необходимо войти!");
         return;
@@ -101,7 +100,6 @@ certImportBtn?.addEventListener("click", async () => {
 
 deleteCertBtn?.addEventListener("click", () => {
     if (confirm("Вы уверены, что хотите удалить сертификат?")) {
-        // ⚠️ ЗАГЛУШКА ДЛЯ FIREBASE DELETE
         console.log(`Удаление сертификата для ${auth.currentUser.uid}`);
 
         localStorage.removeItem(`user_cert_data_${auth.currentUser.uid}`);
@@ -144,7 +142,6 @@ export function loadUserCertificateData(user) {
         updateCertificateUI(null);
         return;
     }
-    // 🚨 В реальном проекте: запросить данные из Firestore
     const dataString = localStorage.getItem(`user_cert_data_${user.uid}`);
     const certData = dataString ? JSON.parse(dataString) : null;
     
