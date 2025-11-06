@@ -27,31 +27,35 @@ console.log("✅ Firebase инициализирован");
 // ===============================
 export let appsData = [];
 export let currentCategory = "apps"; // "apps" | "games"
+
 export function setCurrentCategory(type) {
     currentCategory = type;
     displayCatalog();
 }
 
 // ===============================
-// Карточка
+// Генерация карточки
 // ===============================
 function createCardHtml(data) {
     return `
-        <article class="card" data-id="\${data.id}">
+        <article class="card" data-id="${data.id}">
             <div class="card-media">
-                <img src="\${data.img}" class="card-icon" alt="\${data.title}">
-                \${data.badge === "VIP" ? `<div class="card-badge">VIP</div>` : ""}
+                <img src="${data.img}" class="card-icon" alt="${data.title}">
+                ${data.badge === "VIP" ? `<div class="card-badge">VIP</div>` : ""}
             </div>
+
             <div class="card-info">
-                <h3>\${data.title}</h3>
-                <p class="meta">\${data.version}</p>
+                <h3>${data.title}</h3>
+                <p class="meta">${data.version}</p>
             </div>
-            <button class="card-cta open-modal-btn" data-id="\${data.id}">
+
+            <button class="card-cta open-modal-btn" data-id="${data.id}">
                 <span>Открыть</span>
             </button>
         </article>
     `;
 }
+
 function attachModalOpenListeners(carousel) {
     carousel.addEventListener("click", (event) => {
         const btn = event.target.closest(".open-modal-btn");
@@ -112,10 +116,12 @@ async function loadDataFromFirestore() {
                 uploadTime: item.createdAt ? new Date(item.createdAt).getTime() : Date.now()
             };
         });
+
         displayCatalog();
         console.log(`✅ Загружено ${appsData.length} приложений`);
     } catch (err) {
         console.error("❌ Ошибка загрузки Firestore:", err);
     }
 }
+
 loadDataFromFirestore();
