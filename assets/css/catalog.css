@@ -40,7 +40,10 @@
     background: var(--card); border: 1px solid var(--border);
     border-radius: var(--radius); height: 72px;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 14px; position: relative; overflow: hidden; cursor: pointer;
+    padding: 10px 14px; position: relative; 
+    /* 💡 ИСПРАВЛЕНИЕ 1: Разрешаем overflow для переноса текста */
+    overflow: visible; 
+    cursor: pointer;
     color: var(--text); font-size: 16px;
 }
 .card.placeholder {
@@ -55,19 +58,48 @@
 }
 
 /* Инфо */
-.card-info { flex-grow: 1; min-width: 0; }
-.card-info h3 { margin: 0; line-height: 1.2; }
-.card-info .meta { margin: 0; line-height: 1.2; }
+.card-info { 
+    flex-grow: 1; 
+    min-width: 0; 
+    /* 💡 ИСПРАВЛЕНИЕ 2: Ограничиваем ширину инфо-блока, чтобы всегда оставалось место для CTA (75px) */
+    max-width: calc(100% - 52px - var(--gap) - 75px); 
+}
+.card-info h3 { 
+    margin: 0; 
+    line-height: 1.2; 
+    /* 💡 ИСПРАВЛЕНИЕ 3: Перенос в 2 строки */
+    white-space: normal; 
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    height: 30px; /* Фиксируем высоту для 2 строк */
+}
+.card-info .meta { 
+    margin: 0; 
+    line-height: 1.2; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* CTA */
 .card-cta {
-    flex-shrink: 0; height: 30px; padding: 0 16px; border-radius: 9px;
+    /* 💡 ИСПРАВЛЕНИЕ 4: Фиксируем ширину кнопки "Открыть" */
+    width: 75px;
+    flex-shrink: 0; 
+    height: 30px; 
+    padding: 0 5px; /* Уменьшаем padding для фиксированной ширины */
+    border-radius: 9px;
     margin-left: var(--gap); display: inline-flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: 700; text-decoration: none;
     background: var(--bg-elev); border: 1px solid var(--border); color: var(--accent);
     cursor: pointer; transition: background .2s ease;
 }
 .card-cta:active { background: color-mix(in oklab, var(--bg-elev) 80%, #000 20%); }
+/* 💡 Дополнительно: убедимся, что текст кнопки не переносится */
+.card-cta span {
+    white-space: nowrap;
+}
 
 /* Бейдж */
 .card-badge {
