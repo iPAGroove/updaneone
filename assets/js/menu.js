@@ -33,15 +33,15 @@ async function parseMobileProvision(file) {
                 const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
                 const xml = text.substring(xmlStart, xmlEnd);
 
-                // 1. Ищем список устройств (ProvisionedDevices) - это UDIDs
-                const udidMatches = [...xml.matchAll(/<key>ProvisionedDevices<\/key>\s*<array>(.+?)<\/array>/s)];
+                // 1. Ищем список устройств (ProvisionedDevices) - используем match, чтобы избежать ошибки matchAll без 'g'
+                const udidMatch = xml.match(/<key>ProvisionedDevices<\/key>\s*<array>(.+?)<\/array>/s);
                 let profileID = null;
 
-                if (udidMatches.length > 0) {
-                    // Если список устройств есть, берем первое UDID
-                    const udidList = [...udidMatches[0][1].matchAll(/<string>([^<]+)<\/string>/g)];
+                if (udidMatch) {
+                    // Внутри array используем matchAll с флагом 'g' для поиска всех UDID
+                    const udidList = [...udidMatch[1].matchAll(/<string>([^<]+)<\/string>/g)];
                     if (udidList.length > 0) {
-                        profileID = udidList[0][1]; // Используем UDID
+                        profileID = udidList[0][1]; // Берем первое UDID
                     }
                 }
                 
@@ -102,7 +102,7 @@ async function importCertificate() {
     // ✅ Парсим UDID/UUID и дату
     const parsed = await parseMobileProvision(mp);
 
-    // 🛑 ИСПРАВЛЕНИЕ: Проверяем profileID
+    // 🛑 Проверяем profileID
     if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь информацию о профиле (UUID/дату). Убедитесь, что файл .mobileprovision корректен.");
 
     const uid = user.uid;
