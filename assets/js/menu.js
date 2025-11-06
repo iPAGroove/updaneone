@@ -13,20 +13,47 @@ import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
 
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const storage = getStorage();
 
 // ===============================
-// 📌 Рендер блока сертификата
+// 🔍 Парсим UDID и дату из mobileprovision
+// ===============================
+async function parseMobileProvision(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            try {
+                const text = event.target.result;
+
+                const xmlStart = text.indexOf("<?xml");
+                const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
+                const xml = text.substring(xmlStart, xmlEnd);
+
+                const udid = xml.match(/<key>UDID<\/key>\s*<string>([^<]+)<\/string>/)?.[1] || null;
+                const expiryDate = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] || null;
+
+                resolve({ udid, expiryDate });
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        reader.readAsText(file);
+    });
+}
+
+// ===============================
+// 📌 Обновить UI сертификата
 // ===============================
 function renderCertificateBlock() {
     const card = document.querySelector(".certificate-card");
-    const signerId = localStorage.getItem("ursa_signer_id");
-    const account = localStorage.getItem("ursa_cert_account");
-    const expires = localStorage.getItem("ursa_cert_exp");
+    const udid = localStorage.getItem("ursa_cert_udid");
+    const expiry = localStorage.getItem("ursa_cert_exp");
 
-    if (!signerId) {
+    if (!udid) {
         card.innerHTML = `
             <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
             <button class="btn add-cert-btn">Добавить сертификат</button>
@@ -34,10 +61,9 @@ function renderCertificateBlock() {
         return;
     }
 
-    const expDate = new Date(expires).toLocaleDateString("ru-RU");
     card.innerHTML = `
-        <p><strong>Apple ID:</strong> ${account}</p>
-        <p><strong>Действует до:</strong> ${expDate}</p>
+        <p><strong>UDID:</strong> ${udid}</p>
+        <p><strong>Действует до:</strong> ${expiry}</p>
         <button class="btn delete-cert-btn">Удалить сертификат</button>
     `;
 }
@@ -50,83 +76,99 @@ async function importCertificate() {
     const mp = document.getElementById("cert-mobileprovision").files[0];
     const password = document.getElementById("cert-password").value.trim() || "";
 
-    if (!p12 || !mp) {
-        alert("Выберите .p12 и .mobileprovision");
-        return;
-    }
+    if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
 
     const user = auth.currentUser;
-    if (!user) {
-        alert("Сначала выполните вход.");
-        return;
-    }
+    if (!user) return alert("Сначала выполните вход.");
+
+    // ✅ Парсим реальный UDID и дату
+    const parsed = await parseMobileProvision(mp);
+    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь информацию из сертификата");
 
     const uid = user.uid;
     const folder = `signers/${uid}/`;
 
-    const p12Ref = ref(storage, folder + p12.name);
-    const mpRef = ref(storage, folder + mp.name);
-
-    await uploadBytes(p12Ref, p12);
-    await uploadBytes(mpRef, mp);
-
-    const p12Url = await getDownloadURL(p12Ref);
-    const mpUrl = await getDownloadURL(mpRef);
-    const expires = new Date(Date.now() + 31536000000).toISOString();
+    await uploadBytes(ref(storage, folder + p12.name), p12);
+    await uploadBytes(ref(storage, folder + mp.name), mp);
 
     await setDoc(doc(db, "ursa_signers", uid), {
-        p12Url,
-        provUrl: mpUrl,
+        udid: parsed.udid,
+        expires: parsed.expiryDate,
         pass: password,
-        expires,
         createdAt: new Date().toISOString()
     }, { merge: true });
 
-    localStorage.setItem("ursa_signer_id", uid);
-    localStorage.setItem("ursa_cert_account", user.email || uid);
-    localStorage.setItem("ursa_cert_exp", expires);
+    // ✅ Сохраняем UI данные
+    localStorage.setItem("ursa_cert_udid", parsed.udid);
+    localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
 
+    // ✅ Закрываем модалку → возвращаемся в меню
     document.getElementById("cert-modal").classList.remove("visible");
     renderCertificateBlock();
+    openMenu();
+}
+
+// ===============================
+// 📌 Меню UI
+// ===============================
+function openMenu() {
     document.getElementById("menu-modal").classList.add("visible");
+    document.body.classList.add("modal-open");
+}
+function closeMenu() {
+    document.getElementById("menu-modal").classList.remove("visible");
+    document.body.classList.remove("modal-open");
 }
 
 // ===============================
 // ГЛАВНОЕ
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-    const menuBtn = document.getElementById("menu-btn");
-    const menuOverlay = document.getElementById("menu-modal");
 
-    function openMenu() {
+    document.getElementById("menu-btn")?.addEventListener("click", () => {
         renderCertificateBlock();
-        menuOverlay.classList.add("visible");
-        document.body.classList.add("modal-open");
-    }
-    function closeMenu() {
-        menuOverlay.classList.remove("visible");
-        document.body.classList.remove("modal-open");
-    }
-
-    menuBtn?.addEventListener("click", openMenu);
-    menuOverlay?.addEventListener("click", (e) => {
-        if (e.target === menuOverlay || e.target.closest("[data-action='close-menu']")) closeMenu();
+        openMenu();
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
+
+    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
+        if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']")) closeMenu();
+    });
+
+    // ✅ Кнопка Назад на окне сертификата
+    document.getElementById("cert-modal")?.addEventListener("click", (e) => {
+        if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
+            document.getElementById("cert-modal").classList.remove("visible");
+            openMenu();
+        }
+    });
+
+    document.getElementById("cert-import-btn").onclick = importCertificate;
+
+    // Кнопка Добавить / Удалить сертификат
+    document.body.addEventListener("click", (e) => {
+        if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
+        if (e.target.classList.contains("delete-cert-btn")) {
+            localStorage.removeItem("ursa_cert_udid");
+            localStorage.removeItem("ursa_cert_exp");
+            renderCertificateBlock();
+        }
+    });
 
     // ===============================
-    // ✉ Email Auth
+    // Email Auth
     // ===============================
-    const emailBtn = document.querySelector(".email-auth");
     const emailModal = document.getElementById("email-modal");
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
 
-    emailBtn?.addEventListener("click", () => { closeMenu();  emailModal.classList.add("visible"); });
+    document.querySelector(".email-auth")?.addEventListener("click", () => {
+        closeMenu();
+        emailModal.classList.add("visible");
+    });
+
     emailModal.addEventListener("click", (e) => {
-        if (e.target === emailModal || e.target.closest("[data-action='close-email']")) {
+        if (e.target === e.currentTarget || e.target.closest("[data-action='close-email']"))
             emailModal.classList.remove("visible");
-        }
     });
 
     document.getElementById("email-login-btn")?.addEventListener("click", async () => {
@@ -141,36 +183,19 @@ document.addEventListener("DOMContentLoaded", () => {
         openMenu();
     });
 
-    document.getElementById("email-reset-btn")?.addEventListener("click", () => {
-        resetPassword(emailInput.value.trim());
-    });
+    document.getElementById("email-reset-btn")?.addEventListener("click", () => resetPassword(emailInput.value.trim()));
 
     // ===============================
-    // 🔐 Соц вход
+    // Соц авторизация
     // ===============================
     document.querySelector(".google-auth")?.addEventListener("click", async () => { await loginWithGoogle(); closeMenu(); });
     document.querySelector(".facebook-auth")?.addEventListener("click", async () => { await loginWithFacebook(); closeMenu(); });
 
     // ===============================
-    // 👤 Обновление профиля
+    // Профиль
     // ===============================
     onUserChanged((user) => {
         document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
         document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
     });
-
-    // ===============================
-    // Сертификат
-    // ===============================
-    document.body.addEventListener("click", (e) => {
-        if (e.target.classList.contains("add-cert-btn")) document.getElementById("cert-modal").classList.add("visible");
-        if (e.target.classList.contains("delete-cert-btn")) {
-            localStorage.removeItem("ursa_signer_id");
-            localStorage.removeItem("ursa_cert_account");
-            localStorage.removeItem("ursa_cert_exp");
-            renderCertificateBlock();
-        }
-    });
-
-    document.getElementById("cert-import-btn").onclick = importCertificate;
 });
