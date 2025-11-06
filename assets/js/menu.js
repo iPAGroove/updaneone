@@ -11,7 +11,7 @@ import {
 } from "./firebase/auth.js";
 
 import { onUserChanged } from "./firebase/user.js";
-import { uploadCertificate, getCertificate, deleteCertificate } from "./firebase/cert.js";
+import { uploadCertificate, getCertificate, deleteCertificate } from "./cert.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
