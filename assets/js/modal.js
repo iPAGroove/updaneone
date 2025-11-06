@@ -30,49 +30,60 @@ function timeSince(date) {
 export function openModal(data) {
     if (!modalOverlay || !data) return;
 
-    // --- базовые данные ---
-    document.getElementById('modal-icon').src = data.img;
-    document.getElementById('modal-title').textContent = data.title;
-    document.getElementById('modal-version').textContent = data.version;
-    document.getElementById('modal-size').textContent = data.size;
-    document.getElementById('modal-time-ago').textContent = timeSince(new Date(data.uploadTime));
+    // ==========================================
+    // 🔥 Привязываем реальную ссылку на IPA
+    // ==========================================
+    data.link = data.DownloadUrl; // ← ВАЖНО! (ИСПРАВЛЯЕТ Invalid URL)
+    
+    // ==========================================
+    // Заголовок + иконка + метаданные
+    // ==========================================
+    document.getElementById('modal-icon').src = data.iconUrl;
+    document.getElementById('modal-title').textContent = data.NAME;
+    document.getElementById('modal-version').textContent = data.Version;
+    document.getElementById('modal-time-ago').textContent = timeSince(new Date(data.updatedAt));
 
-    // --- функции мода ---
-    const featuresFormatted = (data.features || "")
-        .replace(/,\s*/g, '\n')
-        .trim();
-    document.getElementById('modal-features').textContent = featuresFormatted;
+    // Размер конвертируем
+    const sizeMB = data.sizeBytes ? (data.sizeBytes / 1_000_000).toFixed(1) + " MB" : "N/A";
+    document.getElementById('modal-size').textContent = sizeMB;
 
-    // --- описание ---
-    let desc = (data.desc || "").trim();
+    // ==========================================
+    // Функции мода (RU > EN fallback)
+    // ==========================================
+    const features = data.features_ru || data.features_en || "";
+    const formattedFeatures = features.replace(/,\s*/g, '\n').trim();
+    document.getElementById('modal-features').textContent = formattedFeatures;
+
+    // ==========================================
+    // Описание (RU > EN fallback)
+    // ==========================================
+    let desc = (data.description_ru || data.description_en || "").trim();
     if (
         desc.toLowerCase() === "функции мода" ||
         desc.toLowerCase() === "hack features" ||
-        desc === "" ||
-        desc === featuresFormatted ||
-        desc.replace(/\s+/g, '') === featuresFormatted.replace(/\s+/g, '')
+        desc === formattedFeatures ||
+        desc.replace(/\s+/g, '') === formattedFeatures.replace(/\s+/g, '')
     ) {
         desc = "";
     }
     document.getElementById('modal-desc').textContent = desc;
 
-    // ===============================
-    // КНОПКА УСТАНОВКИ → installIPA()
-    // ===============================
-
+    // ==========================================
+    // Кнопка Установить → installIPA(data)
+    // ==========================================
     const ctaButton = document.getElementById('modal-cta');
-
     ctaButton.textContent = "Установить";
     ctaButton.removeAttribute("href");
+
     ctaButton.onclick = (e) => {
         e.preventDefault();
-        installIPA(data);
+        installIPA(data); // ← Запускаем signer
     };
 
-    // очистка UI прогресса при открытии
+    // Очистить прогресс-линии при повторном открытии
     if (dlRow) dlRow.innerHTML = "";
 
-    // отображаем модалку
+    // Показать окно
     modalOverlay.classList.add('visible');
     document.body.classList.add('modal-open');
 }
@@ -81,7 +92,7 @@ function closeModal() {
     modalOverlay.classList.remove('visible');
     document.body.classList.remove('modal-open');
 
-    // сбрасываем прогресс установщика при закрытии
+    // Очистить прогресс после закрытия
     if (dlRow) dlRow.innerHTML = "";
 }
 
