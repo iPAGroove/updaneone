@@ -5,6 +5,12 @@ const overlay = document.getElementById("all-catalog-modal");
 const container = document.getElementById("all-list-container");
 const title = document.getElementById("all-list-title");
 
+// 💡 Экспортируем функцию закрытия, чтобы к ней можно было обратиться из других модулей (например, из card.addEventListener)
+export function closeListModal() {
+    overlay.classList.remove("visible");
+    document.body.classList.remove("modal-open");
+}
+
 function openListModal() {
     title.textContent = currentCategory === "apps" ? "Приложения" : "Игры";
     container.innerHTML = "";
@@ -20,17 +26,20 @@ function openListModal() {
             <img src="${app.img}" alt="">
             <span class="card-title">${app.title}</span>
         `;
-        card.addEventListener("click", () => openModal(app));
+        
+        // 💡 ИСПРАВЛЕНИЕ ПУНКТА 1: Закрываем текущую модалку перед открытием модалки приложения
+        card.addEventListener("click", () => {
+            closeListModal(); 
+            openModal(app);
+        });
+        
         container.appendChild(card);
     });
 
     overlay.classList.add("visible");
     document.body.classList.add("modal-open");
 }
-function closeListModal() {
-    overlay.classList.remove("visible");
-    document.body.classList.remove("modal-open");
-}
+
 overlay.addEventListener("click", (e) => {
     if (e.target === overlay || e.target.closest("[data-action='close-list']")) {
         closeListModal();
