@@ -6,31 +6,45 @@ const overlay = document.getElementById("search-modal");
 const input = document.getElementById("search-input");
 const results = document.getElementById("search-results");
 const hint = document.querySelector(".search-hint");
+const tabbar = document.getElementById("tabbar");
 
-// Открытие
+// ===============================
+// ОТКРЫТИЕ ПОИСКА
+// ===============================
 searchBtn.addEventListener("click", () => {
     overlay.classList.add("visible");
     document.body.classList.add("modal-open");
-    input.focus();
     hint.style.display = "block";
+    input.focus();
 });
 
-// Закрытие
-function close() {
+// ===============================
+// ЗАКРЫТИЕ ПОИСКА
+// ===============================
+function closeSearch() {
     overlay.classList.remove("visible");
     document.body.classList.remove("modal-open");
     input.value = "";
     results.innerHTML = "";
     hint.style.display = "block";
 }
+
+// Закрытие по клику вне
 overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) close();
-});
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") close();
+    if (e.target === overlay) closeSearch();
 });
 
-// Поиск
+// Закрытие по ESC
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSearch();
+});
+
+// ✅ Закрытие при переключении кнопок навигации
+if (tabbar) tabbar.addEventListener("click", closeSearch);
+
+// ===============================
+// ПОИСК
+// ===============================
 input.addEventListener("input", () => {
     const q = input.value.toLowerCase().trim();
     results.innerHTML = "";
@@ -41,23 +55,37 @@ input.addEventListener("input", () => {
     }
     hint.style.display = "none";
 
-    const filtered = appsData.filter(app =>
-        app.title.toLowerCase().includes(q) ||
-        (app.desc || "").toLowerCase().includes(q) ||
-        (app.features || "").toLowerCase().includes(q)
-    );
+    const filtered = appsData
+        .map(app => ({
+            ...app,
+            _score:
+                (app.title || app.NAME || "").toLowerCase().includes(q) ? 2 :
+                (app.desc || "").toLowerCase().includes(q) ? 1 :
+                (app.features || "").toLowerCase().includes(q) ? 0.5 : 0
+        }))
+        .filter(a => a._score > 0)
+        .sort((a, b) => b._score - a._score);
 
     filtered.forEach(app => {
+        const icon = app.img || app.iconUrl || "https://placehold.co/100x100/121722/00b3ff?text=IPA";
+        const title = app.title || app.NAME || "Без названия";
+
         const div = document.createElement("div");
         div.className = "result-item";
         div.innerHTML = `
-            <img src="${app.img}">
-            <span class="title">${app.title}</span>
+            <img src="${icon}">
+            <span class="title">${title}</span>
         `;
         div.addEventListener("click", () => {
-            close();
+            closeSearch();
+
+            // ✅ Закрываем модалку "Смотреть все", если она открыта
+            document.querySelectorAll(".view-all-modal.visible")
+                .forEach(m => m.classList.remove("visible"));
+
             openModal(app);
         });
+
         results.appendChild(div);
     });
 });
