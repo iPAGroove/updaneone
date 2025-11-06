@@ -104,6 +104,14 @@ export function displayCatalog() {
         }
         
         attachModalOpenListeners(carousel);
+        
+        // 💡 ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ: Если нет элементов, скрываем всю секцию. 
+        // Если элементы есть, принудительно показываем.
+        if (items.length === 0) {
+            row.style.display = 'none';
+        } else {
+            row.style.display = 'flex'; // Соответствует стилю в catalog.css: .collection-row { display: flex; flex-direction: column; }
+        }
     });
 }
 
