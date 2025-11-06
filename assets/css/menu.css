@@ -191,6 +191,14 @@
     text-transform: uppercase;
     transition: .25s;
 }
+
+/* 💡 ИСПРАВЛЕНИЕ 5: Класс для уменьшения размера кнопок в меню */
+.menu-action-btn.wide-btn {
+    padding: 10px 14px; /* Уменьшаем вертикальный padding */
+    font-size: 14px;   /* Уменьшаем шрифт */
+    border-radius: 12px; /* Чуть меньше радиус */
+}
+
 .select-plan-btn {
     background: linear-gradient(90deg, var(--accent), #00e0ff);
     color: #001018;
