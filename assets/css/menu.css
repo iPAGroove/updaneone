@@ -115,10 +115,8 @@
     border-radius: var(--radius);
     padding: 12px 14px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* ✅ фиксирует низ */
-    min-height: 150px; /* чуть выше для стабильной структуры */
-    gap: 8px;
+    flex-direction: column; /* вертикальный стек */
+    gap: 10px; /* чуть комфортнее расстояние */
     box-shadow: 0 0 14px rgba(0,179,255,0.16);
     transition: .25s;
 }
@@ -137,11 +135,11 @@
 .cert-info {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 5px;
     background: rgba(255,255,255,0.02);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 6px 8px;
+    padding: 8px 10px;
 }
 
 .cert-row {
@@ -153,24 +151,9 @@
 }
 .cert-label { color: var(--muted); }
 
-/* ✅ кнопка удаления всегда снизу */
-.delete-cert-btn { margin-top: auto; }
-
-/* Добавить */
-.add-cert-btn {
-    padding: 8px 10px;
-    border-radius: 8px;
-    background: linear-gradient(90deg, var(--accent), #00e0ff);
-    color: #001018;
-    font-size: 13px;
-    font-weight: 600;
-    box-shadow: 0 0 14px rgba(0,179,255,0.45);
-    transition: .25s;
-}
-.add-cert-btn:hover { transform: scale(1.03); }
-
-/* Удалить */
+/* ✅ кнопка всегда внизу */
 .delete-cert-btn {
+    margin-top: auto; /* прижимает вниз если текста много */
     padding: 8px 10px;
     background: rgba(255,50,50,0.12);
     border: 1px solid #ff5252;
@@ -184,6 +167,19 @@
     background: rgba(255,50,50,0.22);
     border-color: #ff9f9f;
 }
+
+/* Добавить */
+.add-cert-btn {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    color: #001018;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 0 14px rgba(0,179,255,0.45);
+    transition: .25s;
+}
+.add-cert-btn:hover { transform: scale(1.03); }
 
 /* BUTTON HIERARCHY */
 .menu-action-btn {
