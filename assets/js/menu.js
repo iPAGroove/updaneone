@@ -6,13 +6,13 @@ import {
     loginWithFacebook,
     loginWithEmail,
     registerWithEmail,
-    resetPassword,
-    auth
+    resetPassword
 } from "./firebase/auth.js";
-import { onUserChanged } from "./firebase/user.js";
 
-import { db } from "./firebase/auth.js";
-import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { onUserChanged } from "./firebase/user.js";
+import { auth, db } from "./firebase.js";
+
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const storage = getStorage();
@@ -36,7 +36,7 @@ function renderCertificateBlock() {
 
     const expDate = new Date(expires).toLocaleDateString("ru-RU");
     card.innerHTML = `
-        <p><strong>Аккаунт:</strong> ${account}</p>
+        <p><strong>Apple ID:</strong> ${account}</p>
         <p><strong>Действует до:</strong> ${expDate}</p>
         <button class="btn delete-cert-btn">Удалить сертификат</button>
     `;
@@ -57,12 +57,13 @@ async function importCertificate() {
 
     const user = auth.currentUser;
     if (!user) {
-        alert("Сначала войдите в аккаунт.");
+        alert("Сначала выполните вход.");
         return;
     }
 
     const uid = user.uid;
     const folder = `signers/${uid}/`;
+
     const p12Ref = ref(storage, folder + p12.name);
     const mpRef = ref(storage, folder + mp.name);
 
@@ -71,7 +72,6 @@ async function importCertificate() {
 
     const p12Url = await getDownloadURL(p12Ref);
     const mpUrl = await getDownloadURL(mpRef);
-
     const expires = new Date(Date.now() + 31536000000).toISOString(); // +1 год
 
     await setDoc(doc(db, "ursa_signers", uid), {
@@ -82,18 +82,13 @@ async function importCertificate() {
         createdAt: new Date().toISOString()
     }, { merge: true });
 
-    // Сохраняем в локал
+    // localStorage обновление
     localStorage.setItem("ursa_signer_id", uid);
     localStorage.setItem("ursa_cert_account", user.email || uid);
     localStorage.setItem("ursa_cert_exp", expires);
 
-    // Закрываем модалку
     document.getElementById("cert-modal").classList.remove("visible");
-
-    // Перерисовываем
     renderCertificateBlock();
-
-    // Открываем меню обратно
     document.getElementById("menu-modal").classList.add("visible");
 }
 
@@ -119,15 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
     menuOverlay?.addEventListener("click", (e) => {
         if (e.target === menuOverlay || e.target.closest("[data-action='close-menu']")) closeMenu();
     });
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeMenu();
-    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
 
     // ===============================
     // 🌍 Смена языка
     // ===============================
     const changeLangBtn = document.querySelector(".change-lang-btn");
     let currentLang = localStorage.getItem("ursa_lang") || "ru";
+
     const uiText = {
         ru: { selectPlan: "Выбрать план", buyCert: "Купить сертификат", changeLang: "Сменить язык", aboutUs: "О нас" },
         en: { selectPlan: "Select Plan", buyCert: "Buy Certificate", changeLang: "Change Language", aboutUs: "About Us" }
@@ -139,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelector(".about-us-btn").textContent = uiText[currentLang].aboutUs;
     }
     applyLang();
+
     changeLangBtn?.addEventListener("click", () => {
         currentLang = currentLang === "ru" ? "en" : "ru";
         localStorage.setItem("ursa_lang", currentLang);
@@ -156,25 +151,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===============================
     const emailBtn = document.querySelector(".email-auth");
     const emailModal = document.getElementById("email-modal");
-    function openEmailModal() { closeMenu(); emailModal.classList.add("visible"); }
-    function closeEmailModal() { emailModal.classList.remove("visible"); }
-    emailBtn?.addEventListener("click", openEmailModal);
-    emailModal?.addEventListener("click", (e) => { if (e.target === emailModal || e.target.closest("[data-action='close-email']")) closeEmailModal(); });
 
-    const emailInput = document.getElementById("email-input");
-    const passwordInput = document.getElementById("password-input");
-    document.getElementById("email-login-btn")?.addEventListener("click", async () => { await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim()); closeEmailModal(); openMenu(); });
-    document.getElementById("email-register-btn")?.addEventListener("click", async () => { await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim()); closeEmailModal(); openMenu(); });
+    emailBtn?.addEventListener("click", () => { closeMenu(); emailModal.classList.add("visible"); });
+    emailModal.addEventListener("click", (e) => { if (e.target === emailModal || e.target.closest("[data-action='close-email']")) emailModal.classList.remove("visible"); });
+
+    document.getElementById("email-login-btn")?.addEventListener("click", async () => {
+        await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+        emailModal.classList.remove("visible");
+        openMenu();
+    });
+
+    document.getElementById("email-register-btn")?.addEventListener("click", async () => {
+        await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+        emailModal.classList.remove("visible");
+        openMenu();
+    });
+
     document.getElementById("email-reset-btn")?.addEventListener("click", () => resetPassword(emailInput.value.trim()));
 
     // ===============================
     // 👤 Профиль
     // ===============================
-    const nickEl = document.getElementById("user-nickname");
-    const avatarEl = document.getElementById("user-avatar");
     onUserChanged((user) => {
-        nickEl.textContent = user?.displayName || user?.email || "Гость";
-        avatarEl.src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
+        document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
+        document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
     });
 
     // ===============================
