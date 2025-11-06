@@ -1,188 +1,172 @@
 /* assets/css/catalog.css */
-
 /* === СЕКЦИИ === */
 .collection-row {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
-
 /* === ЗАГОЛОВОК (тёмный контейнер по всей ширине, компактный) === */
 .collection-title {
-    width: 100%;
-    margin: 0;
-    padding: 8px 0;
-    text-align: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 2px;
-
-    /* 💥 Компактный тёмный контейнер с лёгким градиентом */
-    background: linear-gradient(
-        180deg,
-        color-mix(in oklab, var(--bg-elev) 90%, #000 10%) 0%,
-        color-mix(in oklab, var(--bg-elev) 80%, #000 20%) 100%
-    );
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-
-    /* 💡 Неоновое свечение текста */
-    color: var(--accent);
-    text-shadow:
-        0 0 6px rgba(0, 179, 255, 0.6),
-        0 0 14px rgba(0, 179, 255, 0.3);
+    width: 100%;
+    margin: 0;
+    padding: 8px 0;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    /* 💥 Компактный тёмный контейнер с лёгким градиентом */
+    background: linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--bg-elev) 90%, #000 10%) 0%,
+        color-mix(in oklab, var(--bg-elev) 80%, #000 20%) 100%
+    );
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    /* 💡 Неоновое свечение текста */
+    color: var(--accent);
+    text-shadow:
+        0 0 6px rgba(0, 179, 255, 0.6),
+        0 0 14px rgba(0, 179, 255, 0.3);
 }
-
 /* === КАРУСЕЛИ === */
 .catalog {
-    margin-top: 20px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 36px;
-    padding: 0;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 0;
 }
-
 .card-carousel {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: repeat(3, 1fr);
-    grid-auto-columns: 85%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    gap: var(--gap);
-    padding: 0 14px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(3, 1fr);
+    grid-auto-columns: 85%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: var(--gap);
+    padding: 0 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
 }
-
 .card-carousel::-webkit-scrollbar {
-    display: none;
+    display: none;
 }
-
 /* 🔄 ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ КАРТОЧКИ (С КОНТЕНТОМ) */
 .card-carousel .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    height: 72px;
-    /* --- Новая разметка Flexbox для контента: --- */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    color: var(--text);
-    font-size: 16px;
-    /* --- Старые стили для заглушек: --- */
-    /* justify-content: center; */ 
-    /* color: var(--muted); */
-    /* font-size: 14px; */
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    height: 72px;
+    /* --- Новая разметка Flexbox для контента: --- */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 16px;
+    /* --- Старые стили для заглушек: --- */
+    /* justify-content: center; */ 
+    /* color: var(--muted); */
+    /* font-size: 14px; */
 }
 .card.placeholder {
-    /* Стиль для пустой заглушки, чтобы она осталась простой */
-    justify-content: center;
-    color: var(--muted);
-    font-size: 14px;
-    padding: 0; /* Убираем padding, чтобы текст был по центру */
+    /* Стиль для пустой заглушки, чтобы она осталась простой */
+    justify-content: center;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0; /* Убираем padding, чтобы текст был по центру */
 }
-
 /* 1. Медиа-блок (Иконка + Бейдж) */
 .card-media {
-    position: relative;
-    flex-shrink: 0;
-    margin-right: var(--gap);
+    position: relative;
+    flex-shrink: 0;
+    margin-right: var(--gap);
 }
-
 .card-icon {
-    width: 52px;
-    height: 52px;
-    object-fit: cover;
-    border-radius: 12px;
-    border: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
 }
-
 /* 2. Инфо-блок (Заголовок + Подзаголовок) */
 .card-info {
-    flex-grow: 1;
-    min-width: 0; /* Обязательно для работы text-overflow: ellipsis */
+    flex-grow: 1;
+    min-width: 0; /* Обязательно для работы text-overflow: ellipsis */
 }
 .card-info h3 {
-    margin: 0;
-    line-height: 1.2;
+    margin: 0;
+    line-height: 1.2;
 }
 .card-info .meta {
-    margin: 0;
-    line-height: 1.2;
+    margin: 0;
+    line-height: 1.2;
 }
-
 /* 3. Кнопка CTA (Call to Action) */
 .card-cta {
-    flex-shrink: 0;
-    height: 30px;
-    padding: 0 16px;
-    border-radius: 9px;
-    margin-left: var(--gap);
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    background: var(--bg-elev); /* Фон кнопки */
-    border: 1px solid var(--border);
-    color: var(--accent);
-    cursor: pointer;
-    transition: background .2s ease;
+    flex-shrink: 0;
+    height: 30px;
+    padding: 0 16px;
+    border-radius: 9px;
+    margin-left: var(--gap);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    background: var(--bg-elev); /* Фон кнопки */
+    border: 1px solid var(--border);
+    color: var(--accent);
+    cursor: pointer;
+    transition: background .2s ease;
 }
 .card-cta:active {
-    background: color-mix(in oklab, var(--bg-elev) 80%, #000 20%);
+    background: color-mix(in oklab, var(--bg-elev) 80%, #000 20%);
 }
-
 /* 4. Бейдж VIP/NEW */
 .card-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--bg);
-    background-color: var(--accent);
-    padding: 2px 6px;
-    border-radius: 6px;
-    z-index: 2;
-    box-shadow: 0 0 6px rgba(0, 179, 255, 0.6);
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--bg);
+    background-color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 6px;
+    z-index: 2;
+    box-shadow: 0 0 6px rgba(0, 179, 255, 0.6);
 }
-
 /* === КНОПКА "СМОТРЕТЬ ВСЕ" === */
 .view-all-btn {
-    margin: 6px auto 0 auto;
-    background: linear-gradient(90deg, var(--accent), #00e0ff);
-    border: none;
-    color: #001018;
-    font-weight: 700;
-    border-radius: 12px;
-    padding: 9px 20px;
-    font-size: 15px;
-    cursor: pointer;
-    box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
-    transition: transform .25s ease, box-shadow .25s ease;
+    margin: 6px auto 0 auto;
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    border: none;
+    color: #001018;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 9px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
+    transition: transform .25s ease, box-shadow .25s ease;
 }
 .view-all-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(0, 179, 255, 0.65);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 179, 255, 0.65);
 }
-
 /* === ДЕСКТОП === */
 @media (min-width: 521px) {
-    .card-carousel {
-        grid-template-rows: repeat(3, 1fr);
-        grid-auto-flow: unset;
-        grid-auto-columns: unset;
-        overflow-x: hidden;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
+    .card-carousel {
+        grid-template-rows: repeat(3, 1fr);
+        grid-auto-flow: unset;
+        grid-auto-columns: unset;
+        overflow-x: hidden;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
 }
