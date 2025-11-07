@@ -1,7 +1,9 @@
 // assets/js/firebase/auth.js
 import { auth } from "../app.js";
 import {
-    signInWithPopup,
+    // Импортируем Redirect и getRedirectResult
+    signInWithRedirect,
+    getRedirectResult,
     GoogleAuthProvider,
     FacebookAuthProvider,
     createUserWithEmailAndPassword,
@@ -13,33 +15,55 @@ const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
 // ===============================
-// Google Login
+// ✅ SAFARI FIX: Обработка результата перенаправления
+// ===============================
+export async function handleRedirectResult() {
+    try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+            // Пользователь успешно вернулся, возвращаем его
+            return result.user;
+        }
+        return null; // Нет результата перенаправления
+    } catch (err) {
+        // Ошибка при обработке, например, account-exists-with-different-credential
+        console.error("❌ Ошибка при обработке редиректа:", err);
+        return null;
+    }
+}
+
+
+// ===============================
+// Google Login (Используем Redirect)
 // ===============================
 export async function loginWithGoogle() {
     try {
-        await signInWithPopup(auth, googleProvider);
-        console.log("✅ Google вход выполнен");
+        // 🔥 Заменяем signInWithPopup на signInWithRedirect
+        await signInWithRedirect(auth, googleProvider);
+        // После этой строки произойдет перенаправление. Код здесь больше не выполнится.
     } catch (err) {
+        // Ошибки здесь бывают редко (только если не удалось начать редирект)
         console.error("❌ Ошибка Google входа:", err);
-        alert("Ошибка Google входа");
+        alert("Ошибка начала Google входа");
     }
 }
 
 // ===============================
-// Facebook Login
+// Facebook Login (Используем Redirect)
 // ===============================
 export async function loginWithFacebook() {
     try {
-        await signInWithPopup(auth, facebookProvider);
-        console.log("✅ Facebook вход выполнен");
+        // 🔥 Заменяем signInWithPopup на signInWithRedirect
+        await signInWithRedirect(auth, facebookProvider);
+        // После этой строки произойдет перенаправление. Код здесь больше не выполнится.
     } catch (err) {
         console.error("❌ Ошибка Facebook входа:", err);
-        alert("Ошибка Facebook входа");
+        alert("Ошибка начала Facebook входа");
     }
 }
 
 // ===============================
-// Email Login
+// Email Login (Оставляем как есть, тут нет проблем)
 // ===============================
 export async function loginWithEmail(email, password) {
     try {
