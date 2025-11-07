@@ -29,7 +29,8 @@
     grid-auto-flow: column;
     grid-template-rows: repeat(3, 1fr);
     grid-auto-columns: 85%;
-    overflow-x: auto; overflow-y: hidden;
+    overflow-x: hidden; /* ✅ убираем горизонтальный скролл */
+    overflow-y: hidden;
     gap: var(--gap); padding: 0 14px;
     -webkit-overflow-scrolling: touch; scrollbar-width: none;
 }
@@ -56,16 +57,33 @@
 
 /* Инфо */
 .card-info { flex-grow: 1; min-width: 0; }
-.card-info h3 { margin: 0; line-height: 1.2; }
-.card-info .meta { margin: 0; line-height: 1.2; }
+
+/* ✅ Название теперь в 2 строки, не ломает кнопку */
+.card-info h3 {
+    margin: 0;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* ✅ ПОЗВОЛЯЕМ ДВЕ СТРОКИ */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.card-info .meta { margin: 0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* CTA */
 .card-cta {
-    flex-shrink: 0; height: 30px; padding: 0 16px; border-radius: 9px;
-    margin-left: var(--gap); display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 9px;
+    margin-left: var(--gap);
+    display: inline-flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: 700; text-decoration: none;
     background: var(--bg-elev); border: 1px solid var(--border); color: var(--accent);
     cursor: pointer; transition: background .2s ease;
+    max-width: 90px; /* ✅ фиксируем кнопку, не растягивается */
+    white-space: nowrap; /* текст не ломается */
 }
 .card-cta:active { background: color-mix(in oklab, var(--bg-elev) 80%, #000 20%); }
 
@@ -90,7 +108,7 @@
 @media (min-width: 521px) {
     .card-carousel {
         grid-template-rows: repeat(3, 1fr);
-        grid-auto-flow: unset; grid-auto-columns: unset; overflow-x: hidden;
+        grid-auto-flow: unset; grid-auto-columns: unset; overflow-x: hidden; /* ✅ */
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 }
