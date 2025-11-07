@@ -1,3 +1,4 @@
+// assets/js/search.js
 import { appsData } from "./app.js";
 import { openModal } from "./modal.js";
 
@@ -36,8 +37,17 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") close();
 });
 
-// ✅ Закрытие при нажатии на нижние вкладки (навигация)
-document.getElementById("tabbar")?.addEventListener("click", close);
+// ✅ ИСПРАВЛЕНО: Закрытие при нажатии на нижние вкладки (навигация)
+// Закрываем поиск только при нажатии на табы "apps" или "games",
+// чтобы нажатие на ☰ или 🔍 не блокировалось.
+document.getElementById("tabbar")?.addEventListener("click", (e) => {
+    const button = e.target.closest('.nav-btn');
+    const dataTab = button?.getAttribute('data-tab');
+
+    if (dataTab === 'apps' || dataTab === 'games') {
+        close();
+    }
+});
 
 // ===============================
 // Поиск
