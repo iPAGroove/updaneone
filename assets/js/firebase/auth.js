@@ -40,29 +40,31 @@ export async function handleRedirectResult() {
 
 
 // ===============================
-// Google Login (Используем Redirect)
+// Google Login (ВРЕМЕННО POPUP ДЛЯ ДИАГНОСТИКИ)
 // ===============================
 export async function loginWithGoogle() {
     try {
-        // 🔥 Заменяем signInWithPopup на signInWithRedirect
-        await signInWithRedirect(auth, googleProvider);
+        // 🔥 ВРЕМЕННОЕ ИЗМЕНЕНИЕ: Используем Popup для получения явной ошибки.
+        await signInWithPopup(auth, googleProvider);
+        console.log("✅ Google вход выполнен через Popup (ВРЕМЕННО)");
     } catch (err) {
         // Ошибки здесь бывают редко (только если не удалось начать редирект)
-        console.error("❌ Ошибка Google входа:", err);
-        alert("Ошибка начала Google входа");
+        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА Google входа:", err);
+        alert(`❌ Ошибка Google входа: ${err.message}. Проверьте консоль!`);
     }
 }
 
 // ===============================
-// Facebook Login (Используем Redirect)
+// Facebook Login (ВРЕМЕННО POPUP ДЛЯ ДИАГНОСТИКИ)
 // ===============================
 export async function loginWithFacebook() {
     try {
-        // 🔥 Заменяем signInWithPopup на signInWithRedirect
-        await signInWithRedirect(auth, facebookProvider);
+        // 🔥 ВРЕМЕННОЕ ИЗМЕНЕНИЕ: Используем Popup для получения явной ошибки.
+        await signInWithPopup(auth, facebookProvider);
+        console.log("✅ Facebook вход выполнен через Popup (ВРЕМЕННО)");
     } catch (err) {
-        console.error("❌ Ошибка Facebook входа:", err);
-        alert("Ошибка начала Facebook входа");
+        console.error("❌ КРИТИЧЕСКАЯ ОШИБКА Facebook входа:", err);
+        alert(`❌ Ошибка Facebook входа: ${err.message}. Проверьте консоль!`);
     }
 }
 
