@@ -144,10 +144,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const menuBtn = document.getElementById("menu-btn");
 
-    // ✅ ИСПРАВЛЕНИЕ: Усиленный обработчик клика для кнопки меню
+    // ✅ УСИЛЕННЫЙ ОБРАБОТЧИК КЛИКА ДЛЯ МЕНЮ
     if (menuBtn) {
         menuBtn.addEventListener("click", (e) => {
-            // Убеждаемся, что клик не будет перехвачен родительскими элементами
+            // Если ты открываешь это модальное окно, оно должно иметь приоритет
             e.stopPropagation(); 
             renderCertificateBlock();
             openMenu();
