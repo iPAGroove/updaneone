@@ -222,5 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ✅ Закрытие меню при выборе вкладки навигации
-    document.getElementById("tabbar")?.addEventListener("click", closeMenu);
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+    if (btn.id !== "menu-btn") {
+        btn.addEventListener("click", closeMenu);
+    }
 });
