@@ -9,7 +9,7 @@ import {
     registerWithEmail,
     resetPassword,
     // 💡 ИМПОРТИРУЕМ НОВУЮ ФУНКЦИЮ ДЛЯ SAFARI
-    handleRedirectResult 
+    handleRedirectResult
 } from "./firebase/auth.js";
 
 import { onUserChanged } from "./firebase/user.js";
@@ -63,15 +63,15 @@ function renderCertificateBlock() {
     const card = document.querySelector(".certificate-card");
     const udid = localStorage.getItem("ursa_cert_udid");
     const expiry = localStorage.getItem("ursa_cert_exp");
-    
+
     const user = auth.currentUser;
-    // Проверяем, вошел ли пользователь через соцсети
-    const isSocialLogin = user && (user.providerData.some(p => p.providerId.includes('google') || p.providerId.includes('facebook')));
-    
-    // 💡 UX: Показываем кнопку "Добавить сертификат" только если вход через соцсети.
-    const showAddButton = isSocialLogin ? 
-        `<button class="btn add-cert-btn">Добавить сертификат</button>` : 
-        `<p class="cert-info-placeholder">Для добавления сертификата войдите через Google/Facebook.</p>`;
+    // 💡 ИСПРАВЛЕНО: Проверяем, вошел ли пользователь вообще
+    const isLoggedIn = !!user;
+
+    // 💡 UX: Показываем кнопку "Добавить сертификат" только если пользователь вошел.
+    const showAddButton = isLoggedIn ?
+        `<button class="btn add-cert-btn">Добавить сертификат</button>` :
+        `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
 
 
     if (!udid) {
@@ -109,10 +109,11 @@ async function importCertificate() {
     const parsed = await parseMobileProvision(mp);
     if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные профиля.");
 
-    const isSocialLogin = user && (user.providerData.some(p => p.providerId.includes('google') || p.providerId.includes('facebook')));
-    if (!isSocialLogin) {
-        return alert(`❌ Ошибка доступа: Для загрузки сертификата необходим вход через Google или Facebook.`);
-    }
+    // ❌ УДАЛЕНО: Больше не блокируем вход через Email.
+    // const isSocialLogin = user && (user.providerData.some(p => p.providerId.includes('google') || p.providerId.includes('facebook')));
+    // if (!isSocialLogin) {
+    //     return alert(`❌ Ошибка доступа: Для загрузки сертификата необходим вход через Google или Facebook.`);
+    // }
 
     const uid = user.uid;
     const folder = `signers/${uid}/`;
@@ -137,7 +138,7 @@ async function importCertificate() {
         openMenu();
     } catch (err) {
         console.error("❌ Ошибка при загрузке файлов (вероятно, проблема с правами доступа/Security Rules):", err);
-        alert(`❌ Ошибка при загрузке: Не удалось сохранить файлы. Если вы вошли через Google/Facebook, проверьте Security Rules Firebase.`);
+        alert(`❌ Ошибка при загрузке: Не удалось сохранить файлы. Проверьте Security Rules Firebase.`);
     }
 }
 
@@ -157,23 +158,23 @@ function closeMenu() {
 // ИНИЦИАЛИЗАЦИЯ
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
-    
+
     // 🔥 SAFARI FIX: Обработка результата перенаправления ПЕРЕД запуском остального кода
     try {
         const result = await handleRedirectResult();
         if (result && result.user) {
             console.log("✅ Успешный вход через перенаправление.");
             // 💡 ВАЖНО: Принудительно обновляем UI, так как результат пришел
-            renderCertificateBlock(); 
-            openMenu(); 
+            renderCertificateBlock();
+            openMenu();
         }
     } catch (error) {
         console.error("❌ Ошибка при входе через перенаправление:", error);
-        
+
         if (error.code === 'auth/account-exists-with-different-credential') {
             alert('Ошибка: Учетная запись с этим email уже существует. Пожалуйста, войдите через Google/Email.');
         } else {
-             alert('Ошибка входа. Пожалуйста, попробуйте снова.');
+            alert('Ошибка входа. Пожалуйста, попробуйте снова.');
         }
     }
 
@@ -182,7 +183,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ✅ УСИЛЕННЫЙ ОБРАБОТЧИК КЛИКА ДЛЯ МЕНЮ
     if (menuBtn) {
         menuBtn.addEventListener("click", (e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             renderCertificateBlock();
             openMenu();
         });
@@ -248,7 +249,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 🔥 SAFARI FIX: Замена Popup на Redirect (перенаправляет пользователя)
     document.querySelector(".google-auth")?.addEventListener("click", async () => {
         closeMenu(); // Закрываем меню, так как мы уходим на перенаправление
-        await loginWithGoogle(); 
+        await loginWithGoogle();
     });
 
     document.querySelector(".facebook-auth")?.addEventListener("click", async () => {
@@ -265,9 +266,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ✅ Закрытие меню при выборе вкладки навигации
     document.querySelectorAll(".nav-btn").forEach(btn => {
-    if (btn.id !== "menu-btn") {
-        btn.addEventListener("click", closeMenu);
-    }
+        if (btn.id !== "menu-btn") {
+            btn.addEventListener("click", closeMenu);
+        }
+    });
 });
-});
-
