@@ -14,6 +14,10 @@ import {
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
+// 🔥 ЯВНО ЗАПРАШИВАЕМ ПРАВА НА ФОТО И ПРОФИЛЬ
+facebookProvider.addScope('public_profile');
+facebookProvider.addScope('user_photos'); 
+
 // ===============================
 // ✅ SAFARI FIX: Обработка результата перенаправления
 // ===============================
@@ -99,3 +103,4 @@ export async function resetPassword(email) {
         alert(err.message.replace("Firebase:", "").trim());
     }
 }
+
