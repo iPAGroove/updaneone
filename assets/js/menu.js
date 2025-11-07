@@ -229,9 +229,10 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCertificateBlock(); // ← ВАЖНО
     });
 
-    // ✅ Закрытие меню при выборе вкладки навигации
+   // ✅ Закрытие меню при выборе вкладки навигации
     document.querySelectorAll(".nav-btn").forEach(btn => {
     if (btn.id !== "menu-btn") {
         btn.addEventListener("click", closeMenu);
     }
 });
+}); // <--- 🛑 Это недостающая скобка, которая вызвала ошибку!
