@@ -1,6 +1,7 @@
 /* === SEARCH MODAL === */
 .search-overlay {
-    position: fixed; inset: 0;
+    position: fixed;
+    inset: 0;
     background: rgba(0,0,0,0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -11,16 +12,19 @@
     align-items: flex-start;
 
     padding-top: calc(env(safe-area-inset-top) + 70px);
+
+    /* ✅ ВАЖНО: чтобы не блокировался экран */
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease;
 }
+
 .search-overlay.visible {
     opacity: 1;
     pointer-events: all;
 }
 
-/* ✅ главная фиксация: контент должен быть flex-колонкой */
+/* === Inner container === */
 .search-content {
     width: 100%;
     max-width: 520px;
@@ -31,7 +35,7 @@
     gap: 14px;
 }
 
-/* Поле поиска */
+/* === Input === */
 #search-input {
     width: 100%;
     padding: 14px 16px;
@@ -49,7 +53,7 @@
     box-shadow: 0 0 14px rgba(0,179,255,0.4);
 }
 
-/* Подсказка */
+/* === Hint text === */
 .search-hint {
     text-align: center;
     font-size: 13px;
@@ -57,14 +61,14 @@
     opacity: 0.7;
 }
 
-/* Список результатов */
+/* === Results container === */
 .search-results {
     max-height: 70vh;
     overflow-y: auto;
     padding-bottom: 40px;
 }
 
-/* Элемент результата */
+/* === Result item === */
 .search-results .result-item {
     display: flex;
     align-items: center;
@@ -84,7 +88,7 @@
     box-shadow: 0 0 14px rgba(0,179,255,0.4);
 }
 
-/* Иконка результата */
+/* === App icon === */
 .search-results img {
     width: 52px;
     height: 52px;
@@ -94,7 +98,7 @@
     flex-shrink: 0;
 }
 
-/* Название */
+/* === App title === */
 .search-results .title {
     font-size: 16px;
     color: var(--text);
