@@ -142,10 +142,17 @@ function closeMenu() {
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
 
-    document.getElementById("menu-btn")?.addEventListener("click", () => {
-        renderCertificateBlock();
-        openMenu();
-    });
+    const menuBtn = document.getElementById("menu-btn");
+
+    // ✅ ИСПРАВЛЕНИЕ: Усиленный обработчик клика для кнопки меню
+    if (menuBtn) {
+        menuBtn.addEventListener("click", (e) => {
+            // Убеждаемся, что клик не будет перехвачен родительскими элементами
+            e.stopPropagation(); 
+            renderCertificateBlock();
+            openMenu();
+        });
+    }
 
     document.getElementById("menu-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
@@ -204,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
         resetPassword(emailInput.value.trim())
     );
 
-    // ✅ Google / Facebook теперь открывают меню после входа
+    // ✅ Google / Facebook теперь открывают меню после входа (как у тебя и было в новом коде)
     document.querySelector(".google-auth")?.addEventListener("click", async () => {
         await loginWithGoogle();
         openMenu();
