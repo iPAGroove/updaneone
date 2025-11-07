@@ -65,10 +65,10 @@ function renderCertificateBlock() {
     const expiry = localStorage.getItem("ursa_cert_exp");
 
     const user = auth.currentUser;
-    // 💡 ИСПРАВЛЕНО: Проверяем, вошел ли пользователь вообще
+    // Проверяем, вошел ли пользователь вообще
     const isLoggedIn = !!user;
 
-    // 💡 UX: Показываем кнопку "Добавить сертификат" только если пользователь вошел.
+    // UX: Показываем кнопку "Добавить сертификат" только если пользователь вошел.
     const showAddButton = isLoggedIn ?
         `<button class="btn add-cert-btn">Добавить сертификат</button>` :
         `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
@@ -109,24 +109,29 @@ async function importCertificate() {
     const parsed = await parseMobileProvision(mp);
     if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные профиля.");
 
-    // ❌ УДАЛЕНО: Больше не блокируем вход через Email.
-    // const isSocialLogin = user && (user.providerData.some(p => p.providerId.includes('google') || p.providerId.includes('facebook')));
-    // if (!isSocialLogin) {
-    //     return alert(`❌ Ошибка доступа: Для загрузки сертификата необходим вход через Google или Facebook.`);
-    // }
-
+    // Здесь убрана проверка на isSocialLogin (Email-пользователи теперь могут загружать)
+    
     const uid = user.uid;
     const folder = `signers/${uid}/`;
+    
+    // ✅ ИСПРАВЛЕНИЕ: Получаем пути для сохранения в Firestore
+    const p12StoragePath = folder + p12.name;
+    const provStoragePath = folder + mp.name;
 
     try {
-        await uploadBytes(ref(storage, folder + p12.name), p12);
-        await uploadBytes(ref(storage, folder + mp.name), mp);
+        // 1. Загружаем файлы в Storage
+        await uploadBytes(ref(storage, p12StoragePath), p12);
+        await uploadBytes(ref(storage, provStoragePath), mp);
 
+        // 2. Сохраняем метаданные + ПУТИ ФАЙЛОВ в Firestore
         await setDoc(doc(db, "ursa_signers", uid), {
             udid: parsed.udid,
             expires: parsed.expiryDate,
             pass: password,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Добавляем ссылки на файлы для сервера
+            p12Path: p12StoragePath,
+            provPath: provStoragePath,
         }, { merge: true });
 
         localStorage.setItem("ursa_cert_udid", parsed.udid);
