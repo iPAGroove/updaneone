@@ -29,7 +29,8 @@
     grid-auto-flow: column;
     grid-template-rows: repeat(3, 1fr);
     grid-auto-columns: 85%;
-    overflow-x: hidden; /* ✅ убираем горизонтальный скролл */
+    /* 💡 ИСПРАВЛЕНО: Разрешаем горизонтальный скролл */
+    overflow-x: scroll; 
     overflow-y: hidden;
     gap: var(--gap); padding: 0 14px;
     -webkit-overflow-scrolling: touch; scrollbar-width: none;
@@ -108,7 +109,8 @@
 @media (min-width: 521px) {
     .card-carousel {
         grid-template-rows: repeat(3, 1fr);
-        grid-auto-flow: unset; grid-auto-columns: unset; overflow-x: hidden; /* ✅ */
+        grid-auto-flow: unset; grid-auto-columns: unset; 
+        overflow-x: unset; /* 💡 ИСПРАВЛЕНО: Убираем скрытие скролла */
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 }
