@@ -16,11 +16,20 @@ html, body {
     background: var(--bg); color: var(--text);
     font: 16px/1.42 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-    overflow: hidden; margin: 0; padding: 0;
+    /* 💡 ИСПРАВЛЕНО: Убрано жесткое "overflow: hidden" */
+    overflow-x: hidden; 
+    overflow-y: scroll; /* Разрешаем скролл по Y */
+    margin: 0; padding: 0;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
+body { 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+    width: 100vw; 
+    overflow: unset; /* 💡 ИСПРАВЛЕНО: Снята жесткая блокировка */
+}
 
 main {
     flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
