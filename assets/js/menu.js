@@ -16,7 +16,8 @@ import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
 
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+// ✅ ИСПРАВЛЕНИЕ: Добавляем getDownloadURL
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const storage = getStorage();
 
@@ -108,30 +109,32 @@ async function importCertificate() {
 
     const parsed = await parseMobileProvision(mp);
     if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные профиля.");
-
-    // Здесь убрана проверка на isSocialLogin (Email-пользователи теперь могут загружать)
     
     const uid = user.uid;
     const folder = `signers/${uid}/`;
     
-    // ✅ ИСПРАВЛЕНИЕ: Получаем пути для сохранения в Firestore. Меняем Path на Url.
-    const p12StorageUrl = folder + p12.name;
-    const provStorageUrl = folder + mp.name;
+    // 1. Создаем ссылки на Storage
+    const p12StorageRef = ref(storage, folder + p12.name);
+    const provStorageRef = ref(storage, folder + mp.name);
 
     try {
-        // 1. Загружаем файлы в Storage
-        await uploadBytes(ref(storage, p12StorageUrl), p12);
-        await uploadBytes(ref(storage, provStorageUrl), mp);
+        // 2. Загружаем файлы в Storage
+        await uploadBytes(p12StorageRef, p12);
+        await uploadBytes(provStorageRef, mp);
 
-        // 2. Сохраняем метаданные + ПУТИ ФАЙЛОВ в Firestore
+        // 3. ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Получаем публичные ссылки для скачивания (Download URLs)
+        const p12DownloadUrl = await getDownloadURL(p12StorageRef);
+        const provDownloadUrl = await getDownloadURL(provStorageRef);
+
+        // 4. Сохраняем метаданные + HTTP-ссылки в Firestore
         await setDoc(doc(db, "ursa_signers", uid), {
             udid: parsed.udid,
             expires: parsed.expiryDate,
             pass: password,
             createdAt: new Date().toISOString(),
-            // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Добавляем ссылки на файлы для сервера
-            p12Url: p12StorageUrl, // <-- ИСПРАВЛЕНО НА Url
-            provUrl: provStorageUrl, // <-- ИСПРАВЛЕНО НА Url
+            // ✅ ИСПРАВЛЕНИЕ: Теперь сохраняем полные HTTPS-ссылки
+            p12Url: p12DownloadUrl, 
+            provUrl: provDownloadUrl, 
         }, { merge: true });
 
         localStorage.setItem("ursa_cert_udid", parsed.udid);
@@ -142,8 +145,9 @@ async function importCertificate() {
         renderCertificateBlock();
         openMenu();
     } catch (err) {
-        console.error("❌ Ошибка при загрузке файлов (вероятно, проблема с правами доступа/Security Rules):", err);
-        alert(`❌ Ошибка при загрузке: Не удалось сохранить файлы. Проверьте Security Rules Firebase.`);
+        // Добавляем более информативное логирование ошибки, связанной с Storage/Firestore
+        console.error("❌ Ошибка при импорте сертификата:", err); 
+        alert(`❌ Ошибка при импорте: Не удалось сохранить данные. Проверьте консоль Firebase, ошибки могут быть в Security Rules.`);
     }
 }
 
