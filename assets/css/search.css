@@ -5,7 +5,7 @@
     background: rgba(0,0,0,0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    z-index: 2000;
+    z-index: 1500; /* 💡 ИСПРАВЛЕНО: Снижаем, чтобы меню его перекрывало */
 
     display: flex;
     justify-content: center;
