@@ -10,7 +10,7 @@ function openListModal() {
     container.innerHTML = "";
 
     const filtered = appsData.filter(app =>
-        app.tags.split(",").map(t => t.trim()).includes(currentCategory)
+        (app.tags || "").split(",").map(t => t.trim()).includes(currentCategory)
     );
 
     filtered.forEach(app => {
@@ -20,22 +20,34 @@ function openListModal() {
             <img src="${app.img}" alt="">
             <span class="card-title">${app.title}</span>
         `;
-        card.addEventListener("click", () => openModal(app));
+
+        card.addEventListener("click", () => {
+            // ✅ Сначала закрываем список
+            overlay.classList.remove("visible");
+            document.body.classList.remove("modal-open");
+
+            // ✅ Потом открываем карточку
+            openModal(app);
+        });
+
         container.appendChild(card);
     });
 
     overlay.classList.add("visible");
     document.body.classList.add("modal-open");
 }
+
 function closeListModal() {
     overlay.classList.remove("visible");
     document.body.classList.remove("modal-open");
 }
+
 overlay.addEventListener("click", (e) => {
     if (e.target === overlay || e.target.closest("[data-action='close-list']")) {
         closeListModal();
     }
 });
+
 document.querySelectorAll(".view-all-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         openListModal();
