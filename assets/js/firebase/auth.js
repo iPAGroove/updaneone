@@ -12,6 +12,9 @@ import {
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
+// ===============================
+// Google Login
+// ===============================
 export async function loginWithGoogle() {
     try {
         await signInWithPopup(auth, googleProvider);
@@ -22,6 +25,9 @@ export async function loginWithGoogle() {
     }
 }
 
+// ===============================
+// Facebook Login
+// ===============================
 export async function loginWithFacebook() {
     try {
         await signInWithPopup(auth, facebookProvider);
@@ -32,6 +38,9 @@ export async function loginWithFacebook() {
     }
 }
 
+// ===============================
+// Email Login
+// ===============================
 export async function loginWithEmail(email, password) {
     try {
         await signInWithEmailAndPassword(auth, email, password);
@@ -42,6 +51,9 @@ export async function loginWithEmail(email, password) {
     }
 }
 
+// ===============================
+// Email Registration
+// ===============================
 export async function registerWithEmail(email, password) {
     try {
         await createUserWithEmailAndPassword(auth, email, password);
@@ -53,6 +65,9 @@ export async function registerWithEmail(email, password) {
     }
 }
 
+// ===============================
+// Password Reset
+// ===============================
 export async function resetPassword(email) {
     try {
         await sendPasswordResetEmail(auth, email);
