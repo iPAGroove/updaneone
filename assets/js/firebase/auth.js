@@ -21,14 +21,14 @@ export async function handleRedirectResult() {
     try {
         const result = await getRedirectResult(auth);
         if (result) {
-            // Пользователь успешно вернулся, возвращаем его
-            return result.user;
+            // Пользователь успешно вернулся, возвращаем результат
+            return result;
         }
         return null; // Нет результата перенаправления
     } catch (err) {
         // Ошибка при обработке, например, account-exists-with-different-credential
         console.error("❌ Ошибка при обработке редиректа:", err);
-        return null;
+        throw err; // Перебрасываем ошибку для обработки в menu.js
     }
 }
 
@@ -40,7 +40,6 @@ export async function loginWithGoogle() {
     try {
         // 🔥 Заменяем signInWithPopup на signInWithRedirect
         await signInWithRedirect(auth, googleProvider);
-        // После этой строки произойдет перенаправление. Код здесь больше не выполнится.
     } catch (err) {
         // Ошибки здесь бывают редко (только если не удалось начать редирект)
         console.error("❌ Ошибка Google входа:", err);
@@ -55,7 +54,6 @@ export async function loginWithFacebook() {
     try {
         // 🔥 Заменяем signInWithPopup на signInWithRedirect
         await signInWithRedirect(auth, facebookProvider);
-        // После этой строки произойдет перенаправление. Код здесь больше не выполнится.
     } catch (err) {
         console.error("❌ Ошибка Facebook входа:", err);
         alert("Ошибка начала Facebook входа");
@@ -64,7 +62,7 @@ export async function loginWithFacebook() {
 
 // ===============================
 // Email Login (Оставляем как есть, тут нет проблем)
-// ===============================
+// =================================
 export async function loginWithEmail(email, password) {
     try {
         await signInWithEmailAndPassword(auth, email, password);
