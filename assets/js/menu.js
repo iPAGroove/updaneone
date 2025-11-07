@@ -114,14 +114,14 @@ async function importCertificate() {
     const uid = user.uid;
     const folder = `signers/${uid}/`;
     
-    // ✅ ИСПРАВЛЕНИЕ: Получаем пути для сохранения в Firestore
-    const p12StoragePath = folder + p12.name;
-    const provStoragePath = folder + mp.name;
+    // ✅ ИСПРАВЛЕНИЕ: Получаем пути для сохранения в Firestore. Меняем Path на Url.
+    const p12StorageUrl = folder + p12.name;
+    const provStorageUrl = folder + mp.name;
 
     try {
         // 1. Загружаем файлы в Storage
-        await uploadBytes(ref(storage, p12StoragePath), p12);
-        await uploadBytes(ref(storage, provStoragePath), mp);
+        await uploadBytes(ref(storage, p12StorageUrl), p12);
+        await uploadBytes(ref(storage, provStorageUrl), mp);
 
         // 2. Сохраняем метаданные + ПУТИ ФАЙЛОВ в Firestore
         await setDoc(doc(db, "ursa_signers", uid), {
@@ -130,8 +130,8 @@ async function importCertificate() {
             pass: password,
             createdAt: new Date().toISOString(),
             // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Добавляем ссылки на файлы для сервера
-            p12Path: p12StoragePath,
-            provPath: provStoragePath,
+            p12Url: p12StorageUrl, // <-- ИСПРАВЛЕНО НА Url
+            provUrl: provStorageUrl, // <-- ИСПРАВЛЕНО НА Url
         }, { merge: true });
 
         localStorage.setItem("ursa_cert_udid", parsed.udid);
