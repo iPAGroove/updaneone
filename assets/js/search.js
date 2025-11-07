@@ -7,7 +7,9 @@ const input = document.getElementById("search-input");
 const results = document.getElementById("search-results");
 const hint = document.querySelector(".search-hint");
 
+// ===============================
 // Открытие
+// ===============================
 searchBtn.addEventListener("click", () => {
     overlay.classList.add("visible");
     document.body.classList.add("modal-open");
@@ -15,7 +17,9 @@ searchBtn.addEventListener("click", () => {
     hint.style.display = "block";
 });
 
+// ===============================
 // Закрытие
+// ===============================
 function close() {
     overlay.classList.remove("visible");
     document.body.classList.remove("modal-open");
@@ -23,14 +27,21 @@ function close() {
     results.innerHTML = "";
     hint.style.display = "block";
 }
+
 overlay.addEventListener("click", (e) => {
     if (e.target === overlay) close();
 });
+
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") close();
 });
 
+// ✅ Закрытие при нажатии на нижние вкладки (навигация)
+document.getElementById("tabbar")?.addEventListener("click", close);
+
+// ===============================
 // Поиск
+// ===============================
 input.addEventListener("input", () => {
     const q = input.value.toLowerCase().trim();
     results.innerHTML = "";
@@ -55,8 +66,8 @@ input.addEventListener("input", () => {
             <span class="title">${app.title}</span>
         `;
         div.addEventListener("click", () => {
-            close();
-            openModal(app);
+            close();      // закрываем поиск ✅
+            openModal(app); // открываем карточку ✅
         });
         results.appendChild(div);
     });
