@@ -4,7 +4,7 @@
     background: rgba(0,0,0,0.95);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    z-index: 2500; /* 💡 ИСПРАВЛЕНО: Увеличен Z-index с 1500 до 2500, чтобы перекрыть поиск (z-index: 2000) */
+    z-index: 10000; /* 💡 ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ: Максимальный Z-index, чтобы меню было видно поверх абсолютно всего, даже поверх .tabbar (z-index: 9999) */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -240,7 +240,7 @@
     background: rgba(0,0,0,0.85);
     backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
-    z-index: 2500;
+    z-index: 10001; /* 💡 ИСПРАВЛЕНО: Устанавливаем выше главного меню (10000) */
     display: flex;
     justify-content: center;
     align-items: center;
