@@ -3,6 +3,8 @@ import { auth } from "../app.js";
 import {
     // Импортируем Redirect и getRedirectResult
     signInWithRedirect,
+    // ✅ ДОБАВЛЕНО: Добавляем signInWithPopup (для совместимости/тестов)
+    signInWithPopup, 
     getRedirectResult,
     GoogleAuthProvider,
     FacebookAuthProvider,
@@ -103,4 +105,3 @@ export async function resetPassword(email) {
         alert(err.message.replace("Firebase:", "").trim());
     }
 }
-
