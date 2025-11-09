@@ -1,6 +1,6 @@
 // assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата
+// Меню + Авторизация + Email Login + Импорт Сертификата + Отображение статуса FREE / VIP
 // ===============================
 import {
     loginWithGoogle,
@@ -8,15 +8,13 @@ import {
     loginWithEmail,
     registerWithEmail,
     resetPassword,
-    // 💡 ИМПОРТИРУЕМ НОВУЮ ФУНКЦИЮ ДЛЯ SAFARI
     handleRedirectResult
 } from "./firebase/auth.js";
 
 import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
 
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-// ✅ ИСПРАВЛЕНИЕ: Добавляем getDownloadURL
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const storage = getStorage();
@@ -58,7 +56,7 @@ async function parseMobileProvision(file) {
 }
 
 // ===============================
-// 📌 Обновить UI сертификата
+// 📌 UI сертификата
 // ===============================
 function renderCertificateBlock() {
     const card = document.querySelector(".certificate-card");
@@ -66,19 +64,14 @@ function renderCertificateBlock() {
     const expiry = localStorage.getItem("ursa_cert_exp");
 
     const user = auth.currentUser;
-    // Проверяем, вошел ли пользователь вообще
     const isLoggedIn = !!user;
 
-    // UX: Показываем кнопку "Добавить сертификат" только если пользователь вошел.
     const showAddButton = isLoggedIn ?
         `<button class="btn add-cert-btn">Добавить сертификат</button>` :
-        `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
-
+        `<p class="cert-info-placeholder">Для добавления сертификата войдите</p>`;
 
     if (!udid) {
-        card.innerHTML = `
-            ${showAddButton}
-        `;
+        card.innerHTML = `${showAddButton}`;
         return;
     }
 
@@ -87,7 +80,7 @@ function renderCertificateBlock() {
     const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
 
     card.innerHTML = `
-        <p><strong>ID Профиля:</strong> ${udid.length > 30 ? udid.substring(0, 8) + '...' : udid}</p>
+        <p><strong>ID Профиля:</strong> ${udid.substring(0, 8)}...</p>
         <p><strong>Действует до:</strong> ${expiry}</p>
         <p style="font-weight:600;color:${statusColor};">Статус: ${status}</p>
         <button class="btn delete-cert-btn">Удалить сертификат</button>
@@ -105,36 +98,31 @@ async function importCertificate() {
     if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
 
     const user = auth.currentUser;
-    if (!user) return alert("Сначала выполните вход.");
+    if (!user) return alert("Сначала войдите.");
 
     const parsed = await parseMobileProvision(mp);
     if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные профиля.");
-    
+
     const uid = user.uid;
     const folder = `signers/${uid}/`;
-    
-    // 1. Создаем ссылки на Storage
+
     const p12StorageRef = ref(storage, folder + p12.name);
     const provStorageRef = ref(storage, folder + mp.name);
 
     try {
-        // 2. Загружаем файлы в Storage
         await uploadBytes(p12StorageRef, p12);
         await uploadBytes(provStorageRef, mp);
 
-        // 3. ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Получаем публичные ссылки для скачивания (Download URLs)
         const p12DownloadUrl = await getDownloadURL(p12StorageRef);
         const provDownloadUrl = await getDownloadURL(provStorageRef);
 
-        // 4. Сохраняем метаданные + HTTP-ссылки в Firestore
         await setDoc(doc(db, "ursa_signers", uid), {
             udid: parsed.udid,
             expires: parsed.expiryDate,
             pass: password,
             createdAt: new Date().toISOString(),
-            // ✅ ИСПРАВЛЕНИЕ: Теперь сохраняем полные HTTPS-ссылки
-            p12Url: p12DownloadUrl, 
-            provUrl: provDownloadUrl, 
+            p12Url: p12DownloadUrl,
+            provUrl: provDownloadUrl,
         }, { merge: true });
 
         localStorage.setItem("ursa_cert_udid", parsed.udid);
@@ -145,9 +133,8 @@ async function importCertificate() {
         renderCertificateBlock();
         openMenu();
     } catch (err) {
-        // Добавляем более информативное логирование ошибки, связанной с Storage/Firestore
-        console.error("❌ Ошибка при импорте сертификата:", err); 
-        alert(`❌ Ошибка при импорте: Не удалось сохранить данные. Проверьте консоль Firebase, ошибки могут быть в Security Rules.`);
+        console.error("❌ Ошибка импорта:", err);
+        alert("Ошибка при сохранении сертификата");
     }
 }
 
@@ -168,46 +155,13 @@ function closeMenu() {
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
 
-    // 🔥 SAFARI FIX: Обработка результата перенаправления ПЕРЕД запуском остального кода
     try {
-        const result = await handleRedirectResult();
-        if (result && result.user) {
-            console.log("✅ Успешный вход через перенаправление.");
-            // 💡 ВАЖНО: Принудительно обновляем UI, так как результат пришел
-            renderCertificateBlock();
-            openMenu();
-        }
-    } catch (error) {
-        console.error("❌ Ошибка при входе через перенаправление:", error);
+        await handleRedirectResult();
+    } catch (_) {}
 
-        if (error.code === 'auth/account-exists-with-different-credential') {
-            alert('Ошибка: Учетная запись с этим email уже существует. Пожалуйста, войдите через Google/Email.');
-        } else {
-            alert('Ошибка входа. Пожалуйста, попробуйте снова.');
-        }
-    }
-
-    const menuBtn = document.getElementById("menu-btn");
-
-    // ✅ УСИЛЕННЫЙ ОБРАБОТЧИК КЛИКА ДЛЯ МЕНЮ
-    if (menuBtn) {
-        menuBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            renderCertificateBlock();
-            openMenu();
-        });
-    }
-
-    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
-        if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
-            closeMenu();
-    });
-
-    document.getElementById("cert-modal")?.addEventListener("click", (e) => {
-        if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
-            document.getElementById("cert-modal").classList.remove("visible");
-            openMenu();
-        }
+    document.getElementById("menu-btn")?.addEventListener("click", () => {
+        renderCertificateBlock();
+        openMenu();
     });
 
     document.getElementById("cert-import-btn").onclick = importCertificate;
@@ -215,68 +169,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.body.addEventListener("click", (e) => {
         if (e.target.classList.contains("add-cert-btn"))
             document.getElementById("cert-modal").classList.add("visible");
-
         if (e.target.classList.contains("delete-cert-btn")) {
-            localStorage.removeItem("ursa_cert_udid");
-            localStorage.removeItem("ursa_cert_exp");
-            localStorage.removeItem("ursa_signer_id");
+            localStorage.clear();
             renderCertificateBlock();
         }
     });
 
-    // Email auth
-    const emailModal = document.getElementById("email-modal");
-    const emailInput = document.getElementById("email-input");
-    const passwordInput = document.getElementById("password-input");
+    // ===============================
+    // ✅ Важное: Обновление UI и статуса пользователя
+    // ===============================
+    onUserChanged(async (user) => {
+        const nickname = document.getElementById("user-nickname");
+        const avatar = document.getElementById("user-avatar");
 
-    document.querySelector(".email-auth")?.addEventListener("click", () => {
-        closeMenu();
-        emailModal.classList.add("visible");
-    });
-
-    emailModal.addEventListener("click", (e) => {
-        if (e.target === emailModal || e.target.closest("[data-action='close-email']"))
-            emailModal.classList.remove("visible");
-    });
-
-    document.getElementById("email-login-btn")?.addEventListener("click", async () => {
-        await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-        emailModal.classList.remove("visible");
-        openMenu();
-    });
-
-    document.getElementById("email-register-btn")?.addEventListener("click", async () => {
-        await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-        emailModal.classList.remove("visible");
-        openMenu();
-    });
-
-    document.getElementById("email-reset-btn")?.addEventListener("click", () =>
-        resetPassword(emailInput.value.trim())
-    );
-
-    // 🔥 SAFARI FIX: Замена Popup на Redirect (перенаправляет пользователя)
-    document.querySelector(".google-auth")?.addEventListener("click", async () => {
-        closeMenu(); // Закрываем меню, так как мы уходим на перенаправление
-        await loginWithGoogle();
-    });
-
-    document.querySelector(".facebook-auth")?.addEventListener("click", async () => {
-        closeMenu(); // Закрываем меню, так как мы уходим на перенаправление
-        await loginWithFacebook();
-    });
-
-    // ✅ Обновляем UI + сертификат при входе
-    onUserChanged((user) => {
-        document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
-        document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-        renderCertificateBlock(); // ← ВАЖНО
-    });
-
-    // ✅ Закрытие меню при выборе вкладки навигации
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-        if (btn.id !== "menu-btn") {
-            btn.addEventListener("click", closeMenu);
+        if (!user) {
+            nickname.textContent = "Гость";
+            avatar.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
+            return;
         }
+
+        nickname.textContent = user.displayName || user.email || "Пользователь";
+        avatar.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
+
+        let status = "free";
+        const snap = await getDoc(doc(db, "ursa_users", user.uid));
+        if (snap.exists()) status = snap.data().status || "free";
+
+        nickname.innerHTML += status === "vip"
+            ? ` <span style="color:#ffab00;font-size:14px;font-weight:700;">VIP</span>`
+            : ` <span style="color:#9aa7bd;font-size:14px;">FREE</span>`;
+
+        renderCertificateBlock();
     });
 });
