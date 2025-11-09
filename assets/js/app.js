@@ -11,7 +11,7 @@ const firebaseConfig = {
     authDomain: "ipa-panel.firebaseapp.com",
     databaseURL: "https://ipa-panel-default-rtdb.firebaseio.com",
     projectId: "ipa-panel",
-    storageBucket: "ipa-panel.appspot.com",   // ✅ фикс
+    storageBucket: "ipa-panel.firebasestorage.app",  // ✅ ВЕРНО
     messagingSenderId: "239982196215",
     appId: "1:239982196215:web:9de387c51952da428daaf2",
     measurementId: "G-YP1XRFEDXM"
