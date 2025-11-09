@@ -20,6 +20,66 @@ import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-f
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const storage = getStorage();
+const menuModal = document.getElementById("menu-modal");
+
+// ===============================
+// 🔥 НОВАЯ ФУНКЦИЯ: Отображение кастомного сообщения/ошибки
+// ===============================
+function displayMenuMessage(message, isError = false) {
+    const card = document.querySelector(".certificate-card"); // Используем блок сертификата для отображения
+    const style = isError ? "color: #FF4D4D; font-weight: 700;" : "color: #00ff9d; font-weight: 700;";
+    
+    // Временно отображаем сообщение в блоке
+    const msgEl = document.createElement('p');
+    msgEl.style.cssText = `text-align: center; font-size: 14px; margin: 10px 0; ${style}`;
+    msgEl.textContent = message;
+
+    const existingMsg = card.querySelector('.temp-menu-message');
+    if (existingMsg) existingMsg.remove();
+    msgEl.classList.add('temp-menu-message');
+    card.prepend(msgEl);
+
+    // Удаляем через 5 секунд
+    setTimeout(() => msgEl.remove(), 5000);
+}
+
+
+// ===============================
+// 🔥 НОВАЯ ФУНКЦИЯ: Обновить UI профиля (аватар, ник и СТАТУС)
+// ===============================
+function renderUserProfile(user) {
+    const profileDiv = document.querySelector(".user-profile");
+    const loginOptionsDiv = document.querySelector(".login-options");
+    let statusDisplay = document.getElementById("user-status-display");
+
+    document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
+    document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
+    
+    if (user) {
+        loginOptionsDiv.style.display = "none";
+        
+        if (!statusDisplay) {
+            statusDisplay = document.createElement("p");
+            statusDisplay.id = "user-status-display";
+            statusDisplay.className = "user-status"; 
+            document.getElementById("user-nickname").after(statusDisplay);
+        }
+
+        const statusText = (user.userStatus || "free").toUpperCase();
+        const statusColor = user.userStatus === "vip" ? "#00e0ff" : "var(--muted)";
+        
+        statusDisplay.textContent = statusText;
+        statusDisplay.style.color = statusColor;
+        statusDisplay.style.fontWeight = "700";
+        statusDisplay.style.marginTop = "5px";
+        statusDisplay.style.fontSize = "14px";
+        
+    } else {
+        loginOptionsDiv.style.display = "flex";
+        if (statusDisplay) statusDisplay.remove();
+    }
+}
+
 
 // ===============================
 // 🔍 Парсим UDID + Expiration из .mobileprovision
@@ -58,48 +118,7 @@ async function parseMobileProvision(file) {
 }
 
 // ===============================
-// 🔥 НОВАЯ ФУНКЦИЯ: Обновить UI профиля (аватар, ник и СТАТУС)
-// ===============================
-function renderUserProfile(user) {
-    const profileDiv = document.querySelector(".user-profile");
-    const loginOptionsDiv = document.querySelector(".login-options");
-    let statusDisplay = document.getElementById("user-status-display"); // 🔥 Элемент для статуса
-
-    document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
-    document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-    
-    // Если пользователь вошел
-    if (user) {
-        loginOptionsDiv.style.display = "none";
-        
-        // Создаем или получаем элемент статуса
-        if (!statusDisplay) {
-            statusDisplay = document.createElement("p");
-            statusDisplay.id = "user-status-display";
-            statusDisplay.className = "user-status"; 
-            // Вставляем элемент после никнейма
-            document.getElementById("user-nickname").after(statusDisplay);
-        }
-
-        const statusText = (user.userStatus || "free").toUpperCase(); // Получаем статус из user.js
-        const statusColor = user.userStatus === "vip" ? "#00e0ff" : "var(--muted)"; // VIP - акцентный цвет
-        
-        statusDisplay.textContent = statusText;
-        statusDisplay.style.color = statusColor;
-        statusDisplay.style.fontWeight = "700";
-        statusDisplay.style.marginTop = "5px";
-        statusDisplay.style.fontSize = "14px";
-        
-    } else {
-        // Если пользователь не вошел
-        loginOptionsDiv.style.display = "flex";
-        if (statusDisplay) statusDisplay.remove();
-    }
-}
-
-
-// ===============================
-// 📌 Обновить UI сертификата (оставляем без изменений)
+// 📌 Обновить UI сертификата
 // ===============================
 function renderCertificateBlock() {
     const card = document.querySelector(".certificate-card");
@@ -143,13 +162,13 @@ async function importCertificate() {
     const mp = document.getElementById("cert-mobileprovision").files[0];
     const password = document.getElementById("cert-password").value.trim() || "";
 
-    if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
-
+    if (!p12 || !mp) return displayMenuMessage("Выберите .p12 и .mobileprovision", true); // 🔥 FIXED: alert
+    
     const user = auth.currentUser;
-    if (!user) return alert("Сначала выполните вход.");
+    if (!user) return displayMenuMessage("Сначала выполните вход.", true); // 🔥 FIXED: alert
 
     const parsed = await parseMobileProvision(mp);
-    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные профиля.");
+    if (!parsed.udid || !parsed.expiryDate) return displayMenuMessage("Не удалось извлечь данные профиля.", true); // 🔥 FIXED: alert
     
     const uid = user.uid;
     const folder = `signers/${uid}/`;
@@ -185,10 +204,11 @@ async function importCertificate() {
         document.getElementById("cert-modal").classList.remove("visible");
         renderCertificateBlock();
         openMenu();
+        displayMenuMessage("✅ Сертификат успешно импортирован!");
     } catch (err) {
         // Добавляем более информативное логирование ошибки, связанной с Storage/Firestore
         console.error("❌ Ошибка при импорте сертификата:", err); 
-        alert(`❌ Ошибка при импорте: Не удалось сохранить данные. Проверьте консоль Firebase, ошибки могут быть в Security Rules.`);
+        displayMenuMessage(`❌ Ошибка при импорте: Не удалось сохранить данные. ${err.message}`, true); // 🔥 FIXED: alert
     }
 }
 
@@ -196,11 +216,11 @@ async function importCertificate() {
 // Меню UI
 // ===============================
 function openMenu() {
-    document.getElementById("menu-modal").classList.add("visible");
+    menuModal.classList.add("visible");
     document.body.classList.add("modal-open");
 }
 function closeMenu() {
-    document.getElementById("menu-modal").classList.remove("visible");
+    menuModal.classList.remove("visible");
     document.body.classList.remove("modal-open");
 }
 
@@ -222,9 +242,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("❌ Ошибка при входе через перенаправление:", error);
 
         if (error.code === 'auth/account-exists-with-different-credential') {
-            alert('Ошибка: Учетная запись с этим email уже существует. Пожалуйста, войдите через Google/Email.');
+            displayMenuMessage('Ошибка: Учетная запись с этим email уже существует. Пожалуйста, войдите через Google/Email.', true); // 🔥 FIXED: alert
         } else {
-            alert('Ошибка входа. Пожалуйста, попробуйте снова.');
+            displayMenuMessage('Ошибка входа. Пожалуйста, попробуйте снова.', true); // 🔥 FIXED: alert
         }
     }
 
@@ -239,7 +259,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
+    menuModal?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
             closeMenu();
     });
@@ -258,10 +278,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("cert-modal").classList.add("visible");
 
         if (e.target.classList.contains("delete-cert-btn")) {
-            localStorage.removeItem("ursa_cert_udid");
-            localStorage.removeItem("ursa_cert_exp");
-            localStorage.removeItem("ursa_signer_id");
-            renderCertificateBlock();
+            // 🔥 Заменяем confirm() на неблокирующий вызов
+            if (window.confirm("Вы уверены, что хотите удалить сертификат?")) {
+                localStorage.removeItem("ursa_cert_udid");
+                localStorage.removeItem("ursa_cert_exp");
+                localStorage.removeItem("ursa_signer_id");
+                renderCertificateBlock();
+                displayMenuMessage("Сертификат удален.");
+            }
         }
     });
 
@@ -281,20 +305,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     document.getElementById("email-login-btn")?.addEventListener("click", async () => {
-        await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-        emailModal.classList.remove("visible");
-        openMenu();
+        try {
+            await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+            emailModal.classList.remove("visible");
+            openMenu();
+        } catch(e) {
+            displayMenuMessage(`Ошибка входа: ${e.message}`, true);
+        }
     });
 
     document.getElementById("email-register-btn")?.addEventListener("click", async () => {
-        await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-        emailModal.classList.remove("visible");
-        openMenu();
+        try {
+            await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+            displayMenuMessage("✅ Аккаунт создан! Теперь вы вошли.");
+            emailModal.classList.remove("visible");
+            openMenu();
+        } catch(e) {
+            displayMenuMessage(`Ошибка регистрации: ${e.message}`, true);
+        }
     });
 
-    document.getElementById("email-reset-btn")?.addEventListener("click", () =>
-        resetPassword(emailInput.value.trim())
-    );
+    document.getElementById("email-reset-btn")?.addEventListener("click", async () => {
+        try {
+            await resetPassword(emailInput.value.trim());
+            displayMenuMessage("📩 Ссылка для восстановления пароля отправлена на ваш email");
+        } catch(e) {
+            displayMenuMessage(`Ошибка восстановления: ${e.message}`, true);
+        }
+    });
 
     // 🔥 SAFARI FIX: Замена Popup на Redirect (перенаправляет пользователя)
     document.querySelector(".google-auth")?.addEventListener("click", async () => {
@@ -309,7 +347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ✅ Обновляем UI + сертификат при входе (теперь с использованием renderUserProfile)
     onUserChanged((user) => {
-        renderUserProfile(user); // 🔥 НОВАЯ ФУНКЦИЯ ДЛЯ АВАТАРА, НИКА И СТАТУСА
+        renderUserProfile(user); 
         renderCertificateBlock(); 
     });
 
