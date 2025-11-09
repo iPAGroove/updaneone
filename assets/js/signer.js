@@ -1,3 +1,4 @@
+// assets/js/signer.js
 // ===============================
 // URSA Signer Integration (новый проект) + downloadCount tracking
 // ===============================
@@ -10,7 +11,7 @@ const SIGNER_API_START_JOB = "https://ursa-signer-239982196215.europe-west1.run.
 let currentInstallListener = null;
 
 // ===============================
-// 📈 Увеличить счётчик скачиваний
+// 📈 Счётчик скачиваний (для POPULAR)
 // ===============================
 async function incrementDownloadCount(app) {
   try {
@@ -23,7 +24,7 @@ async function incrementDownloadCount(app) {
       app.package ||
       null;
 
-    if (!appId) return; // если у записи нет id — не ломаем выполнение
+    if (!appId) return;
 
     await updateDoc(doc(db, "ursa_ipas", appId), {
       downloadCount: increment(1)
@@ -33,17 +34,21 @@ async function incrementDownloadCount(app) {
   }
 }
 
+// ===============================
+// 🚀 Установка IPA (подпись + OTA)
+// ===============================
 export async function installIPA(app) {
   const dl = document.getElementById("dl-buttons-row");
   if (!dl) return;
 
-  // UI feedback
+  // UI состояние загрузки
   dl.innerHTML = `
     <div style="opacity:.8;font-size:14px;">🔄 Подготовка…</div>
-    <progress id="sign-progress" max="100" value="25" style="width:100%;height:8px;margin-top:6px;border-radius:8px;"></progress>
+    <progress id="sign-progress" max="100" value="25" 
+      style="width:100%;height:8px;margin-top:6px;border-radius:8px;"></progress>
   `;
 
-  // Проверяем вход
+  // Проверка входа
   const user = auth.currentUser;
   if (!user) {
     dl.innerHTML = `<div style="opacity:.9;color:#ff6;">⚠️ Войдите в аккаунт через меню</div>`;
@@ -52,27 +57,27 @@ export async function installIPA(app) {
 
   const signer_id = user.uid;
 
-  // Проверяем сертификат
+  // Проверка сертификата
   const udid = localStorage.getItem("ursa_cert_udid");
   const exp  = localStorage.getItem("ursa_cert_exp");
 
   if (!udid || !exp) {
-    dl.innerHTML = `<div style="opacity:.9;color:#ff6;">⚠️ Загрузите сертификат в меню</div>`;
+    dl.innerHTML = `<div style="opacity:.9;color:#ff6;">⚠️ Добавьте сертификат в меню</div>`;
     return;
   }
 
-  // Проверяем ссылку на IPA
+  // Проверка ссылки на IPA
   const ipa_url = app.link || app.DownloadUrl || app.downloadUrl;
   if (!ipa_url) {
     dl.innerHTML = `<div style="opacity:.9;color:#ff6;">❌ Не найдена ссылка на IPA</div>`;
     return;
   }
 
-  // 📈 Увеличиваем downloadCount (эти данные нужны для Popular)
+  // 📈 регаем скачивание здесь (в момент клика)
   incrementDownloadCount(app);
 
   try {
-    // 1) Запрос на запуск подписи
+    // 1) Отправляем запрос на подпись IPA
     const form = new FormData();
     form.append("ipa_url", ipa_url);
     form.append("signer_id", signer_id);
@@ -82,19 +87,21 @@ export async function installIPA(app) {
     const res = await fetch(SIGNER_API_START_JOB, { method: "POST", body: form });
     const json = await res.json();
 
-    if (!json.job_id) throw new Error("Ошибка запуска подписи");
+    if (!json.job_id) throw new Error("Ошибка запуска подписи.");
+
     const job_id = json.job_id;
 
-    dl.innerHTML = `<div style="opacity:.8;font-size:14px;">⏳ Ожидание завершения…</div>`;
+    dl.innerHTML = `<div style="opacity:.8;font-size:14px;">⏳ Ожидание завершения подписи…</div>`;
 
     const jobRef = doc(db, "ursa_sign_jobs", job_id);
 
-    // отменяем старый listener если был
+    // Если был предыдущий listener — отписываемся
     if (currentInstallListener) currentInstallListener();
 
-    // подписываемся на обновления
+    // 2) Подписываемся на обновления статуса
     currentInstallListener = onSnapshot(jobRef, snap => {
       if (!snap.exists()) return;
+
       const data = snap.data();
 
       if (data.status === "progress") {
@@ -104,8 +111,8 @@ export async function installIPA(app) {
       if (data.status === "complete") {
         currentInstallListener();
         currentInstallListener = null;
-        dl.innerHTML = `<div style="opacity:.9;font-size:14px;">✅ Готово! Установка начинается…</div>`;
-        setTimeout(() => location.href = data.install_link, 800);
+        dl.innerHTML = `<div style="opacity:.9;font-size:14px;">✅ Готово! Начинаем установку…</div>`;
+        setTimeout(() => (location.href = data.install_link), 800);
       }
 
       if (data.status === "error") {
