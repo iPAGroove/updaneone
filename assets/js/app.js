@@ -9,10 +9,12 @@ import { openModal } from "./modal.js";
 const firebaseConfig = {
     apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
     authDomain: "ipa-panel.firebaseapp.com",
+    databaseURL: "https://ipa-panel-default-rtdb.firebaseio.com",
     projectId: "ipa-panel",
-    storageBucket: "ipa-panel.firebasestorage.app",
+    storageBucket: "ipa-panel.appspot.com",   // ✅ фикс
     messagingSenderId: "239982196215",
-    appId: "1:239982196215:web:9de387c51952da428daaf2"
+    appId: "1:239982196215:web:9de387c51952da428daaf2",
+    measurementId: "G-YP1XRFEDXM"
 };
 
 export const app = initializeApp(firebaseConfig);
