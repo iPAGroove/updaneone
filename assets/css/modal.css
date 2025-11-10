@@ -89,86 +89,86 @@ body.modal-open { overflow: hidden !important; }
 .modal-description-new { text-align: center; padding-top: 10px; }
 #modal-desc { font-size: 15px; line-height: 1.6; color: var(--muted); margin: 0; }
 /* =============================== */
-/* === ПРОГРЕСС И СТАТУСЫ УСТАНОВКИ === */
+/* === ВСПЛЫВАЮЩЕЕ ОКНО УСТАНОВКИ === */
 /* =============================== */
 
-/* Общий контейнер прогресса */
-.install-progress-container {
-    margin-top: 14px;
-    padding: 10px;
-    border: 1px solid color-mix(in oklab, var(--accent) 50%, transparent);
-    border-radius: 10px;
-    background-color: color-mix(in oklab, var(--bg) 90%, var(--accent) 5%);
-    box-shadow: 0 0 10px rgba(0, 179, 255, 0.2);
-    transition: all 0.3s ease;
-}
-.install-progress-container.complete {
-    border-color: #38d68e; /* Зеленый для успеха */
-    background-color: color-mix(in oklab, var(--bg) 90%, #38d68e 5%);
-    box-shadow: 0 0 10px rgba(56, 214, 142, 0.4);
+.install-progress-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 5000;
+    display: none; /* показываем через JS */
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn .25s ease forwards;
 }
 
-/* Заголовок (текст + процент) */
-.progress-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-}
-.progress-text {
-    font-size: 14px;
-    color: var(--text);
-    opacity: 0.85;
-}
-.progress-percent {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--accent);
-    font-family: 'Orbitron', sans-serif; /* Добавляем футуристический шрифт */
+.install-progress-box {
+    width: 84%;
+    max-width: 320px;
+    padding: 24px;
+    background: color-mix(in oklab, var(--bg) 95%, var(--accent) 4%);
+    border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent);
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0, 179, 255, 0.28);
+    animation: popup .3s ease forwards;
 }
 
-/* Оболочка прогресс-бара */
-.progress-bar-wrap {
-    height: 8px;
-    background-color: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%);
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+/* Заголовок */
+#install-progress-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 17px;
+    margin-bottom: 14px;
+    color: var(--accent);
+    letter-spacing: 0.5px;
 }
 
-/* Заполнение прогресс-бара */
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent) 0%, #00e0ff 100%);
-    transition: width 0.4s ease, background 0.4s ease;
-    border-radius: 4px;
-    box-shadow: 0 0 8px rgba(0, 179, 255, 0.8);
-    /* Анимация свечения */
-    animation: glow-pulse 1.5s infinite alternate;
-}
-.install-progress-container.complete .progress-bar-fill {
-    background: linear-gradient(90deg, #38d68e 0%, #5af7aa 100%); /* Успешный градиент */
-    box-shadow: 0 0 8px rgba(56, 214, 142, 0.8);
-    animation: none;
+/* Текст статуса */
+#install-progress-status {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-top: 10px;
+    color: var(--text);
 }
 
-/* Анимация свечения для прогресс-бара */
-@keyframes glow-pulse {
-    0% { opacity: 0.7; }
-    100% { opacity: 1; }
+/* Прогресс-бар */
+.install-progress-bar {
+    height: 10px;
+    width: 100%;
+    background: color-mix(in oklab, var(--bg-elev) 70%, var(--bg) 30%);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+    margin-top: 6px;
 }
 
-/* Сообщения об ошибках / предупреждениях */
-.install-error-msg {
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 14px;
-    background-color: color-mix(in oklab, var(--bg-elev) 80%, #ff6 10%);
-    color: #ffeb3b;
-    border: 1px solid #ffeb3b80;
+#install-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent) 0%, #00eaff 100%);
+    border-radius: 6px;
+    animation: neonMove 2s linear infinite;
+    transition: width 0.4s ease;
 }
-.install-error-msg.error {
-    background-color: color-mix(in oklab, var(--bg-elev) 80%, #ff6666 10%);
-    color: #ff6666;
-    border: 1px solid #ff666680;
+
+/* =============================== */
+/* === АНИМАЦИИ === */
+/* =============================== */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popup {
+    0% { transform: scale(0.94); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes neonMove {
+    0% { filter: drop-shadow(0 0 4px var(--accent)); }
+    100% { filter: drop-shadow(0 0 14px var(--accent)); }
 }
