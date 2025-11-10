@@ -1,41 +1,41 @@
 body.modal-open { overflow: hidden !important; }
 
 .modal-overlay {
-    position: fixed; inset: 0; z-index: 1000;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    display: flex; justify-content: center; align-items: flex-end;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    display: flex; justify-content: center; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
 }
 .modal-overlay.visible { opacity: 1; pointer-events: all; align-items: center; }
 
 .modal-content {
-    background: var(--bg-elev); border: 1px solid var(--border);
-    border-radius: var(--radius) var(--radius) 0 0;
-    width: 100%; max-width: 400px; max-height: 90vh; height: auto; 
-    padding: 20px 20px 80px 20px; /* 💡 ИСПРАВЛЕНО: Увеличен нижний padding для очистки нижней навигационной панели. */
-    box-shadow: 0 -10px 40px rgba(0, 179, 255, 0.2);
-    transform: translateY(100%); transition: transform 0.3s ease-out;
-    overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    width: 100%; max-width: 400px; max-height: 90vh; height: auto; 
+    padding: 20px 20px 80px 20px; /* 💡 Увеличен нижний padding для очистки нижней навигационной панели. */
+    box-shadow: 0 -10px 40px rgba(0, 179, 255, 0.2);
+    transform: translateY(100%); transition: transform 0.3s ease-out;
+    overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none;
 }
 .modal-content::-webkit-scrollbar { display: none; }
 .modal-overlay.visible .modal-content { transform: translateY(0); }
 
 @media (min-width: 601px) {
-    .modal-content {
-        border-radius: var(--radius);
-        max-width: 400px; max-height: 600px;
-        transform: scale(0.95);
-        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .modal-overlay.visible .modal-content { transform: scale(1); }
+    .modal-content {
+        border-radius: var(--radius);
+        max-width: 400px; max-height: 600px;
+        transform: scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-overlay.visible .modal-content { transform: scale(1); }
 }
 
 .modal-close-btn {
-    position: absolute; top: 15px; right: 15px;
-    background: var(--card); border: 1px solid var(--border); color: #FF4D4D;
-    font-size: 20px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10;
-    transition: color 0.2s;
+    position: absolute; top: 15px; right: 15px;
+    background: var(--card); border: 1px solid var(--border); color: #FF4D4D;
+    font-size: 20px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10;
+    transition: color 0.2s;
 }
 .modal-close-btn:hover { color: #ff8888; }
 
@@ -43,203 +43,216 @@ body.modal-open { overflow: hidden !important; }
 .modal-header-new { display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-start; padding-right: 45px; }
 .modal-info-col { display: flex; flex-direction: column; flex-grow: 1; }
 .modal-icon {
-    width: 80px; height: 80px; border-radius: 18px; object-fit: cover;
-    border: 2px solid var(--accent); box-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
+    width: 80px; height: 80px; border-radius: 18px; object-fit: cover;
+    border: 2px solid var(--accent); box-shadow: 0 0 10px rgba(0, 179, 255, 0.4);
 }
 
 /* TITLE */
 .modal-app-title {
-    font-size: 20px; margin: 0; color: var(--text);
-    max-width: calc(100% - 10px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 20px; margin: 0; color: var(--text);
+    max-width: calc(100% - 10px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* CTA */
 .modal-install-btn {
-    width: 100%; font-size: 16px; padding: 10px 20px; border-radius: 10px; text-align: center; text-decoration: none;
-    background: linear-gradient(90deg, var(--accent), #00e0ff); color: var(--bg); font-weight: 700; border: none; cursor: pointer;
-    box-shadow: 0 0 12px rgba(0, 179, 255, 0.45); transition: transform 0.1s; margin-top: 10px;
+    width: 100%; font-size: 16px; padding: 10px 20px; border-radius: 10px; text-align: center; text-decoration: none;
+    background: linear-gradient(90deg, var(--accent), #00e0ff); color: var(--bg); font-weight: 700; border: none; cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 179, 255, 0.45); transition: transform 0.1s; margin-top: 10px;
 }
 .modal-install-btn:hover { transform: scale(1.02); }
 
 /* META */
 .modal-metadata-new {
-    display: flex; justify-content: space-between;
-    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-    margin-bottom: 20px; background-color: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%);
-    border-radius: 10px; padding: 10px;
+    display: flex; justify-content: space-between;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    margin-bottom: 20px; background-color: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%);
+    border-radius: 10px; padding: 10px;
 }
 .modal-metadata-new p { flex: 1; text-align: center; font-size: 13px; margin: 0; color: var(--muted); }
 .modal-metadata-new p strong { display: block; color: var(--text); font-size: 15px; font-weight: 700; margin-top: 5px; }
 
 /* FEATURES */
 .modal-features-new {
-    margin-bottom: 20px; padding: 15px; border: 1px solid var(--accent); border-radius: 10px;
-    background-color: color-mix(in oklab, var(--bg) 80%, var(--accent) 5%);
-    box-shadow: 0 0 15px rgba(0, 179, 255, 0.15);
+    margin-bottom: 20px; padding: 15px; border: 1px solid var(--accent); border-radius: 10px;
+    background-color: color-mix(in oklab, var(--bg) 80%, var(--accent) 5%);
+    box-shadow: 0 0 15px rgba(0, 179, 255, 0.15);
 }
 .modal-features-new h4 {
-    color: var(--accent); margin-bottom: 10px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(0, 179, 255, 0.5);
-    text-align: center;
+    color: var(--accent); margin-bottom: 10px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(0, 179, 255, 0.5);
+    text-align: center;
 }
 #modal-features {
-    font-size: 15px; color: var(--text); white-space: pre-line; line-height: 1.45; margin: 0; text-align: center;
+    font-size: 15px; color: var(--text); white-space: pre-line; line-height: 1.45; margin: 0; text-align: center;
 }
 
 /* DESCRIPTION */
 .modal-description-new { text-align: center; padding-top: 10px; }
 #modal-desc { font-size: 15px; line-height: 1.6; color: var(--muted); margin: 0; }
-/* =============================== */
-/* === ВСПЛЫВАЮЩЕЕ ОКНО УСТАНОВКИ === */
-/* =============================== */
+
+/* =============================== /
+/ === ВСПЛЫВАЮЩЕЕ ОКНО УСТАНОВКИ (СТАРЫЙ БЛОК) === /
+/ =============================== */
 
 .install-progress-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    z-index: 5000;
-    display: none; /* показываем через JS */
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn .25s ease forwards;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 5000;
+    display: none; /* показываем через JS */
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn .25s ease forwards;
 }
 
 .install-progress-box {
-    width: 84%;
-    max-width: 320px;
-    padding: 24px;
-    background: color-mix(in oklab, var(--bg) 95%, var(--accent) 4%);
-    border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent);
-    border-radius: 18px;
-    text-align: center;
-    box-shadow: 0 0 25px rgba(0, 179, 255, 0.28);
-    animation: popup .3s ease forwards;
+    width: 84%;
+    max-width: 320px;
+    padding: 24px;
+    background: color-mix(in oklab, var(--bg) 95%, var(--accent) 4%);
+    border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent);
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0, 179, 255, 0.28);
+    animation: popup .3s ease forwards;
 }
 
 /* Заголовок */
 #install-progress-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 17px;
-    margin-bottom: 14px;
-    color: var(--accent);
-    letter-spacing: 0.5px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 17px;
+    margin-bottom: 14px;
+    color: var(--accent);
+    letter-spacing: 0.5px;
 }
 
 /* Текст статуса */
 #install-progress-status {
-    font-size: 13px;
-    opacity: 0.7;
-    margin-top: 10px;
-    color: var(--text);
+    font-size: 13px;
+    opacity: 0.7;
+    margin-top: 10px;
+    color: var(--text);
 }
 
 /* Прогресс-бар */
 .install-progress-bar {
-    height: 10px;
-    width: 100%;
-    background: color-mix(in oklab, var(--bg-elev) 70%, var(--bg) 30%);
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
-    margin-top: 6px;
+    height: 10px;
+    width: 100%;
+    background: color-mix(in oklab, var(--bg-elev) 70%, var(--bg) 30%);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+    margin-top: 6px;
 }
 
 #install-progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent) 0%, #00eaff 100%);
-    border-radius: 6px;
-    animation: neonMove 2s linear infinite;
-    transition: width 0.4s ease;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent) 0%, #00eaff 100%);
+    border-radius: 6px;
+    animation: neonMove 2s linear infinite;
+    transition: width 0.4s ease;
 }
 
-/* =============================== */
-/* === АНИМАЦИИ === */
-/* =============================== */
+/* =============================== /
+/ === АНИМАЦИИ === /
+/ =============================== */
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes popup {
-    0% { transform: scale(0.94); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    0% { transform: scale(0.94); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes neonMove {
-    0% { filter: drop-shadow(0 0 4px var(--accent)); }
-    100% { filter: drop-shadow(0 0 14px var(--accent)); }
+    0% { filter: drop-shadow(0 0 4px var(--accent)); }
+    100% { filter: drop-shadow(0 0 14px var(--accent)); }
 }
-/* ============================ */
-/* === INSTALLATION MODAL === */
-/* ============================ */
+/* ============================ /
+/ === INSTALLATION MODAL (НОВЫЙ БЛОК) === /
+/ ============================ */
 
 .install-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
 }
 
 .install-overlay.visible {
-    display: flex;
+    display: flex;
 }
 
 .install-box {
-    width: 85%;
-    max-width: 420px;
-    background: color-mix(in oklab, var(--bg-elev) 85%, var(--accent) 15%);
-    border-radius: 18px;
-    padding: 28px 24px;
-    text-align: center;
-    box-shadow: 0 0 25px rgba(0, 179, 255, 0.45);
-    animation: popIn .35s ease;
+    width: 85%;
+    max-width: 420px;
+    background: color-mix(in oklab, var(--bg-elev) 85%, var(--accent) 15%);
+    border-radius: 18px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0, 179, 255, 0.45);
+    animation: popIn .35s ease;
+}
+
+/* ✅ ДОБАВЛЕНЫ СТИЛИ ДЛЯ СОСТОЯНИЯ "ГОТОВО" /
+.install-overlay.complete .install-box {
+border: 1px solid #00ff9d; / Зеленая рамка при успехе /
+box-shadow: 0 0 40px rgba(0, 255, 157, 0.75); / Яркая зеленая тень /
+}
+.install-overlay.complete .install-spinner {
+display: none; / Скрыть спиннер, когда готово /
+}
+.install-overlay.complete #install-title {
+color: #00ff9d; / Зеленый заголовок при успехе */
 }
 
 @keyframes popIn {
-    from {transform: scale(.85); opacity: 0;}
-    to {transform: scale(1); opacity: 1;}
+    from {transform: scale(.85); opacity: 0;}
+    to {transform: scale(1); opacity: 1;}
 }
 
 .install-spinner {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    border: 4px solid color-mix(in oklab, var(--bg) 70%, var(--accent) 30%);
-    border-top-color: var(--accent);
-    margin: 0 auto 18px;
-    animation: spin 1s linear infinite;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 4px solid color-mix(in oklab, var(--bg) 70%, var(--accent) 30%);
+    border-top-color: var(--accent);
+    margin: 0 auto 18px;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin { to {transform: rotate(360deg);} }
 
 .install-progress-wrap {
-    margin: 18px 0 8px;
-    width: 100%;
-    height: 10px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%);
-    box-shadow: inset 0 0 4px rgba(0,0,0,.6);
+    margin: 18px 0 8px;
+    width: 100%;
+    height: 10px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%);
+    box-shadow: inset 0 0 4px rgba(0,0,0,.6);
 }
 
 .install-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), #00e0ff);
-    width: 0%;
-    box-shadow: 0 0 10px rgba(0, 179, 255, 0.9);
-    transition: width .35s ease;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    width: 0%;
+    box-shadow: 0 0 10px rgba(0, 179, 255, 0.9);
+    transition: width .35s ease;
 }
 
 .install-percent {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 15px;
-    opacity: .8;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    opacity: .8;
 }
