@@ -340,3 +340,98 @@ body::before {
 
   /* Медиа-запрос для модальных окон: не нужен, т.к. используется flex-direction: column */
 }
+/* --- СТИЛИ ДЛЯ ЧАТА --- */
+
+.chat-content {
+    padding: 20px;
+}
+
+.chat-title {
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-align: left;
+}
+
+.chat-area {
+    height: 300px; /* Фиксированная высота для скролла */
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    overflow-y: auto; /* Скролл для длинного чата */
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message {
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    font-size: 14px;
+    text-align: left;
+}
+
+.system-message {
+    background: rgba(0, 217, 255, 0.1);
+    color: white;
+    border-left: 3px solid var(--accent);
+    padding-left: 15px;
+}
+
+.chat-method-name {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 15px;
+}
+
+.chat-details {
+    font-family: monospace; /* Моноширинный шрифт для реквизитов */
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 8px;
+    border-radius: 5px;
+    display: inline-block;
+    white-space: pre-wrap; /* Сохраняем форматирование для реквизитов */
+    word-break: break-word;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.chat-input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 14px;
+    outline: none;
+    cursor: not-allowed; /* Заблокирован, т.к. функционал чата локальный */
+}
+
+.chat-send-btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: not-allowed;
+}
+
+.back-btn {
+    opacity: 0.6;
+    background: none;
+    box-shadow: none;
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.back-btn:hover {
+    opacity: 1;
+    transform: none;
+}
