@@ -3,6 +3,7 @@
 // ===============================
 
 import { installIPA } from "./signer.js";
+import { userStatus } from "./app.js"; // ✅ добавлено для проверки статуса
 
 const modalOverlay = document.getElementById('app-modal');
 const dlRow = document.getElementById("dl-buttons-row"); // контейнер для прогресса
@@ -38,7 +39,7 @@ export function openModal(data) {
     const version = data.version || data.Version || "N/A";
     const size = data.size || (data.sizeBytes ? (data.sizeBytes/1_000_000).toFixed(1) + " MB" : "N/A");
     const uploadTime = data.uploadTime || data.updatedAt || new Date().toISOString();
-    const link = data.link || data.DownloadUrl; // ← КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ
+    const link = data.link || data.DownloadUrl;
 
     // ===============================
     // Заполняем UI
@@ -49,12 +50,10 @@ export function openModal(data) {
     document.getElementById('modal-size').textContent = size;
     document.getElementById('modal-time-ago').textContent = timeSince(new Date(uploadTime));
 
-    // --- функции мода ---
     const features = data.features || data.features_ru || data.features_en || "";
     const featuresFormatted = features.replace(/,\s*/g, '\n').trim();
     document.getElementById('modal-features').textContent = featuresFormatted;
 
-    // --- описание ---
     let desc = (data.desc || data.description_ru || data.description_en || "").trim();
     if (
         desc.toLowerCase() === "функции мода" ||
@@ -68,21 +67,29 @@ export function openModal(data) {
     document.getElementById('modal-desc').textContent = desc;
 
     // ===============================
-    // 🚀 УСТАНОВКА (в signer уходит правильная ссылка)
+    // 🚀 УСТАНОВКА + Проверка VIP
     // ===============================
     const ctaButton = document.getElementById('modal-cta');
     ctaButton.textContent = "Установить";
     ctaButton.removeAttribute("href");
 
-    ctaButton.onclick = (e) => {
-        e.preventDefault();
-        installIPA({
-            ...data,
-            link // ← ВАЖНО, теперь значение гарантированно есть
-        });
-    };
+    // ✅ Если это VIP приложение, а статус у юзера free → БЛОКИРУЕМ
+    if (data.badge === "VIP" && userStatus !== "vip") {
+        ctaButton.textContent = "VIP ONLY";
+        ctaButton.style.opacity = "0.45";
+        ctaButton.style.pointerEvents = "none";
+    } else {
+        // ✅ Нормальная установка
+        ctaButton.onclick = (e) => {
+            e.preventDefault();
+            installIPA({
+                ...data,
+                link
+            });
+        };
+    }
 
-    // Очистка прогресса при открытии
+    // Очистка прогресса
     if (dlRow) dlRow.innerHTML = "";
 
     modalOverlay.classList.add('visible');
