@@ -70,7 +70,7 @@
                 <h3 id="modal-title" class="modal-app-title">Название</h3>
                 <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
 
-                <!-- ✅ НЕОНОВЫЙ ПРОГРЕСС (для старого варианта, но скрыт) -->
+                <!-- старый прогресс скрыт -->
                 <div id="dl-buttons-row" class="install-progress-container" style="display:none;">
                     <div class="progress-header">
                         <span class="progress-text">Ожидание…</span>
@@ -192,18 +192,21 @@
 </div>
 
 
-<!-- ✅ INSTALL PROGRESS MINI-MODAL -->
-<div id="install-progress-modal" class="install-progress-overlay">
-  <div class="install-progress-box">
-    <h3 id="install-progress-title">Подготовка…</h3>
+<!-- === 🚀 INSTALL PROGRESS MODAL (НОВЫЙ) === -->
+<div class="install-overlay" id="install-modal">
+  <div class="install-box">
+    <div class="install-spinner"></div>
+    <h3 id="install-title">Подготовка…</h3>
+    <p id="install-subtext">Ожидание сервера…</p>
 
-    <div class="install-progress-bar">
-      <div id="install-progress-fill"></div>
+    <div class="install-progress-wrap">
+      <div class="install-progress-fill" id="install-progress-fill" style="width: 5%;"></div>
     </div>
 
-    <p id="install-progress-status">Запуск…</p>
+    <span id="install-percent" class="install-percent">5%</span>
   </div>
 </div>
+
 
 
 <!-- === SCRIPTS === -->
