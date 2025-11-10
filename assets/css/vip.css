@@ -1,80 +1,95 @@
-.vip-container {
-    padding: 40px 20px;
-    text-align: center;
+:root {
+  --accent: #00d9ff;
+  --accent-soft: rgba(0, 217, 255, 0.45);
+  --bg: #0b0f13;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  background: radial-gradient(circle at 50% 15%, #102029 0%, #05080c 70%);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* smooth neon glow */
+.vip-wrapper {
+  position: relative;
+  animation: fadeIn 0.7s ease both;
 }
 
 .vip-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 30px;
-    font-weight: 700;
-    color: var(--accent);
-    margin-bottom: 6px;
-    text-shadow: 0 0 22px rgba(0, 179, 255, 0.8);
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  text-shadow: 0 0 18px var(--accent-soft);
+  color: var(--accent);
 }
 
 .vip-subtitle {
-    font-size: 14px;
-    color: var(--muted);
-    margin-bottom: 34px;
+  font-size: 16px;
+  opacity: 0.55;
+  margin-bottom: 40px;
 }
 
+/* Glass card */
 .vip-card {
-    width: 90%;
-    max-width: 420px;
-    margin: 0 auto;
-    padding: 34px 26px;
-    border-radius: 18px;
-    background: color-mix(in oklab, var(--bg-elev) 94%, var(--accent) 6%);
-    border: 1px solid rgba(0, 179, 255, 0.4);
-    box-shadow: 0 0 34px rgba(0, 179, 255, 0.35);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  padding: 32px 24px;
+  max-width: 360px;
+  margin: 0 auto;
+  box-shadow:
+    0 0 30px rgba(0, 217, 255, 0.25),
+    inset 0 0 10px rgba(255,255,255,0.08);
+  animation: popIn 0.5s ease forwards;
 }
 
 .vip-price {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 16px;
-}
-
-.vip-divider {
-    width: 100%;
-    height: 1px;
-    background: rgba(255,255,255,0.15);
-    margin: 18px 0 24px;
+  font-size: 34px;
+  letter-spacing: .5px;
+  margin-bottom: 28px;
+  font-weight: 700;
 }
 
 .vip-benefits {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 34px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.7;
+  opacity: .88;
+  margin-bottom: 36px;
 }
 
-.vip-benefits li {
-    margin: 8px 0;
-    font-size: 15px;
-    color: var(--text);
-    opacity: 0.85;
+/* Neon button */
+.vip-btn {
+  display: inline-block;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #000;
+  background: linear-gradient(90deg, var(--accent), #00f6ff);
+  box-shadow: 0 0 20px var(--accent-soft);
+  transition: 0.25s;
 }
 
-.vip-button {
-    width: 100%;
-    padding: 14px;
-    font-size: 18px;
-    font-weight: 700;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(90deg, var(--accent), #00e0ff);
-    color: var(--bg);
-    cursor: pointer;
-    box-shadow: 0 0 16px rgba(0, 179, 255, 0.5);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
+.vip-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px var(--accent);
 }
 
-.vip-button:hover {
-    transform: scale(1.04);
-    box-shadow: 0 0 26px rgba(0, 179, 255, 0.75);
-}
-
-.vip-button:active {
-    transform: scale(0.97);
-}
+@keyframes fadeIn { from {opacity: 0;} to {opacity:1;} }
+@keyframes popIn { from {transform: scale(.94); opacity:0;} to {transform:scale(1); opacity:1;} }
