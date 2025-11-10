@@ -7,7 +7,6 @@ import { auth, db } from "./app.js";
 import { doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 const SIGNER_API_START_JOB = "https://ursa-signer-239982196215.europe-west1.run.app/start_sign_job";
-
 let currentInstallListener = null;
 
 // ===============================
@@ -24,13 +23,13 @@ async function incrementDownloadCount(appId) {
 }
 
 // ===============================
-// 🚀 Установка (Подпись + Инсталляция)
+// 🚀 Установка / Подпись IPA
 // ===============================
 export async function installIPA(app) {
     const dl = document.getElementById("dl-buttons-row");
     if (!dl) return;
 
-    // Включаем прогресс UI
+    // Включаем UI прогресса
     dl.style.display = "block";
     dl.innerHTML = `
         <div class="install-progress-container" id="install-progress-container">
@@ -39,7 +38,7 @@ export async function installIPA(app) {
                 <span id="progress-percent" class="progress-percent">15%</span>
             </div>
             <div class="progress-bar-wrap">
-                <div id="progress-bar-fill" class="progress-bar-fill" style="width: 15%;"></div>
+                <div id="progress-bar-fill" class="progress-bar-fill" style="width:15%;"></div>
             </div>
         </div>
     `;
@@ -71,14 +70,14 @@ export async function installIPA(app) {
         return;
     }
 
-    // 3️⃣ Проверяем ссылку на IPA
+    // 3️⃣ Проверяем ссылку IPA
     const ipa_url = app.link || app.DownloadUrl || app.downloadUrl;
     if (!ipa_url) {
         dl.innerHTML = `<div class="install-error-msg error">❌ IPA ссылка не найдена</div>`;
         return;
     }
 
-    // 4️⃣ Увеличиваем downloadCount
+    // 4️⃣ Увеличиваем downloadCount (для сортировок)
     if (app.id) incrementDownloadCount(app.id);
 
     try {
@@ -88,11 +87,7 @@ export async function installIPA(app) {
         form.append("ipa_url", ipa_url);
         form.append("signer_id", user.uid);
 
-        const res = await fetch(SIGNER_API_START_JOB, {
-            method: "POST",
-            body: form
-        });
-
+        const res = await fetch(SIGNER_API_START_JOB, { method: "POST", body: form });
         if (!res.ok) {
             const text = await res.text();
             throw new Error(`HTTP ${res.status}: ${text}`);
@@ -104,7 +99,7 @@ export async function installIPA(app) {
         const job_id = json.job_id;
         updateProgress("⏳ Ожидаем выполнение…", 50);
 
-        // 5️⃣ Подписываемся на обновления Firestore
+        // 5️⃣ Слушаем Firestore на живую
         const jobRef = doc(db, "ursa_sign_jobs", job_id);
 
         if (currentInstallListener) currentInstallListener();
@@ -112,9 +107,10 @@ export async function installIPA(app) {
             if (!snap.exists()) return;
             const data = snap.data();
 
-            // Подпись в процессе
-            if (data.status === "running")
-                updateProgress("⚙️ Подписываем IPA…", 75);
+            // 🟡 Статус RUNNING
+            if (data.status === "running") {
+                updateProgress("⚙️ Подписываем IPA…", 80);
+            }
 
             // ✅ УСПЕХ
             if (data.status === "complete") {
@@ -133,6 +129,7 @@ export async function installIPA(app) {
             if (data.status === "error") {
                 currentInstallListener && currentInstallListener();
                 currentInstallListener = null;
+
                 dl.innerHTML = `<div class="install-error-msg error">❌ ${data.error}</div>`;
             }
         });
