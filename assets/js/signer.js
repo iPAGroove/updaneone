@@ -11,156 +11,137 @@ const SIGNER_API_START_JOB = "https://ursa-signer-239982196215.europe-west1.run.
 let currentInstallListener = null;
 
 // ===============================
-// 📈 Увеличиваем downloadCount (для секции Popular)
+// 📈 Увеличиваем downloadCount
 // ===============================
 async function incrementDownloadCount(appId) {
-  try {
-    await updateDoc(doc(db, "ursa_ipas", appId), {
-      downloadCount: increment(1)
-    });
-  } catch (err) {
-    console.warn("⚠️ Не удалось увеличить downloadCount:", err.message);
-  }
+  try {
+    await updateDoc(doc(db, "ursa_ipas", appId), {
+      downloadCount: increment(1)
+    });
+  } catch (err) {
+    console.warn("⚠️ Не удалось увеличить downloadCount:", err.message);
+  }
 }
 
 // ===============================
 // 🚀 Установка / Подпись IPA
 // ===============================
 export async function installIPA(app) {
-  const dl = document.getElementById("dl-buttons-row");
-  if (!dl) return;
+  const dl = document.getElementById("dl-buttons-row");
+  if (!dl) return;
 
-  // UI Feedback (Новый, стильный прогресс-бар)
-  dl.innerHTML = `
-    <div class="install-progress-container" id="install-progress-container">
-      <div class="progress-header">
-        <span id="progress-text" class="progress-text">🔄 Подготовка…</span>
-        <span id="progress-percent" class="progress-percent">15%</span>
-      </div>
-      <div class="progress-bar-wrap">
-        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 15%;"></div>
-      </div>
-    </div>
-  `;
+  // UI прогресс-блок (красивый, как мы сделали)
+  dl.style.display = "block";
+  dl.innerHTML = `
+    <div class="install-progress-container" id="install-progress-container">
+      <div class="progress-header">
+        <span id="progress-text" class="progress-text">🔄 Подготовка…</span>
+        <span id="progress-percent" class="progress-percent">15%</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 15%;"></div>
+      </div>
+    </div>
+  `;
 
-  const progressText = document.getElementById("progress-text");
-  const progressPercent = document.getElementById("progress-percent");
-  const progressBarFill = document.getElementById("progress-bar-fill");
-  const progressContainer = document.getElementById("install-progress-container");
+  const progressText = document.getElementById("progress-text");
+  const progressPercent = document.getElementById("progress-percent");
+  const progressBarFill = document.getElementById("progress-bar-fill");
+  const progressContainer = document.getElementById("install-progress-container");
 
-  // Вспомогательная функция для обновления UI
-  const updateProgress = (text, percent) => {
-    if(progressText) progressText.textContent = text;
-    if(progressPercent) progressPercent.textContent = `${percent}%`;
-    if(progressBarFill) progressBarFill.style.width = `${percent}%`;
-  };
+  const updateProgress = (text, percent) => {
+    if (progressText) progressText.textContent = text;
+    if (progressPercent) progressPercent.textContent = `${percent}%`;
+    if (progressBarFill) progressBarFill.style.width = `${percent}%`;
+  };
 
+  // USER CHECK
+  const user = auth.currentUser;
+  if (!user) {
+    dl.innerHTML = `<div class="install-error-msg">⚠️ Войдите в аккаунт через меню</div>`;
+    return;
+  }
 
-  // Проверяем вход
-  const user = auth.currentUser;
-  if (!user) {
-    dl.innerHTML = `<div class="install-error-msg">⚠️ Войдите в аккаунт через меню</div>`;
-    return;
-  }
-  
-  // 💡 Добавлено для диагностики проблемы "Signer not found"
-  console.log("Current User UID:", user.uid);
+  // CERT CHECK
+  const udid = localStorage.getItem("ursa_cert_udid");
+  const exp = localStorage.getItem("ursa_cert_exp");
+  if (!udid || !exp) {
+    dl.innerHTML = `<div class="install-error-msg">⚠️ Добавьте сертификат в меню</div>`;
+    return;
+  }
 
-  // Проверяем сертификат
-  const udid = localStorage.getItem("ursa_cert_udid");
-  const exp = localStorage.getItem("ursa_cert_exp");
-  if (!udid || !exp) {
-    dl.innerHTML = `<div class="install-error-msg">⚠️ Загрузите сертификат в меню</div>`;
-    return;
-  }
+  // IPA URL CHECK
+  const ipa_url = app.link || app.DownloadUrl || app.downloadUrl;
+  if (!ipa_url) {
+    dl.innerHTML = `<div class="install-error-msg error">❌ IPA ссылка не найдена</div>`;
+    return;
+  }
 
-  // Проверяем ссылку IPA
-  const ipa_url = app.link || app.DownloadUrl || app.downloadUrl;
-  if (!ipa_url) {
-    dl.innerHTML = `<div class="install-error-msg error">❌ IPA ссылка не найдена</div>`;
-    return;
-  }
+  // Download Count
+  if (app.id) incrementDownloadCount(app.id);
 
-  // ✅ Увеличиваем downloadCount
-  if (app.id) incrementDownloadCount(app.id);
+  try {
+    // 1) Запуск подписи
+    const form = new FormData();
+    form.append("ipa_url", ipa_url);
+    form.append("signer_id", user.uid);
 
-  try {
-    // 1) Отправляем запрос на запуск подписи
-    const form = new FormData();
-    form.append("ipa_url", ipa_url);
-    form.append("signer_id", user.uid);
+    updateProgress("🔄 Отправка задачи на сервер…", 30);
 
-    updateProgress("🔄 Запрашиваем подпись…", 30);
+    const res = await fetch(SIGNER_API_START_JOB, { method: "POST", body: form });
 
-    const res = await fetch(SIGNER_API_START_JOB, { method: "POST", body: form });
-    
-    // ⚠️ УЛУЧШЕННАЯ ОБРАБОТКА ОШИБОК HTTP
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`HTTP Error ${res.status}: ${errorText.substring(0, 100)}...`);
-    }
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
+    }
 
-    const json = await res.json();
-    
-    // Улучшенная обработка ошибки 'Signer not found'
-    if (json.error) {
-      throw new Error(json.error);
-    }
+    const json = await res.json();
 
-    if (!json.job_id) throw new Error("API не вернул ID задания (job_id)");
+    if (!json.job_id) throw new Error("Сервер не вернул job_id");
 
-    const job_id = json.job_id;
-    updateProgress("⏳ Ожидание завершения…", 50);
+    const job_id = json.job_id;
 
-    // 2) Слушаем обновления из Firestore
-    const jobRef = doc(db, "ursa_sign_jobs", job_id);
+    updateProgress("⏳ Ждем завершения…", 50);
 
-    if (currentInstallListener) currentInstallListener();
-    currentInstallListener = onSnapshot(jobRef, snap => {
-      if (!snap.exists()) return;
-      const data = snap.data();
+    // 2) Реальное отслеживание Firestore
+    const jobRef = doc(db, "ursa_sign_jobs", job_id);
 
-      // 🟡 Прогресс
-      if (data.status === "progress") {
-        const currentStep = data.step || "Обработка";
-        // Имитация прогресса на основе шага
-        let progressVal = 60;
-        if (currentStep.includes("Download")) progressVal = 70;
-        else if (currentStep.includes("Sign")) progressVal = 85;
+    if (currentInstallListener) currentInstallListener();
+    currentInstallListener = onSnapshot(jobRef, snap => {
+      if (!snap.exists()) return;
+      const data = snap.data();
 
-        updateProgress(`⌛ ${currentStep}...`, progressVal);
-      }
+      // 🟡 Доступные статусы
+      if (data.status === "running") {
+        updateProgress("⚙️ Подпись…", 70);
+      }
 
-      // ✅ Завершено
-      if (data.status === "complete") {
-        currentInstallListener();
-        currentInstallListener = null;
+      if (data.status === "complete") {
+        if (currentInstallListener) currentInstallListener();
+        currentInstallListener = null;
 
-        progressContainer.classList.add("complete");
-        updateProgress("✅ Готово! Установка начинается…", 100);
-        setTimeout(() => location.href = data.install_link, 800);
-      }
+        updateProgress("✅ Готово! Установка…", 100);
+        progressContainer.classList.add("complete");
 
-      // ❌ Ошибка
-      if (data.status === "error") {
-        currentInstallListener();
-        currentInstallListener = null;
+        setTimeout(() => {
+          window.location.href = data.install_link;
+        }, 900);
+      }
 
-        dl.innerHTML = `<div class="install-error-msg error">❌ Ошибка: ${data.error}</div>`;
-      }
-    });
+      if (data.status === "error") {
+        if (currentInstallListener) currentInstallListener();
+        currentInstallListener = null;
 
-  } catch (err) {
-    // Обработка всех ошибок, включая 'Signer not found'
-    let displayError = err.message || "Неизвестная ошибка";
-    
-    // Дополнительная подсказка для специфической ошибки
-    if (displayError.includes("Signer not found")) {
-      displayError = "Signer не найден. Возможно, ваш сертификат не активен.";
-    } else if (displayError.includes("HTTP Error")) {
-      displayError = `Ошибка сервера: ${displayError.split(':')[0]}`;
-    }
+        dl.innerHTML = `<div class="install-error-msg error">❌ ${data.error}</div>`;
+      }
+    });
 
-    dl.innerHTML = `<div class="install-error-msg error">❌ ${displayError}</div>`;
-  }
+  } catch (err) {
+    let msg = err.message || "Неизвестная ошибка";
+
+    if (msg.includes("Signer not found"))
+      msg = "Сертификат не найден или неправильно загружен. Загрузите его заново.";
+
+    dl.innerHTML = `<div class="install-error-msg error">❌ ${msg}</div>`;
+  }
 }
