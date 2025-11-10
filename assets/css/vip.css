@@ -1,6 +1,6 @@
 :root {
   --accent: #00d9ff;
-  --accent-soft: rgba(0, 217, 255, 0.2); /* Уменьшенное мягкое свечение */
+  --accent-soft: rgba(0, 217, 255, 0.2); 
   --bg-deep: #020407; 
 }
 
@@ -12,13 +12,11 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-  /* Изысканный, глубокий фон с радиальным градиентом */
   background: radial-gradient(circle at 50% 10%, #080d12 0%, var(--bg-deep) 70%); 
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* ГАРАНТИРУЕМ ВЕРТИКАЛЬНОЕ ЦЕНТРИРОВАНИЕ */
   min-height: 100vh; 
   padding: 20px;
   text-align: center;
@@ -46,7 +44,7 @@ body::before {
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
-/* Звезды 1 (самые маленькие, дальний план) */
+/* Звезды 1 */
 .stars::before {
     width: 1px;
     height: 1px;
@@ -58,7 +56,7 @@ body::before {
     animation: shooting 40s linear infinite;
 }
 
-/* Звезды 2 (средний план) */
+/* Звезды 2 */
 .stars::after {
     width: 2px;
     height: 2px;
@@ -69,7 +67,7 @@ body::before {
     animation: shooting 30s linear infinite reverse;
 }
 
-/* Звезды 3 (крупный план, легкий неоновый оттенок) */
+/* Звезды 3 */
 body::before {
     content: '';
     position: absolute;
@@ -112,7 +110,7 @@ body::before {
   margin-bottom: 40px;
 }
 
-/* 2. ПРЕМИАЛЬНАЯ АККУРАТНАЯ КАРТОЧКА (Glassmorphism) */
+/* 2. ПРЕМИАЛЬНАЯ АККУРАТНАЯ КАРТОЧКА */
 .vip-card {
   background: rgba(255, 255, 255, 0.05); 
   backdrop-filter: blur(25px); 
@@ -124,7 +122,7 @@ body::before {
   margin: 0 auto;
   box-shadow:
     0 8px 30px rgba(0, 0, 0, 0.5), 
-    0 0 10px rgba(0, 217, 255, 0.1); /* Легкий-легкий контур */
+    0 0 10px rgba(0, 217, 255, 0.1); 
   animation: 
     popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
     floatCard 15s infinite ease-in-out;
@@ -144,7 +142,7 @@ body::before {
 .vip-benefits {
   margin: 0;
   padding: 0;
-  list-style: none; /* УБИРАЕМ ТОЧКИ */
+  list-style: none; 
   font-size: 15px; 
   line-height: 1.6; 
   opacity: .98; 
@@ -173,7 +171,7 @@ body::before {
 
 /* Премиальная Неоновая Кнопка */
 .vip-btn {
-  display: block; /* Растягиваем на всю ширину */
+  display: block; 
   width: 100%;
   padding: 14px 24px; 
   border-radius: 12px;
@@ -202,8 +200,8 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Темный полупрозрачный фон */
-    display: none; /* Скрыто по умолчанию */
+    background: rgba(0, 0, 0, 0.7); 
+    display: none; 
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -220,20 +218,21 @@ body::before {
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
     padding: 30px;
-    max-width: 400px;
+    max-width: 350px; /* Более компактный размер для iPhone */
     width: 90%;
     text-align: center;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 15px var(--accent-soft);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 10px var(--accent-soft);
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .modal-title {
     font-size: 22px;
     color: var(--accent);
-    margin-bottom: 15px;
+    margin-bottom: 25px; /* Увеличиваем отступ */
 }
 
-.modal-text, .modal-info {
+/* Инструкция (Шаг 1, если используется) */
+.modal-text {
     font-size: 16px;
     opacity: 0.85;
     line-height: 1.5;
@@ -261,52 +260,57 @@ body::before {
     box-shadow: 0 6px 30px var(--accent);
 }
 
-/* Стили для выбора оплаты */
+/* Стили для выбора оплаты (Переделано на аккуратный вертикальный стек) */
 .payment-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column; /* Вертикальный стек */
     gap: 12px;
-    margin: 30px 0;
+    margin: 20px 0 0 0;
 }
 
 .option-btn {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; 
     align-items: center;
-    justify-content: center;
-    padding: 15px 10px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    justify-content: flex-start; /* Выравнивание по левому краю */
+    padding: 15px 20px; 
+    border-radius: 14px; 
+    background: rgba(255, 255, 255, 0.03); 
+    border: 1px solid rgba(255, 255, 255, 0.08); 
     text-decoration: none;
     color: white;
-    font-size: 14px;
-    font-weight: 600;
-    transition: 0.2s;
+    font-size: 16px; 
+    font-weight: 500;
+    transition: all 0.2s ease;
+    width: 100%; /* Занимает всю ширину контейнера */
 }
 
 .option-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 8px var(--accent-soft); 
 }
 
 .option-icon {
-    font-size: 24px;
-    margin-bottom: 5px;
+    font-size: 20px;
+    margin-right: 15px; 
+    opacity: 0.9;
 }
 
+/* Убираем ненужные элементы */
 .modal-info {
-    font-size: 13px;
-    color: var(--accent);
-    opacity: 0.7;
-    margin-top: 20px;
+    display: none; 
 }
-
+.payment-options {
+    /* Удаляем grid-template-columns, так как теперь используется flex-direction: column */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0 0 0;
+}
 
 /* 5. KEYFRAMES АНИМАЦИИ */
 
-/* Анимация пролета звезд */
 @keyframes shooting {
   from { transform: translateX(0) translateY(0); }
   to { transform: translateX(-1500px) translateY(800px); } 
@@ -315,14 +319,12 @@ body::before {
 @keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
 @keyframes popIn { from {transform: scale(0.95); opacity:0;} to {transform: scale(1); opacity:1;} } 
 
-/* Анимация: Карта немного "парит" */
 @keyframes floatCard {
     0% { transform: translateY(0px) rotateX(0deg); }
     50% { transform: translateY(-5px) rotateX(1deg); } 
     100% { transform: translateY(0px) rotateX(0deg); }
 }
 
-/* Легкое мерцание заголовка */
 @keyframes neonPulse {
   from { text-shadow: 0 0 10px var(--accent-soft), 0 0 20px rgba(0, 217, 255, 0.1); }
   to { text-shadow: 0 0 15px var(--accent), 0 0 25px rgba(0, 217, 255, 0.2); }
@@ -336,8 +338,5 @@ body::before {
   .vip-benefits { font-size: 14px; }
   .vip-btn { font-size: 15px; }
 
-  /* Медиа-запрос для модальных окон: сетка в один столбец */
-  .payment-options {
-      grid-template-columns: 1fr;
-  }
+  /* Медиа-запрос для модальных окон: не нужен, т.к. используется flex-direction: column */
 }
