@@ -8,26 +8,30 @@
 </head>
 <body>
 
-<div class="vip-wrapper">
+<div class="background-deco" data-depth="0.1"></div>
+
+<div class="vip-wrapper" data-depth="0.3">
 
   <h1 class="vip-title">URSA VIP</h1>
   <p class="vip-subtitle">Премиальный доступ ко всему</p>
 
-  <div class="vip-card">
+  <div class="vip-card" data-tilt>
     <h2 class="vip-price">5$ / месяц</h2>
 
     <ul class="vip-benefits">
-      <li>Все VIP-приложения разблокированы</li>
-      <li>VIP-игры и эксклюзивы</li>
-      <li>Приоритетная загрузка и подпись</li>
-      <li>Скорость выше, чем у Free</li>
-      <li>Личная поддержка в Telegram</li>
+      <li><span class="icon">✨</span> Все VIP-приложения разблокированы</li>
+      <li><span class="icon">🎮</span> VIP-игры и эксклюзивы</li>
+      <li><span class="icon">⚡️</span> Приоритетная загрузка и подпись</li>
+      <li><span class="icon">🚀</span> Скорость выше, чем у Free</li>
+      <li><span class="icon">🛡️</span> Личная поддержка в Telegram</li>
     </ul>
 
-    <a href="#" class="vip-btn">Оформить подписку</a>
+    <a href="#" class="vip-btn" id="vip-buy-btn">Оформить подписку</a>
   </div>
 
 </div>
 
+<script src="assets/js/tilt.js"></script>
+<script src="assets/js/vip.js" type="module"></script>
 </body>
 </html>
