@@ -1,6 +1,6 @@
 :root {
   --accent: #00d9ff;
-  --accent-soft: rgba(0, 217, 255, 0.2); /* Уменьшил мягкое свечение */
+  --accent-soft: rgba(0, 217, 255, 0.2); /* Уменьшенное мягкое свечение */
   --bg-deep: #020407; 
 }
 
@@ -12,20 +12,20 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-  /* Более темный и спокойный фон */
+  /* Изысканный, глубокий фон с радиальным градиентом */
   background: radial-gradient(circle at 50% 10%, #080d12 0%, var(--bg-deep) 70%); 
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  /* ГАРАНТИРУЕМ ВЕРТИКАЛЬНОЕ ЦЕНТРИРОВАНИЕ */
+  min-height: 100vh; 
   padding: 20px;
   text-align: center;
   overflow: hidden; 
 }
 
 /* 1. ЗВЕЗДНОЕ ПОЛЕ НА ФОНЕ (Stars) */
-/* Создаем три слоя звезд с разной скоростью для эффекта глубины */
 .stars {
     position: fixed;
     top: 0;
@@ -52,13 +52,9 @@ body::before {
     height: 1px;
     opacity: 0.8;
     box-shadow: 
-        100px 300px 0 0 white, 
-        200px 100px 0 0 white, 
-        300px 500px 0 0 white, 
-        400px 200px 0 0 white,
-        500px 450px 0 0 white,
-        /* Добавь больше координат для заполнения экрана */
-        700px 150px 0 0 white, 900px 300px 0 0 white, 1100px 500px 0 0 white, 1300px 100px 0 0 white;
+        100px 300px 0 0 white, 200px 100px 0 0 white, 300px 500px 0 0 white, 
+        400px 200px 0 0 white, 500px 450px 0 0 white, 700px 150px 0 0 white, 
+        900px 300px 0 0 white, 1100px 500px 0 0 white, 1300px 100px 0 0 white;
     animation: shooting 40s linear infinite;
 }
 
@@ -68,47 +64,46 @@ body::before {
     height: 2px;
     opacity: 0.6;
     box-shadow: 
-        50px 500px 0 0 white, 
-        350px 150px 0 0 white, 
-        600px 350px 0 0 white,
-        800px 50px 0 0 white;
+        50px 500px 0 0 white, 350px 150px 0 0 white, 600px 350px 0 0 white,
+        800px 50px 0 0 white, 100px 100px 0 0 white, 500px 200px 0 0 white;
     animation: shooting 30s linear infinite reverse;
 }
 
 /* Звезды 3 (крупный план, легкий неоновый оттенок) */
 body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 3px;
     height: 3px;
     opacity: 0.5;
     box-shadow: 
-        250px 250px 0 0 var(--accent), 
-        550px 400px 0 0 var(--accent);
+        250px 250px 0 0 var(--accent), 550px 400px 0 0 var(--accent);
     animation: shooting 20s linear infinite;
-    z-index: 2; /* Над .stars */
+    z-index: 2; 
 }
 
-/* Элемент для параллакс-фона (свечение) - теперь его можно убрать или оставить как легкий акцент */
-.background-deco {
-  display: none; /* Убираем, т.к. звезды лучше */
-}
 
 /* Основной контейнер */
 .vip-wrapper {
   position: relative;
   z-index: 10; 
+  margin-top: 20px; 
+  margin-bottom: 20px;
   animation: fadeIn 0.7s ease both;
   transform-style: preserve-3d;
 }
 
-/* Заголовок */
+/* Заголовок с неоновым мерцанием */
 .vip-title {
-  font-size: 48px; /* Чуть меньше */
+  font-size: 48px; 
   font-weight: 900;
   letter-spacing: 2px;
   margin-bottom: 6px;
-  text-shadow: 0 0 20px var(--accent-soft); /* Меньше свечения */
+  text-shadow: 0 0 20px var(--accent-soft); 
   color: var(--accent);
-  animation: neonPulse 2s infinite alternate ease-in-out; /* Более медленное мерцание */
+  animation: neonPulse 2s infinite alternate ease-in-out; 
 }
 
 .vip-subtitle {
@@ -117,19 +112,19 @@ body::before {
   margin-bottom: 40px;
 }
 
-/* 2. ПРЕМИАЛЬНАЯ АККУРАТНАЯ КАРТОЧКА */
+/* 2. ПРЕМИАЛЬНАЯ АККУРАТНАЯ КАРТОЧКА (Glassmorphism) */
 .vip-card {
-  background: rgba(255, 255, 255, 0.05); /* Чуть больше прозрачности */
+  background: rgba(255, 255, 255, 0.05); 
   backdrop-filter: blur(25px); 
   -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px; /* Чуть меньше закругление */
-  padding: 30px 25px; /* Меньше отступы, более компактный вид */
-  max-width: 340px; /* Чуть уже */
+  border-radius: 20px; 
+  padding: 30px 25px; 
+  max-width: 340px; 
   margin: 0 auto;
   box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.5), /* Глубокая, но не светящаяся тень */
-    0 0 10px rgba(0, 217, 255, 0.1); /* Легкий-легкий неоновый контур */
+    0 8px 30px rgba(0, 0, 0, 0.5), 
+    0 0 10px rgba(0, 217, 255, 0.1); /* Легкий-легкий контур */
   animation: 
     popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
     floatCard 15s infinite ease-in-out;
@@ -137,48 +132,82 @@ body::before {
 }
 
 .vip-price {
-  font-size: 36px; /* Чуть меньше */
+  font-size: 36px; 
+  letter-spacing: 1px;
   margin-bottom: 30px;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 15px var(--accent-soft);
 }
 
+/* 3. АККУРАТНЫЙ СПИСОК */
 .vip-benefits {
-  font-size: 15px; /* Чуть меньше */
-  line-height: 1.8; /* Чуть меньше интервал */
-  margin-bottom: 30px;
+  margin: 0;
+  padding: 0;
+  list-style: none; /* УБИРАЕМ ТОЧКИ */
+  font-size: 15px; 
+  line-height: 1.6; 
+  opacity: .98; 
+  margin-bottom: 30px; 
+  text-align: left;
 }
 
 .vip-benefits li {
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center; 
+  margin-bottom: 12px; 
+  transition: transform 0.2s ease;
+}
+
+.vip-benefits li:hover {
+  transform: translateX(3px); 
+}
+
+.vip-benefits .icon {
+  font-size: 18px;
+  margin-right: 12px;
+  opacity: 1; 
+  color: var(--accent);
+  text-shadow: 0 0 5px var(--accent-soft); 
 }
 
 /* Премиальная Неоновая Кнопка */
 .vip-btn {
-  padding: 14px 24px; /* Чуть меньше */
+  display: block; /* Растягиваем на всю ширину */
+  width: 100%;
+  padding: 14px 24px; 
   border-radius: 12px;
   font-size: 16px; 
-  box-shadow: 0 4px 20px var(--accent-soft); /* Меньше свечения */
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--bg-deep); 
+  background: linear-gradient(90deg, var(--accent), #00f6ff, #00d9ff);
+  background-size: 200% 100%;
+  box-shadow: 0 4px 20px var(--accent-soft); 
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
 .vip-btn:hover {
-  transform: translateY(-2px); /* Меньше движение */
+  transform: translateY(-2px); 
+  background-position: 100% 0;
   box-shadow: 0 6px 30px var(--accent);
 }
 
-/* 3. KEYFRAMES АНИМАЦИИ */
+/* 4. KEYFRAMES АНИМАЦИИ */
 
-/* Анимация пролета звезд (симуляция движения) */
+/* Анимация пролета звезд */
 @keyframes shooting {
   from { transform: translateX(0) translateY(0); }
-  to { transform: translateX(-1500px) translateY(800px); } /* Движение вниз-влево */
+  to { transform: translateX(-1500px) translateY(800px); } 
 }
 
 @keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
-@keyframes popIn { from {transform: scale(0.95); opacity:0;} to {transform: scale(1); opacity:1;} } /* Плавнее появление */
+@keyframes popIn { from {transform: scale(0.95); opacity:0;} to {transform: scale(1); opacity:1;} } 
 
 /* Анимация: Карта немного "парит" */
 @keyframes floatCard {
     0% { transform: translateY(0px) rotateX(0deg); }
-    50% { transform: translateY(-5px) rotateX(1deg); } /* Меньше движение */
+    50% { transform: translateY(-5px) rotateX(1deg); } 
     100% { transform: translateY(0px) rotateX(0deg); }
 }
 
@@ -189,9 +218,10 @@ body::before {
 }
 
 @media (max-width: 600px) {
-  .vip-title { font-size: 38px; } /* Ещё меньше на мобилке */
+  .vip-title { font-size: 38px; } 
   .vip-subtitle { margin-bottom: 30px; }
   .vip-card { padding: 25px 20px; max-width: 90%; }
   .vip-price { font-size: 30px; }
   .vip-benefits { font-size: 14px; }
+  .vip-btn { font-size: 15px; }
 }
