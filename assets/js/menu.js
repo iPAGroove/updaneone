@@ -1,474 +1,282 @@
 // assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата + Статус FREE/VIP
+// Меню + Авторизация + Email Login + Импорт Сертификата
 // ===============================
 import {
-  loginWithGoogle,
-  loginWithFacebook,
-  loginWithEmail,
-  registerWithEmail,
-  resetPassword,
-  handleRedirectResult
+    loginWithGoogle,
+    loginWithFacebook,
+    loginWithEmail,
+    registerWithEmail,
+    resetPassword,
+    // 💡 ИМПОРТИРУЕМ НОВУЮ ФУНКЦИЮ ДЛЯ SAFARI
+    handleRedirectResult
 } from "./firebase/auth.js";
 
 import { onUserChanged } from "./firebase/user.js";
-import { auth, db, app } from "./app.js"; // ✅ важное исправление
+import { auth, db } from "./app.js";
 
-import {
-  doc, setDoc, getDoc
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+// ✅ ИСПРАВЛЕНИЕ: Добавляем getDownloadURL
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+const storage = getStorage();
 
-// ✅ Storage должен использовать app → иначе Storage уйдет в ipa-panel.appspot.com → 404
-const storage = getStorage(app);
-
-// ----------------------------------------------------
-// Helpers: DOM
-// ----------------------------------------------------
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => document.querySelectorAll(sel);
-
-// Меню и модалки
-const menuOverlay = $("#menu-modal");
-const menuBtn      = $("#menu-btn");
-
-const emailModal   = $("#email-modal");
-const emailInput   = $("#email-input");
-const passwordInput= $("#password-input");
-
-const certModal    = $("#cert-modal");
-
-// Профиль
-const userAvatar   = $("#user-avatar");
-const userNickname = $("#user-nickname");
-
-// ----------------------------------------------------
-// UI Меню
-// ----------------------------------------------------
-function openMenu() {
-  menuOverlay?.classList.add("visible");
-  document.body.classList.add("modal-open");
-}
-
-function closeMenu() {
-  menuOverlay?.classList.remove("visible");
-  document.body.classList.remove("modal-open");
-}
-
-// ----------------------------------------------------
-// Парсим UDID + Expiration из .mobileprovision
-// ----------------------------------------------------
+// ===============================
+// 🔍 Парсим UDID + Expiration из .mobileprovision
+// ===============================
 async function parseMobileProvision(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      try {
-        const text = event.target.result;
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const text = event.target.result;
 
-        const xmlStart = text.indexOf("<?xml");
-        const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
-        const xml = text.substring(xmlStart, xmlEnd);
+                const xmlStart = text.indexOf("<?xml");
+                const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
+                const xml = text.substring(xmlStart, xmlEnd);
 
-        const udidBlock = xml.match(/<key>ProvisionedDevices<\/key>[\s\S]*?<array>([\s\S]*?)<\/array>/);
-        let udid = null;
+                const udidBlock = xml.match(/<key>ProvisionedDevices<\/key>[\s\S]*?<array>([\s\S]*?)<\/array>/);
+                let udid = null;
 
-        if (udidBlock) {
-          const list = [...udidBlock[1].matchAll(/<string>([^<]+)<\/string>/g)];
-          if (list.length > 0) udid = list[0][1];
-        }
+                if (udidBlock) {
+                    const list = [...udidBlock[1].matchAll(/<string>([^<]+)<\/string>/g)];
+                    if (list.length > 0) udid = list[0][1];
+                }
 
-        if (!udid)
-          udid = xml.match(/<key>UUID<\/key>\s*<string>([^<]+)<\/string>/)?.[1] || null;
+                if (!udid)
+                    udid = xml.match(/<key>UUID<\/key>\s*<string>([^<]+)<\/string>/)?.[1] || null;
 
-        const expiry = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] || null;
+                const expiryDate = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] || null;
 
-        resolve({ udid, expiry });
-      } catch (err) {
-        reject(err);
-      }
-    };
-    reader.readAsText(file);
-  });
+                resolve({ udid, expiryDate });
+            } catch (err) {
+                reject(err);
+            }
+        };
+        reader.readAsText(file);
+    });
 }
 
-// ----------------------------------------------------
-// Рендер сертификата
-// ----------------------------------------------------
+// ===============================
+// 📌 Обновить UI сертификата
+// ===============================
 function renderCertificateBlock() {
-  const card = $(".certificate-card");
-  if (!card) return;
+    const card = document.querySelector(".certificate-card");
+    const udid = localStorage.getItem("ursa_cert_udid");
+    const expiry = localStorage.getItem("ursa_cert_exp");
 
-  const udid   = localStorage.getItem("ursa_cert_udid");
-  const expiry = localStorage.getItem("ursa_cert_exp");
-  const logged = !!auth.currentUser;
+    const user = auth.currentUser;
+    // Проверяем, вошел ли пользователь вообще
+    const isLoggedIn = !!user;
 
-  if (!udid) {
-    card.innerHTML = logged
-      ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
-      : `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
-    return;
-  }
+    // UX: Показываем кнопку "Добавить сертификат" только если пользователь вошел.
+    const showAddButton = isLoggedIn ?
+        `<button class="btn add-cert-btn">Добавить сертификат</button>` :
+        `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
 
-  const expired = new Date(expiry) < new Date();
-  const shortUdid = udid.length > 12 ? udid.slice(0, 8) + "..." : udid;
 
-  card.innerHTML = `
-    <p><strong>ID Профиля:</strong> ${shortUdid}</p>
-    <p><strong>Действует до:</strong> ${expiry}</p>
-    <p style="font-weight:600;color:${expired ? "#ff6b6b" : "#00ff9d"};">Статус: ${expired ? "❌ Отозван" : "✅ Активен"}</p>
-    <button class="btn delete-cert-btn">Удалить сертификат</button>
-  `;
+    if (!udid) {
+        card.innerHTML = `
+            ${showAddButton}
+        `;
+        return;
+    }
+
+    const isExpired = new Date(expiry) < new Date();
+    const status = isExpired ? "❌ Отозван" : "✅ Активен";
+    const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
+
+    card.innerHTML = `
+        <p><strong>ID Профиля:</strong> ${udid.length > 30 ? udid.substring(0, 8) + '...' : udid}</p>
+        <p><strong>Действует до:</strong> ${expiry}</p>
+        <p style="font-weight:600;color:${statusColor};">Статус: ${status}</p>
+        <button class="btn delete-cert-btn">Удалить сертификат</button>
+    `;
 }
 
-// ----------------------------------------------------
-// Импорт сертификата
-// ----------------------------------------------------
+// ===============================
+// 📥 Импорт сертификата
+// ===============================
 async function importCertificate() {
-  const p12 = $("#cert-p12")?.files?.[0];
-  const mp  = $("#cert-mobileprovision")?.files?.[0];
-  const password = $("#cert-password")?.value?.trim() || "";
+    const p12 = document.getElementById("cert-p12").files[0];
+    const mp = document.getElementById("cert-mobileprovision").files[0];
+    const password = document.getElementById("cert-password").value.trim() || "";
 
-  if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
-  if (!auth.currentUser) return alert("Сначала выполните вход.");
+    if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
 
-  const parsed = await parseMobileProvision(mp);
-  if (!parsed.udid || !parsed.expiry) return alert("Не удалось извлечь данные профиля (.mobileprovision).");
+    const user = auth.currentUser;
+    if (!user) return alert("Сначала выполните вход.");
 
-  const uid = auth.currentUser.uid;
-  const folder = `signers/${uid}/`;
+    const parsed = await parseMobileProvision(mp);
+    if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные профиля.");
+    
+    const uid = user.uid;
+    const folder = `signers/${uid}/`;
+    
+    // 1. Создаем ссылки на Storage
+    const p12StorageRef = ref(storage, folder + p12.name);
+    const provStorageRef = ref(storage, folder + mp.name);
 
-  const p12Ref  = ref(storage, folder + p12.name);
-  const provRef = ref(storage, folder + mp.name);
+    try {
+        // 2. Загружаем файлы в Storage
+        await uploadBytes(p12StorageRef, p12);
+        await uploadBytes(provStorageRef, mp);
 
-  try {
-    await uploadBytes(p12Ref, p12);
-    await uploadBytes(provRef, mp);
+        // 3. ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Получаем публичные ссылки для скачивания (Download URLs)
+        const p12DownloadUrl = await getDownloadURL(p12StorageRef);
+        const provDownloadUrl = await getDownloadURL(provStorageRef);
 
-    const p12Url  = await getDownloadURL(p12Ref);
-    const provUrl = await getDownloadURL(provRef);
+        // 4. Сохраняем метаданные + HTTP-ссылки в Firestore
+        await setDoc(doc(db, "ursa_signers", uid), {
+            udid: parsed.udid,
+            expires: parsed.expiryDate,
+            pass: password,
+            createdAt: new Date().toISOString(),
+            // ✅ ИСПРАВЛЕНИЕ: Теперь сохраняем полные HTTPS-ссылки
+            p12Url: p12DownloadUrl, 
+            provUrl: provDownloadUrl, 
+        }, { merge: true });
 
-    await setDoc(doc(db, "ursa_signers", uid), {
-      udid: parsed.udid,
-      expires: parsed.expiry,
-      pass: password,
-      createdAt: new Date().toISOString(),
-      p12Url,
-      provUrl
-    }, { merge: true });
+        localStorage.setItem("ursa_cert_udid", parsed.udid);
+        localStorage.setItem("ursa_cert_exp", parsed.expiryDate);
+        localStorage.setItem("ursa_signer_id", uid);
 
-    localStorage.setItem("ursa_cert_udid", parsed.udid);
-    localStorage.setItem("ursa_cert_exp", parsed.expiry);
-    localStorage.setItem("ursa_signer_id", uid);
-
-    certModal?.classList.remove("visible");
-    renderCertificateBlock();
-    openMenu();
-  } catch (err) {
-    console.error("❌ Ошибка при импорте сертификата:", err);
-    alert("❌ Ошибка при загрузке сертификата. Проверь Firebase Storage Rules.");
-  }
+        document.getElementById("cert-modal").classList.remove("visible");
+        renderCertificateBlock();
+        openMenu();
+    } catch (err) {
+        // Добавляем более информативное логирование ошибки, связанной с Storage/Firestore
+        console.error("❌ Ошибка при импорте сертификата:", err); 
+        alert(`❌ Ошибка при импорте: Не удалось сохранить данные. Проверьте консоль Firebase, ошибки могут быть в Security Rules.`);
+    }
 }
 
-// ----------------------------------------------------
-// Lifecycle
-// ----------------------------------------------------
-document.addEventListener("DOMContentLoaded", async () => {
-  try { await handleRedirectResult(); } catch {}
-
-  menuBtn?.addEventListener("click", () => { renderCertificateBlock(); openMenu(); });
-
-  menuOverlay?.addEventListener("click", (e) => {
-    if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
-      closeMenu();
-  });
-
-  emailModal?.addEventListener("click", (e) => {
-    if (e.target === emailModal || e.target.closest("[data-action='close-email']"))
-      emailModal.classList.remove("visible");
-  });
-
-  certModal?.addEventListener("click", (e) => {
-    if (e.target === certModal || e.target.closest("[data-action='close-cert']")) {
-      certModal.classList.remove("visible");
-      openMenu();
-    }
-  });
-
-  $(".email-auth")?.addEventListener("click", () => { closeMenu(); emailModal.classList.add("visible"); });
-
-  $("#email-login-btn")?.addEventListener("click", async () => {
-    await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-    emailModal.classList.remove("visible");
-    openMenu();
-  });
-
-  $("#email-register-btn")?.addEventListener("click", async () => {
-    await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-    emailModal.classList.remove("visible");
-    openMenu();
-  });
-
-  $("#email-reset-btn")?.addEventListener("click", () =>
-    resetPassword(emailInput.value.trim())
-  );
-
-  $(".google-auth")?.addEventListener("click", async () => { closeMenu(); await loginWithGoogle(); });
-  $(".facebook-auth")?.addEventListener("click", async () => { closeMenu(); await loginWithFacebook(); });
-
-  $("#cert-import-btn")?.addEventListener("click", importCertificate);
-
-  document.body.addEventListener("click", (e) => {
-    if (e.target.closest(".add-cert-btn")) certModal.classList.add("visible");
-    if (e.target.closest(".delete-cert-btn")) {
-      localStorage.removeItem("ursa_cert_udid");
-      localStorage.removeItem("ursa_cert_exp");
-      localStorage.removeItem("ursa_signer_id");
-      renderCertificateBlock();
-    }
-  });
-
-  onUserChanged(async (user) => {
-    if (!user) {
-      userNickname.textContent = "Гость";
-      userAvatar.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
-      renderCertificateBlock();
-      return;
-    }
-
-    userNickname.textContent = user.displayName || user.email;
-    userAvatar.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-
-    let status = "free";
-    try {
-      const snap = await getDoc(doc(db, "ursa_users", user.uid));
-      if (snap.exists()) status = snap.data().status || "free";
-    } catch {}
-
-    const badge = document.createElement("span");
-    badge.textContent = status.toUpperCase();
-    badge.style.marginLeft = "6px";
-    badge.style.color = status === "vip" ? "#ffab00" : "#9aa7bd";
-    userNickname.appendChild(badge);
-
-    renderCertificateBlock();
-  });
-
-  $$(".nav-btn").forEach((btn) => {
-    if (btn.id !== "menu-btn") btn.addEventListener("click", closeMenu);
-  });
-});
+// ===============================
+// Меню UI
+// ===============================
 function openMenu() {
-  menuOverlay?.classList.add("visible");
-  document.body.classList.add("modal-open");
+    document.getElementById("menu-modal").classList.add("visible");
+    document.body.classList.add("modal-open");
 }
-
 function closeMenu() {
-  menuOverlay?.classList.remove("visible");
-  document.body.classList.remove("modal-open");
+    document.getElementById("menu-modal").classList.remove("visible");
+    document.body.classList.remove("modal-open");
 }
 
-// ----------------------------------------------------
-// Парсим UDID + Expiration из .mobileprovision
-// ----------------------------------------------------
-async function parseMobileProvision(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      try {
-        const text = event.target.result;
-
-        const xmlStart = text.indexOf("<?xml");
-        const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
-        const xml = text.substring(xmlStart, xmlEnd);
-
-        const udidBlock = xml.match(/<key>ProvisionedDevices<\/key>[\s\S]*?<array>([\s\S]*?)<\/array>/);
-        let udid = null;
-
-        if (udidBlock) {
-          const list = [...udidBlock[1].matchAll(/<string>([^<]+)<\/string>/g)];
-          if (list.length > 0) udid = list[0][1];
-        }
-
-        if (!udid)
-          udid = xml.match(/<key>UUID<\/key>\s*<string>([^<]+)<\/string>/)?.[1] || null;
-
-        const expiry = xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] || null;
-
-        resolve({ udid, expiry });
-      } catch (err) {
-        reject(err);
-      }
-    };
-    reader.readAsText(file);
-  });
-}
-
-// ----------------------------------------------------
-// Рендер сертификата
-// ----------------------------------------------------
-function renderCertificateBlock() {
-  const card = $(".certificate-card");
-  if (!card) return;
-
-  const udid   = localStorage.getItem("ursa_cert_udid");
-  const expiry = localStorage.getItem("ursa_cert_exp");
-  const logged = !!auth.currentUser;
-
-  if (!udid) {
-    card.innerHTML = logged
-      ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
-      : `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
-    return;
-  }
-
-  const expired = new Date(expiry) < new Date();
-  const shortUdid = udid.length > 12 ? udid.slice(0, 8) + "..." : udid;
-
-  card.innerHTML = `
-    <p><strong>ID Профиля:</strong> ${shortUdid}</p>
-    <p><strong>Действует до:</strong> ${expiry}</p>
-    <p style="font-weight:600;color:${expired ? "#ff6b6b" : "#00ff9d"};">Статус: ${expired ? "❌ Отозван" : "✅ Активен"}</p>
-    <button class="btn delete-cert-btn">Удалить сертификат</button>
-  `;
-}
-
-// ----------------------------------------------------
-// Импорт сертификата
-// ----------------------------------------------------
-async function importCertificate() {
-  const p12 = $("#cert-p12")?.files?.[0];
-  const mp  = $("#cert-mobileprovision")?.files?.[0];
-  const password = $("#cert-password")?.value?.trim() || "";
-
-  if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
-  if (!auth.currentUser) return alert("Сначала выполните вход.");
-
-  const parsed = await parseMobileProvision(mp);
-  if (!parsed.udid || !parsed.expiry) return alert("Не удалось извлечь данные профиля (.mobileprovision).");
-
-  const uid = auth.currentUser.uid;
-  const folder = `signers/${uid}/`;
-
-  const p12Ref  = ref(storage, folder + p12.name);
-  const provRef = ref(storage, folder + mp.name);
-
-  try {
-    await uploadBytes(p12Ref, p12);
-    await uploadBytes(provRef, mp);
-
-    const p12Url  = await getDownloadURL(p12Ref);
-    const provUrl = await getDownloadURL(provRef);
-
-    await setDoc(doc(db, "ursa_signers", uid), {
-      udid: parsed.udid,
-      expires: parsed.expiry,
-      pass: password,
-      createdAt: new Date().toISOString(),
-      p12Url,
-      provUrl
-    }, { merge: true });
-
-    localStorage.setItem("ursa_cert_udid", parsed.udid);
-    localStorage.setItem("ursa_cert_exp", parsed.expiry);
-    localStorage.setItem("ursa_signer_id", uid);
-
-    certModal?.classList.remove("visible");
-    renderCertificateBlock();
-    openMenu();
-  } catch (err) {
-    console.error("❌ Ошибка при импорте сертификата:", err);
-    alert("❌ Ошибка при загрузке сертификата. Проверь Firebase Storage Rules.");
-  }
-}
-
-// ----------------------------------------------------
-// Lifecycle
-// ----------------------------------------------------
+// ===============================
+// ИНИЦИАЛИЗАЦИЯ
+// ===============================
 document.addEventListener("DOMContentLoaded", async () => {
-  try { await handleRedirectResult(); } catch {}
 
-  menuBtn?.addEventListener("click", () => { renderCertificateBlock(); openMenu(); });
-
-  menuOverlay?.addEventListener("click", (e) => {
-    if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
-      closeMenu();
-  });
-
-  emailModal?.addEventListener("click", (e) => {
-    if (e.target === emailModal || e.target.closest("[data-action='close-email']"))
-      emailModal.classList.remove("visible");
-  });
-
-  certModal?.addEventListener("click", (e) => {
-    if (e.target === certModal || e.target.closest("[data-action='close-cert']")) {
-      certModal.classList.remove("visible");
-      openMenu();
-    }
-  });
-
-  $(".email-auth")?.addEventListener("click", () => { closeMenu(); emailModal.classList.add("visible"); });
-
-  $("#email-login-btn")?.addEventListener("click", async () => {
-    await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-    emailModal.classList.remove("visible");
-    openMenu();
-  });
-
-  $("#email-register-btn")?.addEventListener("click", async () => {
-    await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
-    emailModal.classList.remove("visible");
-    openMenu();
-  });
-
-  $("#email-reset-btn")?.addEventListener("click", () =>
-    resetPassword(emailInput.value.trim())
-  );
-
-  $(".google-auth")?.addEventListener("click", async () => { closeMenu(); await loginWithGoogle(); });
-  $(".facebook-auth")?.addEventListener("click", async () => { closeMenu(); await loginWithFacebook(); });
-
-  $("#cert-import-btn")?.addEventListener("click", importCertificate);
-
-  document.body.addEventListener("click", (e) => {
-    if (e.target.closest(".add-cert-btn")) certModal.classList.add("visible");
-    if (e.target.closest(".delete-cert-btn")) {
-      localStorage.removeItem("ursa_cert_udid");
-      localStorage.removeItem("ursa_cert_exp");
-      localStorage.removeItem("ursa_signer_id");
-      renderCertificateBlock();
-    }
-  });
-
-  onUserChanged(async (user) => {
-    if (!user) {
-      userNickname.textContent = "Гость";
-      userAvatar.src = "https://placehold.co/100x100/121722/00b3ff?text=User";
-      renderCertificateBlock();
-      return;
-    }
-
-    userNickname.textContent = user.displayName || user.email;
-    userAvatar.src = user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-
-    let status = "free";
+    // 🔥 SAFARI FIX: Обработка результата перенаправления ПЕРЕД запуском остального кода
     try {
-      const snap = await getDoc(doc(db, "ursa_users", user.uid));
-      if (snap.exists()) status = snap.data().status || "free";
-    } catch {}
+        const result = await handleRedirectResult();
+        if (result && result.user) {
+            console.log("✅ Успешный вход через перенаправление.");
+            // 💡 ВАЖНО: Принудительно обновляем UI, так как результат пришел
+            renderCertificateBlock();
+            openMenu();
+        }
+    } catch (error) {
+        console.error("❌ Ошибка при входе через перенаправление:", error);
 
-    const badge = document.createElement("span");
-    badge.textContent = status.toUpperCase();
-    badge.style.marginLeft = "6px";
-    badge.style.color = status === "vip" ? "#ffab00" : "#9aa7bd";
-    userNickname.appendChild(badge);
+        if (error.code === 'auth/account-exists-with-different-credential') {
+            alert('Ошибка: Учетная запись с этим email уже существует. Пожалуйста, войдите через Google/Email.');
+        } else {
+            alert('Ошибка входа. Пожалуйста, попробуйте снова.');
+        }
+    }
 
-    renderCertificateBlock();
-  });
+    const menuBtn = document.getElementById("menu-btn");
 
-  $$(".nav-btn").forEach((btn) => {
-    if (btn.id !== "menu-btn") btn.addEventListener("click", closeMenu);
-  });
+    // ✅ УСИЛЕННЫЙ ОБРАБОТЧИК КЛИКА ДЛЯ МЕНЮ
+    if (menuBtn) {
+        menuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            renderCertificateBlock();
+            openMenu();
+        });
+    }
+
+    document.getElementById("menu-modal")?.addEventListener("click", (e) => {
+        if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
+            closeMenu();
+    });
+
+    document.getElementById("cert-modal")?.addEventListener("click", (e) => {
+        if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
+            document.getElementById("cert-modal").classList.remove("visible");
+            openMenu();
+        }
+    });
+
+    document.getElementById("cert-import-btn").onclick = importCertificate;
+
+    document.body.addEventListener("click", (e) => {
+        if (e.target.classList.contains("add-cert-btn"))
+            document.getElementById("cert-modal").classList.add("visible");
+
+        if (e.target.classList.contains("delete-cert-btn")) {
+            localStorage.removeItem("ursa_cert_udid");
+            localStorage.removeItem("ursa_cert_exp");
+            localStorage.removeItem("ursa_signer_id");
+            renderCertificateBlock();
+        }
+    });
+
+    // Email auth
+    const emailModal = document.getElementById("email-modal");
+    const emailInput = document.getElementById("email-input");
+    const passwordInput = document.getElementById("password-input");
+
+    document.querySelector(".email-auth")?.addEventListener("click", () => {
+        closeMenu();
+        emailModal.classList.add("visible");
+    });
+
+    emailModal.addEventListener("click", (e) => {
+        if (e.target === emailModal || e.target.closest("[data-action='close-email']"))
+            emailModal.classList.remove("visible");
+    });
+
+    document.getElementById("email-login-btn")?.addEventListener("click", async () => {
+        await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+        emailModal.classList.remove("visible");
+        openMenu();
+    });
+
+    document.getElementById("email-register-btn")?.addEventListener("click", async () => {
+        await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
+        emailModal.classList.remove("visible");
+        openMenu();
+    });
+
+    document.getElementById("email-reset-btn")?.addEventListener("click", () =>
+        resetPassword(emailInput.value.trim())
+    );
+
+    // 🔥 SAFARI FIX: Замена Popup на Redirect (перенаправляет пользователя)
+    document.querySelector(".google-auth")?.addEventListener("click", async () => {
+        closeMenu(); // Закрываем меню, так как мы уходим на перенаправление
+        await loginWithGoogle();
+    });
+
+    document.querySelector(".facebook-auth")?.addEventListener("click", async () => {
+        closeMenu(); // Закрываем меню, так как мы уходим на перенаправление
+        await loginWithFacebook();
+    });
+
+    // ✅ Обновляем UI + сертификат при входе
+    onUserChanged((user) => {
+        document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
+        document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
+        renderCertificateBlock(); // ← ВАЖНО
+    });
+
+    // ✅ Закрытие меню при выборе вкладки навигации
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+        if (btn.id !== "menu-btn") {
+            btn.addEventListener("click", closeMenu);
+        }
+    });
 });

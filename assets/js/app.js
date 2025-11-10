@@ -1,28 +1,32 @@
 // ===============================
-// Firebase + Catalog App Loader (v2 with POPULAR / UPDATE / VIP logic)
+// Firebase + Catalog App Loader
 // ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { openModal } from "./modal.js";
 
+// 1. Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
     authDomain: "ipa-panel.firebaseapp.com",
-    databaseURL: "https://ipa-panel-default-rtdb.firebaseio.com",
     projectId: "ipa-panel",
-    storageBucket: "ipa-panel.firebasestorage.app",  // ✅ ВЕРНО
+    storageBucket: "ipa-panel.firebasestorage.app",
     messagingSenderId: "239982196215",
-    appId: "1:239982196215:web:9de387c51952da428daaf2",
-    measurementId: "G-YP1XRFEDXM"
+    appId: "1:239982196215:web:9de387c51952da428daaf2"
 };
 
+// Init Firebase
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+console.log("✅ Firebase инициализирован");
 
+// ===============================
+// ГЛАВНЫЕ ДАННЫЕ
+// ===============================
 export let appsData = [];
-export let currentCategory = "apps";
+export let currentCategory = "apps"; // "apps" | "games"
 
 export function setCurrentCategory(type) {
     currentCategory = type;
@@ -30,20 +34,24 @@ export function setCurrentCategory(type) {
 }
 
 // ===============================
-// Карточка
+// Генерация карточки
 // ===============================
 function createCardHtml(data) {
     return `
         <article class="card" data-id="${data.id}">
             <div class="card-media">
                 <img src="${data.img}" class="card-icon" alt="${data.title}">
-                ${data.vipOnly ? `<div class="card-badge">VIP</div>` : ""}
+                ${data.badge === "VIP" ? `<div class="card-badge">VIP</div>` : ""}
             </div>
+
             <div class="card-info">
                 <h3>${data.title}</h3>
                 <p class="meta">${data.version}</p>
             </div>
-            <button class="card-cta open-modal-btn" data-id="${data.id}"><span>Открыть</span></button>
+
+            <button class="card-cta open-modal-btn" data-id="${data.id}">
+                <span>Открыть</span>
+            </button>
         </article>
     `;
 }
@@ -71,31 +79,11 @@ export function displayCatalog() {
         carousel.innerHTML = "";
 
         let items = appsData.filter(app => {
-            const tags = (app.tags || "").split(",").map(t => t.trim());
+            const tags = (app.tags || "").toLowerCase().split(",").map(t => t.trim());
             if (!tags.includes(currentCategory)) return false;
-
-            // VIP ROW
-            if (section === "VIP") return app.vipOnly === true;
-
-            return true;
-        });
-
-        // ✅ POPULAR
-        if (section === "Popular") {
-            items = items.sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0));
-        }
-
-        // ✅ UPDATE (новое и обновлённое сверху)
-        if (section === "Update") {
-            items = items.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-        }
-
-        // ✅ VIP ALREADY FILTERED ABOVE — просто сорт по updatedAt
-        if (section === "VIP") {
-            items = items.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-        }
-
-        items = items.slice(0, LIMIT);
+            if (section === "VIP") return app.badge === "VIP";
+            return app.badge !== "VIP";
+        }).slice(0, LIMIT);
 
         items.forEach(app => carousel.insertAdjacentHTML("beforeend", createCardHtml(app)));
         attachModalOpenListeners(carousel);
@@ -111,7 +99,6 @@ export function displayCatalog() {
 // ===============================
 async function loadDataFromFirestore() {
     try {
-        // 🎯 Берём ВСЕ записи, сортируем потом сами
         const snapshot = await getDocs(collection(db, "ursa_ipas"));
         appsData = snapshot.docs.map(doc => {
             const item = doc.data();
@@ -119,17 +106,14 @@ async function loadDataFromFirestore() {
                 id: doc.id,
                 title: item.NAME || "Без названия",
                 version: item.Version || "N/A",
-                img: item.iconUrl || "https://placehold.co/200x200",
                 desc: item.description_ru || item.description_en || "",
+                img: item.iconUrl || "https://placehold.co/200x200",
                 tags: Array.isArray(item.tags) ? item.tags.join(",").toLowerCase() : "",
-                link: item.DownloadUrl || "",
+                link: item.DownloadUrl || "#",
                 size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : "N/A",
                 features: item.features_ru || item.features_en || "",
-                vipOnly: item.vipOnly || false,
-                // ✅ Для POPULAR
-                downloadCount: item.downloadCount || 0,
-                // ✅ Для UPDATE / VIP сортировки
-                updatedAt: item.updatedAt ? new Date(item.updatedAt).getTime() : 0
+                badge: item.vipOnly ? "VIP" : "",
+                uploadTime: item.createdAt ? new Date(item.createdAt).getTime() : Date.now()
             };
         });
 
