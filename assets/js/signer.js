@@ -23,65 +23,93 @@ async function incrementDownloadCount(appId) {
 }
 
 // ===============================
-// 🚀 Установка / Подпись IPA
+// 🚀 Установка / Подпись IPA (ИСПОЛЬЗУЕМ НОВЫЙ UI)
 // ===============================
 export async function installIPA(app) {
-    const dl = document.getElementById("dl-buttons-row");
-    if (!dl) return;
+    // 1. Получаем ссылки на элементы НОВОГО модального окна
+    const installModal = document.getElementById("install-modal");
+    const installTitle = document.getElementById("install-title");
+    const installSubtext = document.getElementById("install-subtext");
+    const progressBarFill = document.getElementById("install-progress-fill");
+    const progressPercent = document.getElementById("install-percent");
+    const appModal = document.getElementById("app-modal"); // Модалка приложения для скрытия/показа
 
-    // Включаем UI прогресса
-    dl.style.display = "block";
-    dl.innerHTML = `
-        <div class="install-progress-container" id="install-progress-container">
-            <div class="progress-header">
-                <span id="progress-text" class="progress-text">🔄 Подготовка…</span>
-                <span id="progress-percent" class="progress-percent">15%</span>
-            </div>
-            <div class="progress-bar-wrap">
-                <div id="progress-bar-fill" class="progress-bar-fill" style="width:15%;"></div>
-            </div>
-        </div>
-    `;
+    if (!installModal || !installTitle || !progressBarFill) return;
 
-    const progressText = document.getElementById("progress-text");
-    const progressPercent = document.getElementById("progress-percent");
-    const progressBarFill = document.getElementById("progress-bar-fill");
-    const progressContainer = document.getElementById("install-progress-container");
+    // Скрываем модальное окно приложения и показываем новый модал установки
+    if (appModal) appModal.classList.remove("visible");
+    installModal.classList.remove("complete"); // Сбрасываем статус "Готово"
+    installModal.classList.add("visible");
+    document.body.classList.add("modal-open");
 
-    const updateProgress = (text, percent) => {
-        if (progressText) progressText.textContent = text;
+    // --- Функции UI ---
+    const updateProgress = (title, subtext, percent) => {
+        if (installTitle) installTitle.textContent = title;
+        if (installSubtext) installSubtext.textContent = subtext;
         if (progressPercent) progressPercent.textContent = `${percent}%`;
         if (progressBarFill) progressBarFill.style.width = `${percent}%`;
     };
 
+    const hideAndResetModal = (isError = false, errorMessage = "") => {
+        installModal.classList.remove("visible");
+        document.body.classList.remove("modal-open");
+        
+        // В случае ошибки, выводим сообщение в модалке приложения (если она открыта)
+        if (isError && appModal) {
+            const ctaButton = document.getElementById("modal-cta");
+            if (ctaButton) {
+                // Возвращаем кнопку "Установить" в модалке приложения для повторной попытки
+                ctaButton.textContent = "❌ Ошибка. Нажмите, чтобы посмотреть."; 
+                ctaButton.onclick = (e) => {
+                    e.preventDefault();
+                    // Возможно, открыть тут отдельную модалку ошибки или логировать
+                    alert(`Ошибка установки: ${errorMessage}`);
+                    // Сбрасываем текст кнопки после алерта
+                    ctaButton.textContent = "Установить"; 
+                    ctaButton.onclick = (event) => {
+                        event.preventDefault();
+                        installIPA(app);
+                    };
+                };
+            }
+            // Показываем модалку приложения
+            appModal.classList.add("visible");
+        }
+    };
+    // --- Конец Функции UI ---
+
+    // 0. Начальный статус
+    updateProgress("🚀 Подготовка…", "Проверка статуса пользователя...", 5);
+
+
     // 1️⃣ Проверяем вход
     const user = auth.currentUser;
     if (!user) {
-        dl.innerHTML = `<div class="install-error-msg">⚠️ Войдите в аккаунт через меню</div>`;
+        hideAndResetModal(true, "Войдите в аккаунт через меню");
         return;
     }
 
     // 2️⃣ Проверяем сертификат
     const udid = localStorage.getItem("ursa_cert_udid");
-    const exp  = localStorage.getItem("ursa_cert_exp");
+    const exp  = localStorage.getItem("ursa_cert_exp");
 
     if (!udid || !exp) {
-        dl.innerHTML = `<div class="install-error-msg">⚠️ Добавьте сертификат в меню</div>`;
+        hideAndResetModal(true, "Добавьте сертификат в меню");
         return;
     }
 
     // 3️⃣ Проверяем ссылку IPA
     const ipa_url = app.link || app.DownloadUrl || app.downloadUrl;
     if (!ipa_url) {
-        dl.innerHTML = `<div class="install-error-msg error">❌ IPA ссылка не найдена</div>`;
+        hideAndResetModal(true, "IPA ссылка не найдена");
         return;
     }
 
-    // 4️⃣ Увеличиваем downloadCount (для сортировок)
+    // 4️⃣ Увеличиваем downloadCount
     if (app.id) incrementDownloadCount(app.id);
 
     try {
-        updateProgress("🔄 Отправляем задачу на сервер…", 35);
+        updateProgress("🔄 Отправляем задачу…", "Отправка запроса на сервер подписи...", 35);
 
         const form = new FormData();
         form.append("ipa_url", ipa_url);
@@ -97,7 +125,7 @@ export async function installIPA(app) {
         if (!json.job_id) throw new Error("Сервер не вернул job_id");
 
         const job_id = json.job_id;
-        updateProgress("⏳ Ожидаем выполнение…", 50);
+        updateProgress("⏳ Ожидаем…", "Ожидание выполнения подписи...", 50);
 
         // 5️⃣ Слушаем Firestore на живую
         const jobRef = doc(db, "ursa_sign_jobs", job_id);
@@ -109,7 +137,7 @@ export async function installIPA(app) {
 
             // 🟡 Статус RUNNING
             if (data.status === "running") {
-                updateProgress("⚙️ Подписываем IPA…", 80);
+                updateProgress("⚙️ Подписываем IPA…", "Сертификат применяется к файлу", 80);
             }
 
             // ✅ УСПЕХ
@@ -117,12 +145,14 @@ export async function installIPA(app) {
                 currentInstallListener && currentInstallListener();
                 currentInstallListener = null;
 
-                updateProgress("✅ Готово! Установка начинается…", 100);
-                progressContainer.classList.add("complete");
+                // Используем новый UI: добавляем класс для эффекта завершения
+                installModal.classList.add("complete");
+                updateProgress("✅ Готово!", "Установка начинается автоматически", 100);
 
                 setTimeout(() => {
+                    hideAndResetModal(); // Скрываем модал установки
                     window.location.href = data.install_link;
-                }, 900);
+                }, 1200);
             }
 
             // ❌ ОШИБКА
@@ -130,7 +160,11 @@ export async function installIPA(app) {
                 currentInstallListener && currentInstallListener();
                 currentInstallListener = null;
 
-                dl.innerHTML = `<div class="install-error-msg error">❌ ${data.error}</div>`;
+                let msg = data.error || "Неизвестная ошибка";
+                if (msg.includes("Signer not found"))
+                    msg = "Сертификат повреждён или не активирован. Импортируй заново.";
+
+                hideAndResetModal(true, msg);
             }
         });
 
@@ -140,6 +174,6 @@ export async function installIPA(app) {
         if (msg.includes("Signer not found"))
             msg = "Сертификат повреждён или не активирован. Импортируй заново.";
 
-        dl.innerHTML = `<div class="install-error-msg error">❌ ${msg}</div>`;
+        hideAndResetModal(true, msg);
     }
 }
