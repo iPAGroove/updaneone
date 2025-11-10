@@ -22,112 +22,77 @@ async function incrementDownloadCount(appId) {
     }
 }
 
+
 // ===============================
-// 🚀 Установка / Подпись IPA (ИСПОЛЬЗУЕМ НОВЫЙ UI)
+// 🚀 Установка / Подпись IPA (НОВЫЙ UI)
 // ===============================
 export async function installIPA(app) {
-    // 1. Получаем ссылки на элементы НОВОГО модального окна
+    
+    // ✅ Используем новую модалку установки
     const installModal = document.getElementById("install-modal");
-    const installTitle = document.getElementById("install-title");
-    const installSubtext = document.getElementById("install-subtext");
-    const progressBarFill = document.getElementById("install-progress-fill");
-    const progressPercent = document.getElementById("install-percent");
-    const appModal = document.getElementById("app-modal"); // Модалка приложения для скрытия/показа
+    const fill = document.getElementById("install-progress-fill");
+    const percent = document.getElementById("install-percent");
+    const title = document.getElementById("install-title");
+    const sub = document.getElementById("install-subtext");
 
-    if (!installModal || !installTitle || !progressBarFill) return;
+    function updateProgress(text, p) {
+        sub.textContent = text;
+        percent.textContent = p + "%";
+        fill.style.width = p + "%";
+    }
 
-    // Скрываем модальное окно приложения и показываем новый модал установки
-    if (appModal) appModal.classList.remove("visible");
-    installModal.classList.remove("complete"); // Сбрасываем статус "Готово"
     installModal.classList.add("visible");
-    document.body.classList.add("modal-open");
-
-    // --- Функции UI ---
-    const updateProgress = (title, subtext, percent) => {
-        if (installTitle) installTitle.textContent = title;
-        if (installSubtext) installSubtext.textContent = subtext;
-        if (progressPercent) progressPercent.textContent = `${percent}%`;
-        if (progressBarFill) progressBarFill.style.width = `${percent}%`;
-    };
-
-    const hideAndResetModal = (isError = false, errorMessage = "") => {
-        installModal.classList.remove("visible");
-        document.body.classList.remove("modal-open");
-        
-        // В случае ошибки, выводим сообщение в модалке приложения (если она открыта)
-        if (isError && appModal) {
-            const ctaButton = document.getElementById("modal-cta");
-            if (ctaButton) {
-                // Возвращаем кнопку "Установить" в модалке приложения для повторной попытки
-                ctaButton.textContent = "❌ Ошибка. Нажмите, чтобы посмотреть."; 
-                ctaButton.onclick = (e) => {
-                    e.preventDefault();
-                    // Возможно, открыть тут отдельную модалку ошибки или логировать
-                    alert(`Ошибка установки: ${errorMessage}`);
-                    // Сбрасываем текст кнопки после алерта
-                    ctaButton.textContent = "Установить"; 
-                    ctaButton.onclick = (event) => {
-                        event.preventDefault();
-                        installIPA(app);
-                    };
-                };
-            }
-            // Показываем модалку приложения
-            appModal.classList.add("visible");
-        }
-    };
-    // --- Конец Функции UI ---
-
-    // 0. Начальный статус
-    updateProgress("🚀 Подготовка…", "Проверка статуса пользователя...", 5);
-
+    updateProgress("Подготовка…", 5);
 
     // 1️⃣ Проверяем вход
     const user = auth.currentUser;
     if (!user) {
-        hideAndResetModal(true, "Войдите в аккаунт через меню");
+        title.textContent = "⚠️ Требуется вход";
+        sub.textContent = "Авторизуйтесь через меню.";
+        updateProgress("Ошибка", 0);
         return;
     }
 
     // 2️⃣ Проверяем сертификат
     const udid = localStorage.getItem("ursa_cert_udid");
-    const exp  = localStorage.getItem("ursa_cert_exp");
+    const exp = localStorage.getItem("ursa_cert_exp");
 
     if (!udid || !exp) {
-        hideAndResetModal(true, "Добавьте сертификат в меню");
+        title.textContent = "⚠️ Нет сертификата";
+        sub.textContent = "Добавьте сертификат в меню.";
+        updateProgress("Ошибка", 0);
         return;
     }
 
     // 3️⃣ Проверяем ссылку IPA
     const ipa_url = app.link || app.DownloadUrl || app.downloadUrl;
     if (!ipa_url) {
-        hideAndResetModal(true, "IPA ссылка не найдена");
+        title.textContent = "❌ Ошибка";
+        sub.textContent = "Ссылка на IPA не найдена.";
+        updateProgress("Ошибка", 0);
         return;
     }
 
-    // 4️⃣ Увеличиваем downloadCount
+    // 4️⃣ Увеличиваем счетчик загрузок (для сортировок)
     if (app.id) incrementDownloadCount(app.id);
 
     try {
-        updateProgress("🔄 Отправляем задачу…", "Отправка запроса на сервер подписи...", 35);
+        updateProgress("Отправляем задачу на сервер…", 25);
 
         const form = new FormData();
         form.append("ipa_url", ipa_url);
         form.append("signer_id", user.uid);
 
         const res = await fetch(SIGNER_API_START_JOB, { method: "POST", body: form });
-        if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`HTTP ${res.status}: ${text}`);
-        }
+        if (!res.ok) throw new Error(await res.text());
 
         const json = await res.json();
         if (!json.job_id) throw new Error("Сервер не вернул job_id");
 
         const job_id = json.job_id;
-        updateProgress("⏳ Ожидаем…", "Ожидание выполнения подписи...", 50);
+        updateProgress("Ожидаем выполнение…", 45);
 
-        // 5️⃣ Слушаем Firestore на живую
+        // 🔥 Живой мониторинг статуса
         const jobRef = doc(db, "ursa_sign_jobs", job_id);
 
         if (currentInstallListener) currentInstallListener();
@@ -135,45 +100,39 @@ export async function installIPA(app) {
             if (!snap.exists()) return;
             const data = snap.data();
 
-            // 🟡 Статус RUNNING
             if (data.status === "running") {
-                updateProgress("⚙️ Подписываем IPA…", "Сертификат применяется к файлу", 80);
+                updateProgress("Подписываем IPA…", 75);
             }
 
-            // ✅ УСПЕХ
             if (data.status === "complete") {
                 currentInstallListener && currentInstallListener();
                 currentInstallListener = null;
 
-                // Используем новый UI: добавляем класс для эффекта завершения
-                installModal.classList.add("complete");
-                updateProgress("✅ Готово!", "Установка начинается автоматически", 100);
+                updateProgress("Готово! Установка начинается…", 100);
 
                 setTimeout(() => {
-                    hideAndResetModal(); // Скрываем модал установки
+                    installModal.classList.remove("visible");
                     window.location.href = data.install_link;
-                }, 1200);
+                }, 900);
             }
 
-            // ❌ ОШИБКА
             if (data.status === "error") {
                 currentInstallListener && currentInstallListener();
                 currentInstallListener = null;
 
-                let msg = data.error || "Неизвестная ошибка";
-                if (msg.includes("Signer not found"))
-                    msg = "Сертификат повреждён или не активирован. Импортируй заново.";
-
-                hideAndResetModal(true, msg);
+                title.textContent = "❌ Ошибка";
+                sub.textContent = data.error;
+                updateProgress("Ошибка", 0);
             }
         });
 
     } catch (err) {
         let msg = err.message || "Неизвестная ошибка";
-
         if (msg.includes("Signer not found"))
             msg = "Сертификат повреждён или не активирован. Импортируй заново.";
 
-        hideAndResetModal(true, msg);
+        title.textContent = "❌ Ошибка";
+        sub.textContent = msg;
+        updateProgress("Ошибка", 0);
     }
 }
