@@ -1,6 +1,6 @@
 // assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip
+// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip + Переход в VIP страницу
 // ===============================
 import {
     loginWithGoogle,
@@ -132,8 +132,7 @@ async function importCertificate() {
         renderCertificateBlock();
         openMenu();
     } catch (err) {
-        console.error("❌ Ошибка при импорте сертификата:", err);
-        alert("❌ Ошибка при загрузке. Проверьте правила Firebase Storage.");
+        alert("❌ Ошибка при загрузке.");
     }
 }
 
@@ -153,13 +152,8 @@ function closeMenu() {
 // ИНИЦИАЛИЗАЦИЯ
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        const result = await handleRedirectResult();
-        if (result && result.user) {
-            renderCertificateBlock();
-            openMenu();
-        }
-    } catch {}
+
+    try { await handleRedirectResult(); } catch {}
 
     document.getElementById("menu-btn")?.addEventListener("click", () => {
         renderCertificateBlock();
@@ -169,13 +163,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("menu-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
             closeMenu();
-    });
-
-    document.getElementById("cert-modal")?.addEventListener("click", (e) => {
-        if (e.target === e.currentTarget || e.target.closest("[data-action='close-cert']")) {
-            document.getElementById("cert-modal").classList.remove("visible");
-            openMenu();
-        }
     });
 
     document.getElementById("cert-import-btn").onclick = importCertificate;
@@ -236,14 +223,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // ===============================
-    // ✅ СТАТУС FREE/VIP
+    // ✅ "ВЫБРАТЬ ПЛАН" → VIP PAGE
+    // ===============================
+    document.querySelector(".select-plan-btn")?.addEventListener("click", () => {
+        closeMenu();
+        window.location.href = "/vip.html";
+    });
+
+    // ===============================
+    // ✅ СТАТУС FREE / VIP
     // ===============================
     onUserChanged(async (user) => {
         if (!user) {
+            localStorage.setItem("ursa_user_status", "free");
             document.getElementById("user-nickname").textContent = "Гость";
             document.getElementById("user-avatar").src = "https://placehold.co/100x100/121722/00b3ff?text=User";
-
-            localStorage.setItem("ursa_user_status", "free");
             renderCertificateBlock();
             return;
         }
@@ -267,12 +261,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         document.getElementById("user-nickname").textContent = snap.data()?.name || user.email || "Пользователь";
         document.getElementById("user-avatar").src = snap.data()?.photo || user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-
-        const label = document.getElementById("user-status-label");
-        if (label) label.remove();
-        document.querySelector(".user-profile").insertAdjacentHTML("beforeend",
-            `<p id="user-status-label" style="margin-top:5px;font-size:14px;color:#00b3ff;text-transform:uppercase;">Status: ${localStorage.getItem("ursa_user_status")}</p>`
-        );
 
         renderCertificateBlock();
     });
