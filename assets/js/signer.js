@@ -62,6 +62,9 @@ export async function installIPA(app) {
     dl.innerHTML = `<div class="install-error-msg">⚠️ Войдите в аккаунт через меню</div>`;
     return;
   }
+  
+  // 💡 Добавлено для диагностики проблемы "Signer not found"
+  console.log("Current User UID:", user.uid);
 
   // Проверяем сертификат
   const udid = localStorage.getItem("ursa_cert_udid");
@@ -90,8 +93,21 @@ export async function installIPA(app) {
     updateProgress("🔄 Запрашиваем подпись…", 30);
 
     const res = await fetch(SIGNER_API_START_JOB, { method: "POST", body: form });
+    
+    // ⚠️ УЛУЧШЕННАЯ ОБРАБОТКА ОШИБОК HTTP
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`HTTP Error ${res.status}: ${errorText.substring(0, 100)}...`);
+    }
+
     const json = await res.json();
-    if (!json.job_id) throw new Error("Ошибка запуска подписи");
+    
+    // Улучшенная обработка ошибки 'Signer not found'
+    if (json.error) {
+      throw new Error(json.error);
+    }
+
+    if (!json.job_id) throw new Error("API не вернул ID задания (job_id)");
 
     const job_id = json.job_id;
     updateProgress("⏳ Ожидание завершения…", 50);
@@ -135,6 +151,16 @@ export async function installIPA(app) {
     });
 
   } catch (err) {
-    dl.innerHTML = `<div class="install-error-msg error">❌ ${err.message || err}</div>`;
+    // Обработка всех ошибок, включая 'Signer not found'
+    let displayError = err.message || "Неизвестная ошибка";
+    
+    // Дополнительная подсказка для специфической ошибки
+    if (displayError.includes("Signer not found")) {
+      displayError = "Signer не найден. Возможно, ваш сертификат не активен.";
+    } else if (displayError.includes("HTTP Error")) {
+      displayError = `Ошибка сервера: ${displayError.split(':')[0]}`;
+    }
+
+    dl.innerHTML = `<div class="install-error-msg error">❌ ${displayError}</div>`;
   }
 }
