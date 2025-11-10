@@ -156,13 +156,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const result = await handleRedirectResult();
         if (result && result.user) {
-            console.log("✅ Успешный redirect вход.");
             renderCertificateBlock();
             openMenu();
         }
-    } catch (error) {
-        console.error(error);
-    }
+    } catch {}
 
     document.getElementById("menu-btn")?.addEventListener("click", () => {
         renderCertificateBlock();
@@ -195,6 +192,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
+    // ===============================
+    // EMAIL LOGIN
+    // ===============================
     const emailModal = document.getElementById("email-modal");
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
@@ -235,12 +235,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         await loginWithFacebook();
     });
 
-    // ✅ ГЛАВНОЕ: загружаем статус free/vip из Firestore
+    // ===============================
+    // ✅ СТАТУС FREE/VIP
+    // ===============================
     onUserChanged(async (user) => {
         if (!user) {
             document.getElementById("user-nickname").textContent = "Гость";
             document.getElementById("user-avatar").src = "https://placehold.co/100x100/121722/00b3ff?text=User";
-            setUserStatus("free");
+
+            localStorage.setItem("ursa_user_status", "free");
             renderCertificateBlock();
             return;
         }
@@ -257,19 +260,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                 status: "free",
                 created_at: new Date().toISOString()
             });
-            setUserStatus("free");
+            localStorage.setItem("ursa_user_status", "free");
         } else {
-            setUserStatus(snap.data().status || "free");
+            localStorage.setItem("ursa_user_status", snap.data().status || "free");
         }
 
         document.getElementById("user-nickname").textContent = snap.data()?.name || user.email || "Пользователь";
         document.getElementById("user-avatar").src = snap.data()?.photo || user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
 
-        // ✅ Отображаем статус под ником
         const label = document.getElementById("user-status-label");
         if (label) label.remove();
         document.querySelector(".user-profile").insertAdjacentHTML("beforeend",
-            `<p id="user-status-label" style="margin-top:5px;font-size:14px;color:#00b3ff;text-transform:uppercase;">Status: ${snap.data()?.status || "free"}</p>`
+            `<p id="user-status-label" style="margin-top:5px;font-size:14px;color:#00b3ff;text-transform:uppercase;">Status: ${localStorage.getItem("ursa_user_status")}</p>`
         );
 
         renderCertificateBlock();
