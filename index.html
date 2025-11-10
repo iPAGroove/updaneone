@@ -70,7 +70,7 @@
                 <h3 id="modal-title" class="modal-app-title">Название</h3>
                 <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
 
-                <!-- ✅ НЕОНОВЫЙ ПРОГРЕСС -->
+                <!-- ✅ НЕОНОВЫЙ ПРОГРЕСС (для старого варианта, но скрыт) -->
                 <div id="dl-buttons-row" class="install-progress-container" style="display:none;">
                     <div class="progress-header">
                         <span class="progress-text">Ожидание…</span>
@@ -188,6 +188,20 @@
     <input type="password" id="cert-password" placeholder="Пароль (необязательно)" class="auth-input">
 
     <button class="email-login-btn" id="cert-import-btn">Импортировать</button>
+  </div>
+</div>
+
+
+<!-- ✅ INSTALL PROGRESS MINI-MODAL -->
+<div id="install-progress-modal" class="install-progress-overlay">
+  <div class="install-progress-box">
+    <h3 id="install-progress-title">Подготовка…</h3>
+
+    <div class="install-progress-bar">
+      <div id="install-progress-fill"></div>
+    </div>
+
+    <p id="install-progress-status">Запуск…</p>
   </div>
 </div>
 
