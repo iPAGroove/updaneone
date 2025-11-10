@@ -125,3 +125,9 @@ async function loadDataFromFirestore() {
 }
 
 loadDataFromFirestore();
+
+// ===============================
+// ✅ ДОБАВЛЕНО ДЛЯ СИСТЕМЫ VIP / FREE
+// ===============================
+export let userStatus = "free";
+export function setUserStatus(status) { userStatus = status || "free"; }
