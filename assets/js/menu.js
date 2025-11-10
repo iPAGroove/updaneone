@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ===============================
     document.querySelector(".select-plan-btn")?.addEventListener("click", () => {
         closeMenu();
-        window.location.href = "/vip.html";
+        window.location.href = "./vip.html";
     });
 
     // ===============================
