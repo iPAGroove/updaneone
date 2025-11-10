@@ -1,6 +1,6 @@
 // assets/js/app.js
 // ===============================
-// Firebase + Catalog Loader + Collections Sorting
+// Firebase + Catalog Loader + Sorting + User Status Export
 // ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -26,10 +26,18 @@ export const auth = getAuth(app);
 console.log("✅ Firebase инициализирован");
 
 // ===============================
-// Данные
+// Статус пользователя (free/vip)
+// ===============================
+export let userStatus = "free";
+export function setUserStatus(status) {
+    userStatus = status || "free";
+}
+
+// ===============================
+// Данные каталога
 // ===============================
 export let appsData = [];
-export let currentCategory = "apps"; // apps | games
+export let currentCategory = "apps";
 
 export function setCurrentCategory(type) {
     currentCategory = type;
@@ -37,7 +45,7 @@ export function setCurrentCategory(type) {
 }
 
 // ===============================
-// Карточка приложения
+// Генерация карточки
 // ===============================
 function createCardHtml(data) {
     return `
@@ -70,7 +78,7 @@ function attachModalOpenListeners(carousel) {
 }
 
 // ===============================
-// Рендер коллекций на главной
+// Отрисовка коллекций
 // ===============================
 export function displayCatalog() {
     const rows = document.querySelectorAll(".collection-row");
@@ -81,34 +89,24 @@ export function displayCatalog() {
         const section = row.querySelector(".collection-title").textContent.trim();
         carousel.innerHTML = "";
 
-        // Фильтруем по категории
         let filtered = appsData.filter(app => app.tags.includes(currentCategory));
 
-        // 🔥 Popular → самые скачиваемые
         if (section === "Popular") {
             filtered = filtered.sort((a, b) => b.downloadCount - a.downloadCount);
-        }
-
-        // 🔥 Update → самые свежие
-        else if (section === "Update") {
+        } else if (section === "Update") {
             filtered = filtered.sort((a, b) => b.updatedTime - a.updatedTime);
-        }
-
-        // 🔥 VIP → только vip = true + сортировка как popular
-        else if (section === "VIP") {
+        } else if (section === "VIP") {
             filtered = filtered
                 .filter(app => app.vip)
                 .sort((a, b) => b.downloadCount - a.downloadCount);
         }
 
-        // Отрисовка
         filtered.slice(0, LIMIT).forEach(app =>
             carousel.insertAdjacentHTML("beforeend", createCardHtml(app))
         );
 
         attachModalOpenListeners(carousel);
 
-        // Заполнители (чтобы сетка была ровной)
         for (let i = filtered.length; i < LIMIT; i++) {
             carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
         }
@@ -129,7 +127,12 @@ async function loadDataFromFirestore() {
                 version: item.Version || "N/A",
                 desc: item.description_ru || item.description_en || "",
                 img: item.iconUrl || "https://placehold.co/200x200",
-                tags: Array.isArray(item.tags) ? item.tags.map(t => t.toLowerCase()) : ["apps"],
+
+                // ✅ МЕГА-НАДЕЖНАЯ обработка tags
+                tags: (Array.isArray(item.tags) ? item.tags : [item.tags])
+                    .filter(Boolean)
+                    .map(t => String(t).toLowerCase().trim()),
+
                 link: item.DownloadUrl || "#",
                 size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : "N/A",
                 features: item.features_ru || item.features_en || "",
