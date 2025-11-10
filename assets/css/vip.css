@@ -4,14 +4,16 @@
   --bg-deep: #020407; /* Более глубокий фон */
 }
 
+/* Сброс стилей и общая типографика */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  /* Используем системный шрифт Apple */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-  /* Изысканный, глубокий фон */
+  /* Изысканный, глубокий фон с радиальным градиентом */
   background: radial-gradient(circle at 50% 10%, #081016 0%, var(--bg-deep) 70%);
   color: white;
   display: flex;
@@ -20,11 +22,10 @@ body {
   min-height: 100vh;
   padding: 20px;
   text-align: center;
-  overflow: hidden; /* Скрываем полосы прокрутки при параллаксе */
-  perspective: 1000px; /* Для 3D-эффектов */
+  overflow: hidden; /* Скрываем полосы прокрутки для параллакса */
 }
 
-/* Элемент для параллакс-фона - небольшой светящийся объект */
+/* Элемент для параллакс-фона (свечение) */
 .background-deco {
   position: absolute;
   top: 15%;
@@ -39,22 +40,22 @@ body {
   z-index: 0;
 }
 
-/* Общий контейнер, который также участвует в параллаксе */
+/* Основной контейнер */
 .vip-wrapper {
   position: relative;
   z-index: 10; /* Поверх фона */
   animation: fadeIn 0.7s ease both;
-  transform-style: preserve-3d; /* Для 3D-трансформаций внутри */
+  transform-style: preserve-3d; 
 }
 
+/* Заголовок с неоновым мерцанием */
 .vip-title {
-  font-size: 52px; /* Увеличим размер */
+  font-size: 52px; 
   font-weight: 900;
   letter-spacing: 2px;
   margin-bottom: 8px;
   text-shadow: 0 0 25px var(--accent-soft), 0 0 50px rgba(0, 217, 255, 0.15);
   color: var(--accent);
-  /* Эффект мерцания */
   animation: neonPulse 1.5s infinite alternate ease-in-out;
 }
 
@@ -64,31 +65,25 @@ body {
   margin-bottom: 50px;
 }
 
-/* Премиальная Glass-карта с 3D-эффектом */
+/* Премиальная Glass-карта */
 .vip-card {
   background: rgba(255, 255, 255, 0.03); /* Меньше прозрачности */
   backdrop-filter: blur(30px); /* Больше размытия */
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 28px;
-  padding: 40px 30px; /* Больше отступов */
+  padding: 40px 30px; 
   max-width: 380px;
   margin: 0 auto;
-  /* Более глубокая тень и inner-тень */
   box-shadow:
     0 15px 40px rgba(0, 0, 0, 0.4), /* Глубокая тень */
     0 0 45px rgba(0, 217, 255, 0.35), /* Неоновый ореол */
     inset 0 0 15px rgba(255, 255, 255, 0.05); /* Легкий внутренний свет */
-  animation: popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Более "пружинистая" анимация */
-  will-change: transform, box-shadow;
-  transition: box-shadow 0.3s ease;
-  transform-style: preserve-3d; /* Для 3D-эффекта наклона */
-}
-
-.vip-card:hover {
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.6),
-    0 0 60px var(--accent);
+  /* Анимации появления и плавного парения */
+  animation: 
+    popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+    floatCard 15s infinite ease-in-out;
+  will-change: transform;
 }
 
 .vip-price {
@@ -119,14 +114,14 @@ body {
 }
 
 .vip-benefits li:hover {
-  transform: translateX(5px);
+  transform: translateX(5px); /* Микроанимация для курсора */
 }
 
 .vip-benefits .icon {
   font-size: 18px;
   margin-right: 12px;
   opacity: 0.8;
-  color: var(--accent);
+  color: var(--accent); /* Цвет иконок */
 }
 
 /* Премиальная Неоновая Кнопка */
@@ -137,28 +132,37 @@ body {
   font-size: 18px;
   font-weight: 700;
   text-decoration: none;
-  color: var(--bg-deep); /* Контрастный цвет текста */
+  color: var(--bg-deep); 
+  /* Градиент с анимацией */
   background: linear-gradient(90deg, var(--accent), #00f6ff, #00d9ff);
   background-size: 200% 100%;
   box-shadow: 0 5px 30px var(--accent-soft);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1); /* Более сложный переход */
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
 .vip-btn:hover {
-  transform: translateY(-4px); /* Больше движение */
+  transform: translateY(-4px); 
   background-position: 100% 0; /* Анимация градиента */
   box-shadow: 0 10px 45px var(--accent), 0 0 80px rgba(0, 217, 255, 0.5);
 }
 
 /* Keyframes Анимации */
+
 @keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
-@keyframes popIn { from {transform: translateZ(-100px) scale(0.9); opacity:0;} to {transform: translateZ(0) scale(1); opacity:1;} }
+@keyframes popIn { from {transform: scale(0.9); opacity:0;} to {transform: scale(1); opacity:1;} }
 
 /* Плавное движение для фонового элемента */
 @keyframes floatLight {
   0% { transform: translate(-50%, -50%) rotate(0deg); }
   50% { transform: translate(-55%, -45%) rotate(5deg); }
   100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+/* Анимация: Карта немного "парит" */
+@keyframes floatCard {
+    0% { transform: translateY(0px) rotateX(0deg); }
+    50% { transform: translateY(-8px) rotateX(1deg); } 
+    100% { transform: translateY(0px) rotateX(0deg); }
 }
 
 /* Легкое мерцание заголовка */
