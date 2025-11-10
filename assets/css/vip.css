@@ -193,7 +193,118 @@ body::before {
   box-shadow: 0 6px 30px var(--accent);
 }
 
-/* 4. KEYFRAMES АНИМАЦИИ */
+/* --- СТИЛИ ДЛЯ МОДАЛЬНЫХ ОКОН ОПЛАТЫ --- */
+
+/* Фон модального окна */
+.payment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Темный полупрозрачный фон */
+    display: none; /* Скрыто по умолчанию */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+/* Контейнер контента (Glassmorphism) */
+.modal-content {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 15px var(--accent-soft);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-title {
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 15px;
+}
+
+.modal-text, .modal-info {
+    font-size: 16px;
+    opacity: 0.85;
+    line-height: 1.5;
+}
+
+.modal-btn {
+    display: block;
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--bg-deep); 
+    background: linear-gradient(90deg, var(--accent), #00f6ff);
+    box-shadow: 0 4px 20px var(--accent-soft);
+    border: none;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px var(--accent);
+}
+
+/* Стили для выбора оплаты */
+.payment-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 30px 0;
+}
+
+.option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.option-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.option-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.modal-info {
+    font-size: 13px;
+    color: var(--accent);
+    opacity: 0.7;
+    margin-top: 20px;
+}
+
+
+/* 5. KEYFRAMES АНИМАЦИИ */
 
 /* Анимация пролета звезд */
 @keyframes shooting {
@@ -224,4 +335,9 @@ body::before {
   .vip-price { font-size: 30px; }
   .vip-benefits { font-size: 14px; }
   .vip-btn { font-size: 15px; }
+
+  /* Медиа-запрос для модальных окон: сетка в один столбец */
+  .payment-options {
+      grid-template-columns: 1fr;
+  }
 }
