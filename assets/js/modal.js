@@ -1,12 +1,16 @@
+// assets/js/modal.js
 // ===============================
 // MODAL (APP VIEW + INSTALL / SIGNER INTEGRATION)
 // ===============================
 
 import { installIPA } from "./signer.js";
-import { userStatus } from "./app.js"; // ✅ добавлено для проверки статуса
 
-const modalOverlay = document.getElementById('app-modal');
+const modalOverlay = document.getElementById("app-modal");
 const dlRow = document.getElementById("dl-buttons-row"); // контейнер для прогресса
+
+function getUserStatus() {
+    return localStorage.getItem("ursa_user_status") || "free";
+}
 
 function timeSince(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
@@ -32,84 +36,74 @@ export function openModal(data) {
     if (!modalOverlay || !data) return;
 
     // ===============================
-    // 🔧 ФОЛЛБЭКИ НА СТАРЫЕ / НОВЫЕ ПОЛЯ
+    // 🔧 ФОЛЛБЭКИ НА ПОЛЯ
     // ===============================
     const icon = data.img || data.iconUrl || "";
     const title = data.title || data.NAME || "Без названия";
     const version = data.version || data.Version || "N/A";
-    const size = data.size || (data.sizeBytes ? (data.sizeBytes/1_000_000).toFixed(1) + " MB" : "N/A");
-    const uploadTime = data.uploadTime || data.updatedAt || new Date().toISOString();
+    const size = data.size || (data.sizeBytes ? (data.sizeBytes / 1_000_000).toFixed(1) + " MB" : "N/A");
+    const uploadTime = data.uploadTime || data.updatedTime || data.updatedAt || new Date().toISOString();
     const link = data.link || data.DownloadUrl;
 
     // ===============================
-    // Заполняем UI
+    // UI заполняем
     // ===============================
-    document.getElementById('modal-icon').src = icon;
-    document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-version').textContent = version;
-    document.getElementById('modal-size').textContent = size;
-    document.getElementById('modal-time-ago').textContent = timeSince(new Date(uploadTime));
+    document.getElementById("modal-icon").src = icon;
+    document.getElementById("modal-title").textContent = title;
+    document.getElementById("modal-version").textContent = version;
+    document.getElementById("modal-size").textContent = size;
+    document.getElementById("modal-time-ago").textContent = timeSince(new Date(uploadTime));
 
     const features = data.features || data.features_ru || data.features_en || "";
-    const featuresFormatted = features.replace(/,\s*/g, '\n').trim();
-    document.getElementById('modal-features').textContent = featuresFormatted;
+    document.getElementById("modal-features").textContent = features.replace(/,\s*/g, "\n").trim();
 
     let desc = (data.desc || data.description_ru || data.description_en || "").trim();
-    if (
-        desc.toLowerCase() === "функции мода" ||
-        desc.toLowerCase() === "hack features" ||
-        desc === "" ||
-        desc === featuresFormatted ||
-        desc.replace(/\s+/g, '') === featuresFormatted.replace(/\s+/g, '')
-    ) {
-        desc = "";
-    }
-    document.getElementById('modal-desc').textContent = desc;
+    document.getElementById("modal-desc").textContent = desc === features ? "" : desc;
 
     // ===============================
-    // 🚀 УСТАНОВКА + Проверка VIP
+    // 🚀 Проверка VIP
     // ===============================
-    const ctaButton = document.getElementById('modal-cta');
+    const status = getUserStatus();
+    const ctaButton = document.getElementById("modal-cta");
+
+    ctaButton.style.pointerEvents = "auto";
+    ctaButton.style.opacity = "1";
     ctaButton.textContent = "Установить";
-    ctaButton.removeAttribute("href");
 
-    // ✅ Если это VIP приложение, а статус у юзера free → БЛОКИРУЕМ
-    if (data.badge === "VIP" && userStatus !== "vip") {
+    // Если это VIP приложение, а юзер FREE
+    if (data.vip && status !== "vip") {
         ctaButton.textContent = "VIP ONLY";
         ctaButton.style.opacity = "0.45";
         ctaButton.style.pointerEvents = "none";
     } else {
-        // ✅ Нормальная установка
         ctaButton.onclick = (e) => {
             e.preventDefault();
-            installIPA({
-                ...data,
-                link
-            });
+            installIPA({ ...data, link });
         };
     }
 
-    // Очистка прогресса
+    // очистка прогресса
     if (dlRow) dlRow.innerHTML = "";
 
-    modalOverlay.classList.add('visible');
-    document.body.classList.add('modal-open');
+    modalOverlay.classList.add("visible");
+    document.body.classList.add("modal-open");
 }
 
 function closeModal() {
-    modalOverlay.classList.remove('visible');
-    document.body.classList.remove('modal-open');
+    modalOverlay.classList.remove("visible");
+    document.body.classList.remove("modal-open");
     if (dlRow) dlRow.innerHTML = "";
 }
 
 if (modalOverlay) {
-    modalOverlay.addEventListener('click', (event) => {
-        if (event.target === modalOverlay || event.target.closest('[data-action="close"]')) {
+    modalOverlay.addEventListener("click", (event) => {
+        if (event.target === modalOverlay || event.target.closest("[data-action='close']")) {
             closeModal();
         }
     });
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && modalOverlay.classList.contains('visible')) {
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalOverlay.classList.contains("visible")) {
             closeModal();
         }
     });
