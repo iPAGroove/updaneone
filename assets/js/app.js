@@ -1,12 +1,15 @@
+// assets/js/app.js
 // ===============================
-// Firebase + Catalog App Loader
+// Firebase + Catalog Loader + Collections Sorting
 // ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { openModal } from "./modal.js";
 
-// 1. Firebase Config
+// ===============================
+// Firebase Config
+// ===============================
 const firebaseConfig = {
     apiKey: "AIzaSyDFj9gOYU49Df6ohUR5CnbRv3qdY2i_OmU",
     authDomain: "ipa-panel.firebaseapp.com",
@@ -23,10 +26,10 @@ export const auth = getAuth(app);
 console.log("✅ Firebase инициализирован");
 
 // ===============================
-// ГЛАВНЫЕ ДАННЫЕ
+// Данные
 // ===============================
 export let appsData = [];
-export let currentCategory = "apps"; // "apps" | "games"
+export let currentCategory = "apps"; // apps | games
 
 export function setCurrentCategory(type) {
     currentCategory = type;
@@ -34,7 +37,7 @@ export function setCurrentCategory(type) {
 }
 
 // ===============================
-// Генерация карточки
+// Карточка приложения
 // ===============================
 function createCardHtml(data) {
     return `
@@ -67,7 +70,7 @@ function attachModalOpenListeners(carousel) {
 }
 
 // ===============================
-// Рендер секций
+// Рендер коллекций на главной
 // ===============================
 export function displayCatalog() {
     const rows = document.querySelectorAll(".collection-row");
@@ -78,32 +81,34 @@ export function displayCatalog() {
         const section = row.querySelector(".collection-title").textContent.trim();
         carousel.innerHTML = "";
 
+        // Фильтруем по категории
         let filtered = appsData.filter(app => app.tags.includes(currentCategory));
 
-        // ✅ Popular → сортировка по downloadCount
+        // 🔥 Popular → самые скачиваемые
         if (section === "Popular") {
             filtered = filtered.sort((a, b) => b.downloadCount - a.downloadCount);
         }
 
-        // ✅ Update → сортировка по дате (свежие сверху)
+        // 🔥 Update → самые свежие
         else if (section === "Update") {
             filtered = filtered.sort((a, b) => b.updatedTime - a.updatedTime);
         }
 
-        // ✅ VIP → только vip = true + сортировка как popular
+        // 🔥 VIP → только vip = true + сортировка как popular
         else if (section === "VIP") {
-            filtered = filtered.filter(app => app.vip)
-                               .sort((a, b) => b.downloadCount - a.downloadCount);
+            filtered = filtered
+                .filter(app => app.vip)
+                .sort((a, b) => b.downloadCount - a.downloadCount);
         }
 
-        // Ограничение + отрисовка
+        // Отрисовка
         filtered.slice(0, LIMIT).forEach(app =>
             carousel.insertAdjacentHTML("beforeend", createCardHtml(app))
         );
 
         attachModalOpenListeners(carousel);
 
-        // Placeholder заполнитель
+        // Заполнители (чтобы сетка была ровной)
         for (let i = filtered.length; i < LIMIT; i++) {
             carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
         }
@@ -111,7 +116,7 @@ export function displayCatalog() {
 }
 
 // ===============================
-// Загрузка Firestore
+// Загрузка из Firestore
 // ===============================
 async function loadDataFromFirestore() {
     try {
@@ -124,19 +129,22 @@ async function loadDataFromFirestore() {
                 version: item.Version || "N/A",
                 desc: item.description_ru || item.description_en || "",
                 img: item.iconUrl || "https://placehold.co/200x200",
-                tags: (Array.isArray(item.tags) ? item.tags : ["apps"]).map(t => t.toLowerCase()),
+                tags: Array.isArray(item.tags) ? item.tags.map(t => t.toLowerCase()) : ["apps"],
                 link: item.DownloadUrl || "#",
                 size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : "N/A",
                 features: item.features_ru || item.features_en || "",
                 vip: item.vipOnly === true,
                 downloadCount: item.downloadCount ?? 0,
-                updatedTime: item.updatedAt ? new Date(item.updatedAt).getTime() :
-                             item.createdAt ? new Date(item.createdAt).getTime() : Date.now()
+                updatedTime: item.updatedAt
+                    ? new Date(item.updatedAt).getTime()
+                    : item.createdAt
+                    ? new Date(item.createdAt).getTime()
+                    : Date.now()
             };
         });
 
+        console.log(`✅ Загружено приложений: ${appsData.length}`);
         displayCatalog();
-        console.log(`✅ Загружено ${appsData.length} приложений`);
     } catch (err) {
         console.error("❌ Ошибка загрузки Firestore:", err);
     }
