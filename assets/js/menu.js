@@ -13,7 +13,6 @@ import {
 
 import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
-import { setUserStatus } from "./app.js"; // ✅ добавлено
 
 import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
