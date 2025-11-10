@@ -1,6 +1,6 @@
 // assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата
+// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip
 // ===============================
 import {
     loginWithGoogle,
@@ -8,15 +8,14 @@ import {
     loginWithEmail,
     registerWithEmail,
     resetPassword,
-    // 💡 ИМПОРТИРУЕМ НОВУЮ ФУНКЦИЮ ДЛЯ SAFARI
     handleRedirectResult
 } from "./firebase/auth.js";
 
 import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
+import { setUserStatus } from "./app.js"; // ✅ добавлено
 
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-// ✅ ИСПРАВЛЕНИЕ: Добавляем getDownloadURL
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const storage = getStorage();
@@ -58,27 +57,21 @@ async function parseMobileProvision(file) {
 }
 
 // ===============================
-// 📌 Обновить UI сертификата
+// 📌 UI сертификата
 // ===============================
 function renderCertificateBlock() {
     const card = document.querySelector(".certificate-card");
     const udid = localStorage.getItem("ursa_cert_udid");
     const expiry = localStorage.getItem("ursa_cert_exp");
 
-    const user = auth.currentUser;
-    // Проверяем, вошел ли пользователь вообще
-    const isLoggedIn = !!user;
+    const isLoggedIn = !!auth.currentUser;
 
-    // UX: Показываем кнопку "Добавить сертификат" только если пользователь вошел.
-    const showAddButton = isLoggedIn ?
-        `<button class="btn add-cert-btn">Добавить сертификат</button>` :
-        `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
-
+    const showAddButton = isLoggedIn
+        ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
+        : `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
 
     if (!udid) {
-        card.innerHTML = `
-            ${showAddButton}
-        `;
+        card.innerHTML = `${showAddButton}`;
         return;
     }
 
@@ -112,29 +105,24 @@ async function importCertificate() {
     
     const uid = user.uid;
     const folder = `signers/${uid}/`;
-    
-    // 1. Создаем ссылки на Storage
+
     const p12StorageRef = ref(storage, folder + p12.name);
     const provStorageRef = ref(storage, folder + mp.name);
 
     try {
-        // 2. Загружаем файлы в Storage
         await uploadBytes(p12StorageRef, p12);
         await uploadBytes(provStorageRef, mp);
 
-        // 3. ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Получаем публичные ссылки для скачивания (Download URLs)
         const p12DownloadUrl = await getDownloadURL(p12StorageRef);
         const provDownloadUrl = await getDownloadURL(provStorageRef);
 
-        // 4. Сохраняем метаданные + HTTP-ссылки в Firestore
         await setDoc(doc(db, "ursa_signers", uid), {
             udid: parsed.udid,
             expires: parsed.expiryDate,
             pass: password,
             createdAt: new Date().toISOString(),
-            // ✅ ИСПРАВЛЕНИЕ: Теперь сохраняем полные HTTPS-ссылки
-            p12Url: p12DownloadUrl, 
-            provUrl: provDownloadUrl, 
+            p12Url: p12DownloadUrl,
+            provUrl: provDownloadUrl,
         }, { merge: true });
 
         localStorage.setItem("ursa_cert_udid", parsed.udid);
@@ -145,9 +133,8 @@ async function importCertificate() {
         renderCertificateBlock();
         openMenu();
     } catch (err) {
-        // Добавляем более информативное логирование ошибки, связанной с Storage/Firestore
-        console.error("❌ Ошибка при импорте сертификата:", err); 
-        alert(`❌ Ошибка при импорте: Не удалось сохранить данные. Проверьте консоль Firebase, ошибки могут быть в Security Rules.`);
+        console.error("❌ Ошибка при импорте сертификата:", err);
+        alert("❌ Ошибка при загрузке. Проверьте правила Firebase Storage.");
     }
 }
 
@@ -167,36 +154,21 @@ function closeMenu() {
 // ИНИЦИАЛИЗАЦИЯ
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
-
-    // 🔥 SAFARI FIX: Обработка результата перенаправления ПЕРЕД запуском остального кода
     try {
         const result = await handleRedirectResult();
         if (result && result.user) {
-            console.log("✅ Успешный вход через перенаправление.");
-            // 💡 ВАЖНО: Принудительно обновляем UI, так как результат пришел
+            console.log("✅ Успешный redirect вход.");
             renderCertificateBlock();
             openMenu();
         }
     } catch (error) {
-        console.error("❌ Ошибка при входе через перенаправление:", error);
-
-        if (error.code === 'auth/account-exists-with-different-credential') {
-            alert('Ошибка: Учетная запись с этим email уже существует. Пожалуйста, войдите через Google/Email.');
-        } else {
-            alert('Ошибка входа. Пожалуйста, попробуйте снова.');
-        }
+        console.error(error);
     }
 
-    const menuBtn = document.getElementById("menu-btn");
-
-    // ✅ УСИЛЕННЫЙ ОБРАБОТЧИК КЛИКА ДЛЯ МЕНЮ
-    if (menuBtn) {
-        menuBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            renderCertificateBlock();
-            openMenu();
-        });
-    }
+    document.getElementById("menu-btn")?.addEventListener("click", () => {
+        renderCertificateBlock();
+        openMenu();
+    });
 
     document.getElementById("menu-modal")?.addEventListener("click", (e) => {
         if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
@@ -224,7 +196,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // Email auth
     const emailModal = document.getElementById("email-modal");
     const emailInput = document.getElementById("email-input");
     const passwordInput = document.getElementById("password-input");
@@ -255,28 +226,53 @@ document.addEventListener("DOMContentLoaded", async () => {
         resetPassword(emailInput.value.trim())
     );
 
-    // 🔥 SAFARI FIX: Замена Popup на Redirect (перенаправляет пользователя)
     document.querySelector(".google-auth")?.addEventListener("click", async () => {
-        closeMenu(); // Закрываем меню, так как мы уходим на перенаправление
+        closeMenu();
         await loginWithGoogle();
     });
 
     document.querySelector(".facebook-auth")?.addEventListener("click", async () => {
-        closeMenu(); // Закрываем меню, так как мы уходим на перенаправление
+        closeMenu();
         await loginWithFacebook();
     });
 
-    // ✅ Обновляем UI + сертификат при входе
-    onUserChanged((user) => {
-        document.getElementById("user-nickname").textContent = user?.displayName || user?.email || "Гость";
-        document.getElementById("user-avatar").src = user?.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
-        renderCertificateBlock(); // ← ВАЖНО
-    });
-
-    // ✅ Закрытие меню при выборе вкладки навигации
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-        if (btn.id !== "menu-btn") {
-            btn.addEventListener("click", closeMenu);
+    // ✅ ГЛАВНОЕ: загружаем статус free/vip из Firestore
+    onUserChanged(async (user) => {
+        if (!user) {
+            document.getElementById("user-nickname").textContent = "Гость";
+            document.getElementById("user-avatar").src = "https://placehold.co/100x100/121722/00b3ff?text=User";
+            setUserStatus("free");
+            renderCertificateBlock();
+            return;
         }
+
+        const userRef = doc(db, "ursa_users", user.uid);
+        const snap = await getDoc(userRef);
+
+        if (!snap.exists()) {
+            await setDoc(userRef, {
+                uid: user.uid,
+                email: user.email || null,
+                name: user.displayName || null,
+                photo: user.photoURL || null,
+                status: "free",
+                created_at: new Date().toISOString()
+            });
+            setUserStatus("free");
+        } else {
+            setUserStatus(snap.data().status || "free");
+        }
+
+        document.getElementById("user-nickname").textContent = snap.data()?.name || user.email || "Пользователь";
+        document.getElementById("user-avatar").src = snap.data()?.photo || user.photoURL || "https://placehold.co/100x100/121722/00b3ff?text=User";
+
+        // ✅ Отображаем статус под ником
+        const label = document.getElementById("user-status-label");
+        if (label) label.remove();
+        document.querySelector(".user-profile").insertAdjacentHTML("beforeend",
+            `<p id="user-status-label" style="margin-top:5px;font-size:14px;color:#00b3ff;text-transform:uppercase;">Status: ${snap.data()?.status || "free"}</p>`
+        );
+
+        renderCertificateBlock();
     });
 });
