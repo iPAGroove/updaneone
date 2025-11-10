@@ -172,3 +172,74 @@ body.modal-open { overflow: hidden !important; }
     0% { filter: drop-shadow(0 0 4px var(--accent)); }
     100% { filter: drop-shadow(0 0 14px var(--accent)); }
 }
+/* ============================ */
+/* === INSTALLATION MODAL === */
+/* ============================ */
+
+.install-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.install-overlay.visible {
+    display: flex;
+}
+
+.install-box {
+    width: 85%;
+    max-width: 420px;
+    background: color-mix(in oklab, var(--bg-elev) 85%, var(--accent) 15%);
+    border-radius: 18px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0, 179, 255, 0.45);
+    animation: popIn .35s ease;
+}
+
+@keyframes popIn {
+    from {transform: scale(.85); opacity: 0;}
+    to {transform: scale(1); opacity: 1;}
+}
+
+.install-spinner {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 4px solid color-mix(in oklab, var(--bg) 70%, var(--accent) 30%);
+    border-top-color: var(--accent);
+    margin: 0 auto 18px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to {transform: rotate(360deg);} }
+
+.install-progress-wrap {
+    margin: 18px 0 8px;
+    width: 100%;
+    height: 10px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--bg-elev) 80%, var(--bg) 20%);
+    box-shadow: inset 0 0 4px rgba(0,0,0,.6);
+}
+
+.install-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    width: 0%;
+    box-shadow: 0 0 10px rgba(0, 179, 255, 0.9);
+    transition: width .35s ease;
+}
+
+.install-percent {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    opacity: .8;
+}
