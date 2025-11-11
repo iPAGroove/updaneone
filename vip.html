@@ -5,16 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>URSA VIP</title>
 
-  <!-- Стили VIP -->
   <link rel="stylesheet" href="assets/css/vip.css?v=11" />
 </head>
 
 <body>
 
-  <!-- Фон со звёздами -->
   <div class="stars" aria-hidden="true"></div>
 
-  <!-- Шапка -->
   <header class="site-header">
     <div class="brand">URSA <span>VIP</span></div>
     <nav class="top-actions">
@@ -24,7 +21,6 @@
     </nav>
   </header>
 
-  <!-- Hero -->
   <section class="hero">
     <h1>Премиальный доступ ко всему</h1>
     <p class="hero-sub">Все VIP-приложения и игры, приоритетная подпись и поддержка</p>
@@ -41,62 +37,37 @@
     </div>
   </section>
 
-  <!-- Преимущества -->
   <section id="benefits" class="section">
     <h2>Почему это выгодно</h2>
     <div class="grid-3">
-      <div class="card">
-        <div class="card-ico">🚀</div>
-        <div class="card-title">Скорость</div>
-        <div class="card-text">В приоритете на серверах подписи: меньше ожидания.</div>
-      </div>
-      <div class="card">
-        <div class="card-ico">🔒</div>
-        <div class="card-title">Надёжность</div>
-        <div class="card-text">Чёткие инструкции и поддержка 24/7.</div>
-      </div>
-      <div class="card">
-        <div class="card-ico">🎯</div>
-        <div class="card-title">Ценность</div>
-        <div class="card-text">$5/мес — один тариф на всё.</div>
-      </div>
+      <div class="card"><div class="card-ico">🚀</div><div class="card-title">Скорость</div><div class="card-text">В приоритете на серверах.</div></div>
+      <div class="card"><div class="card-ico">🔒</div><div class="card-title">Надёжность</div><div class="card-text">Поддержка 24/7.</div></div>
+      <div class="card"><div class="card-ico">🎯</div><div class="card-title">Ценность</div><div class="card-text">$5/мес — на всё.</div></div>
     </div>
   </section>
 
-  <!-- Способы оплаты -->
   <section id="payments" class="section">
     <h2>Способы оплаты</h2>
     <div class="grid-3 pay-grid">
       <button class="pay-chip" data-method="crypto">💎 Crypto World</button>
       <button class="pay-chip" data-method="binance_pay">🔶 Binance Pay</button>
-      <button class="pay-chip" data-method="gift_card">🎁 Binance Gift Card</button>
+      <button class="pay-chip" data-method="gift_card">🎁 Gift Card</button>
       <button class="pay-chip" data-method="paypal">🅿️ PayPal</button>
       <button class="pay-chip" data-method="ua_card">🇺🇦 UA Card</button>
       <button class="pay-chip" data-method="ru_card">🇷🇺 RU Card</button>
     </div>
-    <p class="hint">Выбирай способ — откроется чат с реквизитами и кнопкой копирования.</p>
+    <p class="hint">Выбирай способ — откроется чат с реквизитами.</p>
   </section>
 
-  <!-- FAQ -->
   <section id="faq" class="section">
     <h2>Вопросы и ответы</h2>
     <div class="faq">
-      <details>
-        <summary>Как быстро активируют VIP?</summary>
-        <div class="faq-a">Обычно 5–15 минут после оплаты.</div>
-      </details>
-      <details>
-        <summary>Если платёж не прошёл?</summary>
-        <div class="faq-a">Выбери другой метод или напиши в поддержку.</div>
-      </details>
-      <details>
-        <summary>Можно отменить подписку?</summary>
-        <div class="faq-a">VIP без автопродления — продлить или нет решаешь ты.</div>
-      </details>
+      <details><summary>Как быстро активируют VIP?</summary><div class="faq-a">5–15 минут.</div></details>
+      <details><summary>Что делать если платёж не проходит?</summary><div class="faq-a">Выбери другой способ или напиши в поддержку.</div></details>
+      <details><summary>Есть автопродление?</summary><div class="faq-a">Нет — ты сам решаешь продлить или нет.</div></details>
     </div>
   </section>
 
-  <!-- Футер -->
   <footer class="site-footer">
     <div class="foot">
       <a class="tg" href="https://t.me/viibbee_17" target="_blank" rel="noopener">Написать в Telegram</a>
@@ -104,33 +75,33 @@
     </div>
   </footer>
 
-  <!-- Модалки -->
-  <div id="modal-step-1" class="payment-modal" aria-hidden="true">
+  <!-- МОДАЛЫ -->
+  <div id="modal-step-1" class="payment-modal">
     <div class="modal-content">
       <button class="modal-close" data-close>✕</button>
-      <h3 class="modal-title">💸 Шаг 1: Инструкция</h3>
-      <p class="modal-text">Оплати удобным способом → отправь чек → активируем VIP.</p>
+      <h3 class="modal-title">💸 Шаг 1</h3>
+      <p class="modal-text">После оплаты отправь чек — мы активируем VIP.</p>
       <button id="btn-read" class="modal-btn">Дальше</button>
     </div>
   </div>
 
-  <div id="modal-step-2" class="payment-modal" aria-hidden="true">
+  <div id="modal-step-2" class="payment-modal">
     <div class="modal-content">
       <button class="modal-close" data-close>✕</button>
       <h3 class="modal-title">💳 Выбери способ</h3>
       <div class="payment-options">
-        <a class="option-btn" data-method="crypto"><span class="option-icon">💎</span>Crypto World</a>
-        <a class="option-btn" data-method="binance_pay"><span class="option-icon">🔶</span>Binance Pay</a>
-        <a class="option-btn" data-method="gift_card"><span class="option-icon">🎁</span>Gift Card</a>
-        <a class="option-btn" data-method="paypal"><span class="option-icon">🅿️</span>PayPal</a>
-        <a class="option-btn" data-method="ua_card"><span class="option-icon">🇺🇦</span>UA Card</a>
-        <a class="option-btn" data-method="ru_card"><span class="option-icon">🇷🇺</span>RU Card</a>
+        <a class="option-btn" data-method="crypto"><span>💎</span>Crypto World</a>
+        <a class="option-btn" data-method="binance_pay"><span>🔶</span>Binance Pay</a>
+        <a class="option-btn" data-method="gift_card"><span>🎁</span>Gift Card</a>
+        <a class="option-btn" data-method="paypal"><span>🅿️</span>PayPal</a>
+        <a class="option-btn" data-method="ua_card"><span>🇺🇦</span>UA Card</a>
+        <a class="option-btn" data-method="ru_card"><span>🇷🇺</span>RU Card</a>
       </div>
       <button id="btn-back-to-info" class="modal-btn back-btn">← Назад</button>
     </div>
   </div>
 
-  <div id="modal-chat" class="payment-modal" aria-hidden="true">
+  <div id="modal-chat" class="payment-modal">
     <div class="modal-content chat-content">
       <button class="modal-close" data-close>✕</button>
       <h3 class="modal-title chat-title">💬 Чат поддержки VIP</h3>
@@ -139,24 +110,20 @@
         <div id="system-message-template" class="system-message" style="display:none;">
           <span class="chat-method-name"></span>
           <span class="chat-details"></span>
-          <span class="chat-warning">⚠️ После оплаты отправьте скриншот для активации</span>
+          <span class="chat-warning">⚠️ После оплаты отправьте скриншот</span>
         </div>
       </div>
 
-      <!-- ✅ Реальный чат: скрепка + ввод + отправка -->
       <div class="chat-input-container">
-        <input type="file" id="chat-file" hidden accept="image/*,.pdf,.zip,.rar,.7z,.txt,.log,.json" />
-        <button id="chat-attach" class="chat-attach" title="Прикрепить файл">📎</button>
-
-        <input type="text" id="chat-input" class="chat-input" placeholder="Написать сообщение…" />
-        <button id="chat-send-btn" class="chat-send-btn" title="Отправить">➤</button>
+        <button class="chat-attach-btn" title="Прикрепить файл">📎</button>
+        <input class="chat-input" placeholder="Написать сообщение…" />
+        <button class="chat-send-btn">➤</button>
       </div>
 
       <button id="btn-back-to-options" class="modal-btn back-btn">← Выбрать другой способ</button>
     </div>
   </div>
 
-  <!-- ⭐ Скрипты (без дублей) -->
   <script src="assets/js/mobile-parallax.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module" src="assets/js/vip.js"></script>
