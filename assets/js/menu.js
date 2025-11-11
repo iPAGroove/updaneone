@@ -1,6 +1,6 @@
 // assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip + Переход в VIP страницу
+// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip + Переход в VIP страницу + Переход на покупку сертификата
 // ===============================
 import {
     loginWithGoogle,
@@ -66,8 +66,9 @@ function renderCertificateBlock() {
     const isLoggedIn = !!auth.currentUser;
 
     const showAddButton = isLoggedIn
-        ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
-        : `<p class="cert-info-placeholder">Для добавления сертификата, пожалуйста, войдите.</p>`;
+        ? `<button class="btn add-cert-btn">Добавить сертификат</button>
+           <button class="btn buy-cert-btn neon">Купить сертификат</button>`
+        : `<p class="cert-info-placeholder">Для управления сертификатом необходимо войти.</p>`;
 
     if (!udid) {
         card.innerHTML = `${showAddButton}`;
@@ -83,6 +84,7 @@ function renderCertificateBlock() {
         <p><strong>Действует до:</strong> ${expiry}</p>
         <p style="font-weight:600;color:${statusColor};">Статус: ${status}</p>
         <button class="btn delete-cert-btn">Удалить сертификат</button>
+        <button class="btn buy-cert-btn neon">Купить новый сертификат</button>
     `;
 }
 
@@ -101,7 +103,7 @@ async function importCertificate() {
 
     const parsed = await parseMobileProvision(mp);
     if (!parsed.udid || !parsed.expiryDate) return alert("Не удалось извлечь данные профиля.");
-
+    
     const uid = user.uid;
     const folder = `signers/${uid}/`;
 
@@ -179,6 +181,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
+    // ✅ Переход на страницу покупки сертификата
+    document.body.addEventListener("click", (e) => {
+        if (e.target.classList.contains("buy-cert-btn")) {
+            closeMenu();
+            window.location.href = "./cert.html";
+        }
+    });
+
     // ===============================
     // EMAIL LOGIN
     // ===============================
@@ -227,7 +237,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ===============================
     document.querySelector(".select-plan-btn")?.addEventListener("click", () => {
         closeMenu();
-        window.location.href = "/vip.html";
         window.location.href = "./vip.html";
     });
 
