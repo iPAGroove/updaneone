@@ -33,53 +33,58 @@
 
 <!-- 1. Шаг 1 — Инструкция -->
 <div id="modal-step-1" class="payment-modal">
-    <div class="modal-content">
-        <h3 class="modal-title">💸 Шаг 1: Инструкция по оплате VIP</h3>
-        <p class="modal-text">
-            Для активации VIP необходимо выполнить оплату услуги и отправить чек.
-            <br><br>
-            После оплаты вы отправляете скриншот в чат и мы активируем VIP.
-        </p>
-        <button id="btn-read" class="modal-btn">Я прочитал(а)</button>
-    </div>
+  <div class="modal-content">
+    <h3 class="modal-title">💸 Шаг 1: Инструкция по оплате VIP</h3>
+    <p class="modal-text">
+      Для активации VIP необходимо выполнить оплату услуги и отправить чек.
+      <br><br>
+      После оплаты вы отправляете скриншот в чат и мы активируем VIP.
+    </p>
+    <button id="btn-read" class="modal-btn">Я прочитал(а)</button>
+  </div>
 </div>
 
 <!-- 2. Шаг 2 — Выбор способа оплаты -->
 <div id="modal-step-2" class="payment-modal">
-    <div class="modal-content">
-        <h3 class="modal-title">💳 Выберите способ оплаты</h3>
-        <div class="payment-options">
-            <a href="#" class="option-btn" data-method="crypto"><span class="option-icon">💎</span> Crypto World</a>
-            <a href="#" class="option-btn" data-method="binance_pay"><span class="option-icon">🔶</span> Binance Pay</a>
-            <a href="#" class="option-btn" data-method="gift_card"><span class="option-icon">🎁</span> Binance Gift Card</a>
-            <a href="#" class="option-btn" data-method="paypal"><span class="option-icon">🅿️</span> PayPal</a>
-            <a href="#" class="option-btn" data-method="ua_card"><span class="option-icon">🇺🇦</span> UA Card</a>
-            <a href="#" class="option-btn" data-method="ru_card"><span class="option-icon">🇷🇺</span> RU Card</a>
-        </div>
-        <button id="btn-back-to-info" class="modal-btn back-btn">← Назад</button>
+  <div class="modal-content">
+    <h3 class="modal-title">💳 Выберите способ оплаты</h3>
+    <div class="payment-options">
+      <a href="#" class="option-btn" data-method="crypto"><span class="option-icon">💎</span> Crypto World</a>
+      <a href="#" class="option-btn" data-method="binance_pay"><span class="option-icon">🔶</span> Binance Pay</a>
+      <a href="#" class="option-btn" data-method="gift_card"><span class="option-icon">🎁</span> Binance Gift Card</a>
+      <a href="#" class="option-btn" data-method="paypal"><span class="option-icon">🅿️</span> PayPal</a>
+      <a href="#" class="option-btn" data-method="ua_card"><span class="option-icon">🇺🇦</span> UA Card</a>
+      <a href="#" class="option-btn" data-method="ru_card"><span class="option-icon">🇷🇺</span> RU Card</a>
     </div>
+    <button id="btn-back-to-info" class="modal-btn back-btn">← Назад</button>
+  </div>
 </div>
 
 <!-- 3. Шаг 3 — Чат -->
 <div id="modal-chat" class="payment-modal">
-    <div class="modal-content chat-content">
-        <h3 class="modal-title chat-title">💬 Чат поддержки VIP</h3>
+  <div class="modal-content chat-content">
+    <h3 class="modal-title chat-title">💬 Чат поддержки VIP</h3>
 
-        <div class="chat-area" id="chat-area">
-            <div id="system-message-template" class="system-message" style="display: none;">
-                <span class="chat-method-name"></span>
-                <span class="chat-details"></span>
-                <span class="chat-warning">⚠️ После оплаты отправьте скриншот в этот чат для активации VIP</span>
-            </div>
-        </div>
-
-        <div class="chat-input-container">
-            <input type="text" placeholder="Прикрепить скриншот / код..." class="chat-input" disabled>
-            <button class="chat-send-btn" disabled>Отправить</button>
-        </div>
-
-        <button id="btn-back-to-options" class="modal-btn back-btn">← Выбрать другой способ</button>
+    <div class="chat-area" id="chat-area">
+      <!-- ✅ Исправленный шаблон -->
+      <div id="system-message-template" class="system-message" style="display:none;">
+        <p>
+          <span class="chat-method-name"></span>
+          <br><br>
+          <span class="chat-details"></span>
+          <br><br>
+          <span class="chat-warning">⚠️ После оплаты отправьте скриншот в этот чат для активации VIP</span>
+        </p>
+      </div>
     </div>
+
+    <div class="chat-input-container">
+      <input type="text" placeholder="Прикрепить скриншот / код..." class="chat-input" disabled>
+      <button class="chat-send-btn" disabled>Отправить</button>
+    </div>
+
+    <button id="btn-back-to-options" class="modal-btn back-btn">← Выбрать другой способ</button>
+  </div>
 </div>
 
 <script src="assets/js/mobile-parallax.js"></script>
