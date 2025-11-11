@@ -1,83 +1,102 @@
 // ===============================
-// URSA CERT PAGE — PLANS + PAYMENT MODAL
+// URSA CERT PAGE — PLANS + PAYMENT + NAV ACTIVE HIGHLIGHT
 // ===============================
 
 const buyBtn = document.getElementById("buy-btn");
 const plans = document.querySelectorAll(".plan");
 const modal = document.getElementById("pay-modal");
 const faqOpenBtn = document.querySelector("[data-open-pay]");
-const methodButtons = document.querySelectorAll(".method");
-
+const bottomNavLinks = document.querySelectorAll(".bottom-nav a");
 let selectedMonths = null;
 
 // -------------------------------
-// Выбор срока сертификата
+// ВЫБОР ПЛАНА
 // -------------------------------
 plans.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    // снимаем active со всех
-    plans.forEach((b) => b.classList.remove("active"));
+  btn.addEventListener("click", () => {
+    plans.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
 
-    // ставим active на выбранный
-    btn.classList.add("active");
+    selectedMonths = btn.dataset.months;
 
-    // сохраняем выбранный срок
-    selectedMonths = btn.dataset.months;
-    const planText = btn.textContent;
-
-    // активируем кнопку "Купить"
-    buyBtn.disabled = false;
-    buyBtn.classList.add("ready");
-    buyBtn.textContent = `Купить (${planText.split('/')[0].trim()} / ${planText.split('/')[1].trim()})`;
-  });
+    buyBtn.disabled = false;
+    buyBtn.classList.add("ready");
+    buyBtn.textContent = `Купить (${btn.textContent})`;
+  });
 });
 
 // -------------------------------
-// Открыть окно оплаты
+// ОТКРЫТЬ ОКНО ОПЛАТЫ
 // -------------------------------
 function openModal() {
-  if (!selectedMonths) {
-    // Если план не выбран, не открываем модал, можно добавить alert
-    // alert("Пожалуйста, выберите срок действия сертификата.");
-    return; 
-  }
-  modal.classList.add("show");
+  if (!selectedMonths) return;
+  modal.classList.add("show");
 }
 
 buyBtn.addEventListener("click", openModal);
-
-// CTA в FAQ → тоже открывает модал
 faqOpenBtn?.addEventListener("click", openModal);
 
 // -------------------------------
-// Закрытие модала (крест + фон)
+// ЗАКРЫТЬ МОДАЛ (крест/фон/назад)
 // -------------------------------
 modal.addEventListener("click", (e) => {
-  if (e.target.dataset.close !== undefined || e.target === modal) {
-    modal.classList.remove("show");
-  }
+  if (e.target.dataset.close || e.target === modal) {
+    modal.classList.remove("show");
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") modal.classList.remove("show");
 });
 
 // -------------------------------
-// Выбор способа оплаты (редирект с параметрами)
+// ВЫБОР СПОСОБА ОПЛАТЫ
 // -------------------------------
-methodButtons.forEach((btn) =>
-  btn.addEventListener("click", () => {
-    const method = btn.dataset.method;
+document.querySelectorAll(".method").forEach((btn) =>
+  btn.addEventListener("click", () => {
+    const method = btn.dataset.method;
 
-    if (selectedMonths && method) {
-        // Передаем выбранные параметры через URL для чистой интеграции
-        // Замените './pay.html' на актуальный адрес страницы оплаты.
-        window.location.href = `./pay.html?months=${selectedMonths}&method=${method}`;
-    } else {
-        alert("Произошла ошибка: не выбран план или способ оплаты.");
-    }
-  })
+    localStorage.setItem("ursa_buy_cert_months", selectedMonths);
+    localStorage.setItem("ursa_buy_cert_method", method);
+
+    window.location.href = "./vip.html#chat";
+  })
 );
 
 // -------------------------------
-// Accessibility (Esc закрывает модал)
+// ПЛАВНЫЕ ПЕРЕХОДЫ ПО ЯКОРЯМ
 // -------------------------------
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") modal.classList.remove("show");
+bottomNavLinks.forEach((link) => {
+  link.addEventListener("click", (e) => {
+    const href = link.getAttribute("href");
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+    }
+  });
 });
+
+// -------------------------------
+// ПОДСВЕТКА АКТИВНОГО РАЗДЕЛА
+// -------------------------------
+const sections = document.querySelectorAll("section[id]");
+
+const highlightActiveNav = () => {
+  let scrollY = window.scrollY + window.innerHeight / 3;
+
+  sections.forEach((section) => {
+    const id = section.getAttribute("id");
+    const top = section.offsetTop;
+    const height = section.offsetHeight;
+
+    if (scrollY >= top && scrollY < top + height) {
+      bottomNavLinks.forEach((link) => link.classList.remove("active"));
+      document
+        .querySelector(`.bottom-nav a[href="#${id}"]`)
+        ?.classList.add("active");
+    }
+  });
+};
+
+window.addEventListener("scroll", highlightActiveNav);
+highlightActiveNav(); // запустить на старте
