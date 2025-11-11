@@ -1,13 +1,13 @@
 // assets/js/admin.js
+// ===============================
+// URSA ADMIN PANEL LOGIC (v2 - Google Popup Auth)
+// ===============================
 
-import { auth, db } from "./app.js"; // Используем твой импорт
-import { 
-    onAuthStateChanged, 
-    signInWithEmailAndPassword, 
-    signOut 
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+// Импортируем Firebase Init из app.js
+import { auth, db } from "./app.js"; 
 
 import {
+    // Импорты для Firestore (оставляем те, что были в новой структуре)
     collection,
     getDocs,
     doc,
@@ -21,41 +21,75 @@ import {
     arrayRemove
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
+// Импортируем Google Auth прямо сюда
+import { 
+    onAuthStateChanged, 
+    signOut,
+    GoogleAuthProvider, // <--- ИМПОРТ ПРОВАЙДЕРА
+    signInWithPopup     // <--- ИМПОРТ POPUP
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
+
+// === СПИСОК АДМИНОВ ===
+const ADMIN_EMAILS = [
+    "vibemusic1712@gmail.com", // <-- ТВОЙ EMAIL (Использую твой список)
+    "kotvlad400@gmail.com",
+    "olesyazardina@gmail.com"
+];
+
+// Глобальные переменные и кэш
 let allApps = [];
 let allUsers = [];
 let allOrders = [];
 let currentChatUnsubscribe = null;
 
+// === Элементы UI Auth/Layout ===
+const authScreen = document.getElementById("admin-auth");
+const dashboard = document.getElementById("admin-dashboard");
+const loginBtn = document.getElementById("auth-login-btn");
+const errorEl = document.getElementById("auth-error");
+
 // ===============================
 // 0. АВТОРИЗАЦИЯ И ИНИЦИАЛИЗАЦИЯ
 // ===============================
+function showAuthScreen() {
+    authScreen.style.display = "block";
+    dashboard.style.display = "none";
+}
+
+function showDashboard() {
+    authScreen.style.display = "none";
+    dashboard.style.display = "block";
+    initAdminPanel();
+}
+
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // 🔥 Проверка, что пользователь - админ (например, по email)
-        if (user.email === "admin@ursa.com" || user.email === "vibemusic1712@agmail.com") {
-            document.getElementById("admin-auth").style.display = "none";
-            document.getElementById("admin-dashboard").style.display = "block";
-            initAdminPanel();
+        // 🔥 Проверка прав администратора
+        if (ADMIN_EMAILS.includes(user.email)) {
+            console.log(`✅ Admin access granted for: ${user.email}`);
+            showDashboard();
         } else {
-            signOut(auth);
-            document.getElementById("auth-error").textContent = "Нет прав администратора.";
+            console.warn(`❌ Access denied for: ${user.email}`);
+            signOut(auth); // Выкидываем не-админа
+            errorEl.textContent = "Нет прав администратора (неверный Google аккаунт).";
+            showAuthScreen();
         }
     } else {
-        document.getElementById("admin-auth").style.display = "block";
-        document.getElementById("admin-dashboard").style.display = "none";
+        showAuthScreen();
     }
 });
 
-document.getElementById("auth-login-btn").addEventListener("click", async () => {
-    const email = document.getElementById("auth-email").value;
-    const password = document.getElementById("auth-password").value;
-    const errorEl = document.getElementById("auth-error");
+// --- GOOGLE SIGN-IN ---
+loginBtn.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
     errorEl.textContent = "";
-
     try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithPopup(auth, provider);
+        // После успешного входа onAuthStateChanged проверит права
     } catch (err) {
+        // Обработка ошибок, например, закрытие окна или network error
+        console.error("Auth Error:", err);
         errorEl.textContent = "Ошибка входа: " + err.message;
     }
 });
@@ -84,7 +118,7 @@ function initAdminPanel() {
         });
     });
     
-    // Загружаем стартовые данные
+    // Загружаем стартовые данные (Dashboard активен по умолчанию)
     loadDashboardStats();
     setupAppModalListeners();
     setupSearchListeners();
@@ -132,7 +166,7 @@ function renderAppsTable(apps, query) {
     tbody.innerHTML = "";
     
     const filtered = apps.filter(app => 
-        !query || app.NAME.toLowerCase().includes(query.toLowerCase())
+        !query || (app.NAME || '').toLowerCase().includes(query.toLowerCase())
     );
 
     filtered.forEach(app => {
