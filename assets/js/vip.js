@@ -6,7 +6,7 @@ import { auth } from "./app.js";
 document.addEventListener("DOMContentLoaded", () => {
 
   // ===============================
-  // 0) Проверка, что юзер вошёл и добавил сертификат
+  // 0) Проверка входа и сертификата
   // ===============================
   const user = auth.currentUser;
   const udid = localStorage.getItem("ursa_cert_udid");
@@ -24,12 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // ✅ Сохраняем для чата
+  // ✅ для отображения в чате
   localStorage.setItem("ursa_vip_uid", user.uid);
   localStorage.setItem("ursa_vip_udid", udid);
 
   // ===============================
-  // 1) Данные реквизитов
+  // 1) Реквизиты
   // ===============================
   const PAYMENT = {
     crypto: {
@@ -60,22 +60,24 @@ document.addEventListener("DOMContentLoaded", () => {
     ru_card: {
       name: "RU Card (Т-банк / СПБ)",
       show:
-        "Т-банк: 2200702048905611\nСПБ (Т-банк): 89933303390\nПолучатель: Онищенко Пётр А.\n⚠️ Комментарий: @viibbee_17",
+        "Т-банк: 2200702048905611\nСПБ: 89933303390\nПолучатель: Онищенко Пётр А.\n⚠️ Комментарий: @viibbee_17",
       tBank: "2200702048905611",
       spb: "89933303390",
     },
   };
 
   // ===============================
-  // 2) DOM
+  // 2) DOM элементы
   // ===============================
   const buyBtn = document.getElementById("vip-buy-btn");
   const modal1 = document.getElementById("modal-step-1");
   const modal2 = document.getElementById("modal-step-2");
   const modalChat = document.getElementById("modal-chat");
+
   const btnRead = document.getElementById("btn-read");
   const btnBackToInfo = document.getElementById("btn-back-to-info");
   const btnBackToOptions = document.getElementById("btn-back-to-options");
+
   const payOptions = document.querySelector("#modal-step-2 .payment-options");
   const chatArea = document.getElementById("chat-area");
   const msgTpl = document.getElementById("system-message-template");
@@ -87,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const close = (m) => { m.style.display = "none"; document.body.style.overflow = ""; };
 
   // ===============================
-  // 4) Рендер сообщения + UID/UDID
+  // 4) ЧАТ + идентификация
   // ===============================
   function renderMessage(methodKey) {
     const d = PAYMENT[methodKey];
@@ -96,26 +98,27 @@ document.addEventListener("DOMContentLoaded", () => {
     chatArea.innerHTML = "";
     const node = msgTpl.cloneNode(true);
     node.style.display = "block";
+
     node.querySelector(".chat-method-name").textContent = d.name;
     node.querySelector(".chat-details").textContent = d.show;
 
-    // ✅ Добавляем идентификацию пользователя
+    // ✅ Добавляем UID + UDID
     const uid = localStorage.getItem("ursa_vip_uid");
-    const udid = localStorage.getItem("ursa_vip_udid");
+    const udidStored = localStorage.getItem("ursa_vip_udid");
 
     const idBlock = document.createElement("div");
     idBlock.style.marginTop = "14px";
     idBlock.style.fontSize = "13px";
     idBlock.style.opacity = "0.82";
-    idBlock.innerHTML = `👤 <b>${uid}</b><br>🔗 UDID: <b>${udid}</b>`;
+    idBlock.innerHTML = `👤 <b>${uid}</b><br>🔗 UDID: <b>${udidStored}</b>`;
     node.appendChild(idBlock);
 
     chatArea.appendChild(node);
 
-    // 💎 gift card = без кнопок
+    // 💎 gift card
     if (d.noCopy) return chatArea.scrollTop = chatArea.scrollHeight;
 
-    // 🇺🇦 UA Card
+    // 🇺🇦 UA card
     if (d.link) {
       const payBtn = document.createElement("button");
       payBtn.className = "modal-btn";
@@ -125,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // 🇷🇺 RU Card
+    // 🇷🇺 RU card
     if (methodKey === "ru_card") {
       const b1 = document.createElement("button");
       b1.className = "modal-btn";
@@ -150,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // 🟦 остальные
+    // остальные
     const copyBtn = document.createElement("button");
     copyBtn.className = "modal-btn";
     copyBtn.textContent = "Скопировать реквизиты";
@@ -164,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===============================
-  // 5) ШАГИ
+  // 5) Шаги
   // ===============================
   buyBtn?.addEventListener("click", () => open(modal1));
   btnRead?.addEventListener("click", () => { close(modal1); open(modal2); });
@@ -172,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
   btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
   // ===============================
-  // 6) Выбор оплат
+  // 6) Выбор способов
   // ===============================
   document.querySelector("#payments")?.addEventListener("click", (e) => {
     const chip = e.target.closest(".pay-chip");
