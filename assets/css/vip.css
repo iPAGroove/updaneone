@@ -4,10 +4,8 @@
   --bg-deep: #020407; 
 }
 
-/* Сброс стилей и общая типографика */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+/* Сброс стилей */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -23,266 +21,166 @@ body {
   overflow: hidden; 
 }
 
-/* 1. ЗВЕЗДНОЕ ПОЛЕ (фон) */
+/* ЗВЕЗДНОЕ ПОЛЕ */
 .stars {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    overflow: hidden;
+  position: fixed; inset: 0;
+  z-index: 1; overflow: hidden;
 }
-
 .stars::before,
 .stars::after,
 body::before {
-    content: '';
-    position: absolute;
-    background: transparent;
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  content:''; position:absolute; border-radius:50%; background:transparent;
 }
-
-/* Звезды 1 */
 .stars::before {
-    width: 1px;
-    height: 1px;
-    opacity: 0.8;
-    box-shadow: 
-        100px 300px 0 0 white, 200px 100px 0 0 white, 300px 500px 0 0 white, 
-        400px 200px 0 0 white, 500px 450px 0 0 white, 700px 150px 0 0 white, 
-        900px 300px 0 0 white, 1100px 500px 0 0 white, 1300px 100px 0 0 white;
-    animation: shooting 40s linear infinite;
+  width:1px; height:1px; opacity:.8;
+  box-shadow:100px 300px white,200px 100px white,300px 500px white,400px 200px white,500px 450px white,700px 150px white,900px 300px white;
+  animation:shooting 40s linear infinite;
 }
-
-/* Звезды 2 */
 .stars::after {
-    width: 2px;
-    height: 2px;
-    opacity: 0.6;
-    box-shadow: 
-        50px 500px 0 0 white, 350px 150px 0 0 white, 600px 350px 0 0 white,
-        800px 50px 0 0 white, 100px 100px 0 0 white, 500px 200px 0 0 white;
-    animation: shooting 30s linear infinite reverse;
+  width:2px; height:2px; opacity:.6;
+  box-shadow:50px 500px white,350px 150px white,600px 350px white,800px 50px white;
+  animation:shooting 30s linear infinite reverse;
 }
-
-/* Звезды 3 (блики) */
 body::before {
-    width: 3px;
-    height: 3px;
-    opacity: 0.5;
-    box-shadow: 
-        250px 250px 0 0 var(--accent), 550px 400px 0 0 var(--accent);
-    animation: shooting 20s linear infinite;
-    z-index: 2; 
+  width:3px; height:3px; opacity:.5;
+  box-shadow:250px 250px var(--accent),550px 400px var(--accent);
+  animation:shooting 20s linear infinite;
+  z-index:2;
 }
 
-/* Основной контейнер */
+/* Главный контейнер */
 .vip-wrapper {
-  position: relative;
-  z-index: 10; 
-  margin-top: 20px; 
-  margin-bottom: 20px;
-  animation: fadeIn 0.7s ease both;
-  transform-style: preserve-3d;
+  position:relative; z-index:10;
+  margin:20px 0;
+  animation: fadeIn .7s ease both;
 }
 
-/* Заголовок */
+/* Заголовки */
 .vip-title {
-  font-size: 48px; 
-  font-weight: 900;
-  letter-spacing: 2px;
-  margin-bottom: 6px;
-  text-shadow: 0 0 20px var(--accent-soft); 
-  color: var(--accent);
-  animation: neonPulse 2s infinite alternate ease-in-out; 
+  font-size:48px; font-weight:900; margin-bottom:6px;
+  color:var(--accent); text-shadow:0 0 20px var(--accent-soft);
+  animation:neonPulse 2s infinite alternate ease-in-out;
 }
+.vip-subtitle { opacity:.7; margin-bottom:40px; }
 
-.vip-subtitle {
-  font-size: 16px;
-  opacity: 0.7;
-  margin-bottom: 40px;
-}
-
-/* Премиальная карточка VIP */
+/* VIP карточка */
 .vip-card {
-  background: rgba(255, 255, 255, 0.05); 
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px; 
-  padding: 30px 25px; 
-  max-width: 340px; 
-  margin: 0 auto;
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.5), 
-    0 0 10px rgba(0, 217, 255, 0.1); 
-  animation: 
-    popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
-    floatCard 15s infinite ease-in-out;
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(25px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;
+  padding:30px 25px;
+  max-width:340px; margin:0 auto;
+  box-shadow:0 8px 30px rgba(0,0,0,.5), 0 0 10px rgba(0,217,255,.1);
+  animation:popIn .7s cubic-bezier(.175,.885,.32,1.275) forwards, floatCard 15s infinite ease-in-out;
 }
 
 .vip-price {
-  font-size: 36px; 
-  margin-bottom: 30px;
-  font-weight: 800;
-  color: var(--accent);
-  text-shadow: 0 0 15px var(--accent-soft);
+  font-size:36px; font-weight:800; margin-bottom:30px;
+  color:var(--accent); text-shadow:0 0 15px var(--accent-soft);
 }
 
 /* Список преимуществ */
 .vip-benefits {
-  padding: 0;
-  list-style: none;
-  text-align: left;
-  font-size: 15px;
-  margin-bottom: 30px;
-  opacity: 0.95;
+  list-style:none; padding:0; margin:0 0 30px;
+  text-align:left; font-size:15px;
 }
-
 .vip-benefits li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  transition: 0.2s;
+  display:flex; align-items:center; margin-bottom:12px;
+  transition:.2s;
 }
-
-.vip-benefits li:hover {
-  transform: translateX(3px);
-}
-
-.vip-benefits .icon {
-  color: var(--accent);
-  margin-right: 12px;
-}
+.vip-benefits li:hover { transform:translateX(3px); }
+.vip-benefits .icon { margin-right:12px; color:var(--accent); }
 
 /* Кнопка */
 .vip-btn {
-  width: 100%;
-  padding: 14px 24px;
-  border-radius: 12px;
-  font-weight: 700;
-  background: linear-gradient(90deg, var(--accent), #00f6ff, #00d9ff);
-  background-size: 200% 100%;
-  box-shadow: 0 4px 20px var(--accent-soft);
-  color: var(--bg-deep);
-  text-decoration: none;
-  transition: 0.4s;
+  display:block; width:100%;
+  padding:14px 24px; border-radius:12px;
+  font-weight:700; color:var(--bg-deep);
+  background:linear-gradient(90deg, var(--accent), #00f6ff, #00d9ff);
+  background-size:200% 100%;
+  box-shadow:0 4px 20px var(--accent-soft);
+  text-decoration:none; transition:.4s;
 }
+.vip-btn:hover { transform:translateY(-2px); background-position:100% 0; }
 
-.vip-btn:hover {
-  transform: translateY(-2px);
-  background-position: 100% 0;
-}
-
-/* Модальные окна */
+/* МОДАЛКИ */
 .payment-modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
+  position:fixed; inset:0; display:none;
+  justify-content:center; align-items:center;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(8px);
+  z-index:1000;
 }
-
 .modal-content {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(25px);
-    border-radius: 18px;
-    padding: 30px;
-    width: 90%;
-    max-width: 350px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(25px);
+  border-radius:18px;
+  padding:30px;
+  max-width:350px; width:90%;
+  box-shadow:0 0 30px rgba(0,0,0,.6);
 }
-
-/* Блок методов оплаты */
-.payment-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.modal-title { margin-bottom:20px; color:var(--accent); }
+.modal-text { opacity:.85; line-height:1.45; }
+.modal-btn {
+  margin-top:25px; width:100%; padding:14px;
+  border-radius:12px; border:none; cursor:pointer;
+  font-weight:700; color:var(--bg-deep);
+  background:linear-gradient(90deg,var(--accent),#00f6ff);
+  box-shadow:0 4px 20px var(--accent-soft);
+  transition:.25s;
 }
+.modal-btn:hover { transform:translateY(-2px); }
 
+/* Способы оплаты */
+.payment-options { display:flex; flex-direction:column; gap:12px; }
 .option-btn {
-  display: flex;
-  align-items: center;
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: white;
-  text-decoration: none;
-  transition: 0.2s;
+  display:flex; align-items:center; padding:14px;
+  border-radius:14px; background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.15);
+  color:white; text-decoration:none; transition:.2s;
 }
+.option-btn:hover { background:rgba(255,255,255,.15); }
+.option-icon { margin-right:12px; }
 
-.option-btn:hover {
-  background: rgba(255,255,255,0.15);
-}
-
-.option-icon { margin-right: 12px; }
-
-/* Чат */
-.chat-content { padding: 20px; }
-
+/* ЧАТ */
+.chat-content { padding:20px; }
 .chat-area {
-    height: 310px;
-    overflow-y: auto;
-    padding: 14px;
-    background: rgba(0,0,0,0.25);
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.15);
+  height:310px; overflow-y:auto; padding:16px;
+  background:rgba(0,0,0,.25);
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.15);
 }
 
-/* 🔥 УЛУЧШЕННЫЙ ВИД РЕКВИЗИТОВ */
+/* 🔥 КРАСИВАЯ КАРТОЧКА РЕКВИЗИТОВ */
 .system-message {
-    background: rgba(0, 217, 255, 0.08);
-    border: 1px solid rgba(0, 217, 255, 0.35);
-    border-radius: 14px;
-    padding: 18px 16px;
-    backdrop-filter: blur(14px);
-    box-shadow:
-        0 0 20px rgba(0, 217, 255, 0.10),
-        inset 0 0 12px rgba(0, 217, 255, 0.06);
-    margin-bottom: 12px;
+  background:rgba(0,217,255,.08);
+  border:1px solid rgba(0,217,255,.35);
+  border-radius:14px;
+  padding:18px;
+  backdrop-filter:blur(14px);
+  box-shadow:0 0 20px rgba(0,217,255,.12), inset 0 0 12px rgba(0,217,255,.05);
+  margin-bottom:18px;
 }
-
 .chat-method-name {
-  display: block;
-  text-align: center;
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: var(--accent);
-  text-shadow: 0 0 10px rgba(0,255,255,0.2);
+  display:block; font-size:17px; font-weight:700;
+  text-align:center; margin-bottom:12px;
+  color:var(--accent); text-shadow:0 0 10px rgba(0,255,255,.25);
 }
-
 .chat-details {
-  display: block;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  font-family: monospace;
-  font-size: 14px;
-  white-space: pre-wrap;
-  text-align: center;
+  display:block; font-family:monospace; text-align:center;
+  padding:10px 12px; border-radius:10px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  white-space:pre-wrap;
 }
 
 /* Назад */
-.back-btn {
-    opacity: 0.6;
-    background: none;
-    border: none;
-    color: white;
-}
+.back-btn { opacity:.6; background:none; border:none; color:white; }
 
 /* Анимации */
-@keyframes shooting { from {transform: translate(0,0);} to {transform: translate(-1500px,800px);} }
-@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-@keyframes popIn { from {transform:scale(0.95);} to {transform:scale(1);} }
-@keyframes floatCard { 50% {transform:translateY(-5px);} }
-@keyframes neonPulse {
-  from { text-shadow: 0 0 10px var(--accent-soft); }
-  to { text-shadow: 0 0 25px var(--accent); }
-}
+@keyframes shooting { from{transform:translate(0,0);} to{transform:translate(-1500px,800px);} }
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+@keyframes popIn { from{transform:scale(.95);} to{transform:scale(1);} }
+@keyframes floatCard { 50%{transform:translateY(-5px);} }
+@keyframes neonPulse { from{text-shadow:0 0 10px var(--accent-soft);} to{text-shadow:0 0 25px var(--accent);} }
