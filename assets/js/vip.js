@@ -6,10 +6,9 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/fir
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // ------------------------------------------------
-// 0) Ждём восстановления сессии Firebase
+// 0) Ждём восстановления сессии
 // ------------------------------------------------
 onAuthStateChanged(auth, (user) => {
-
   if (!user) {
     alert("⚠️ Чтобы оформить VIP, сначала войдите в аккаунт.");
     window.location.href = "./";
@@ -25,7 +24,7 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
-  // ✅ сохраняем, чтобы отображать в чате и заявке
+  // ✅ сохраняем
   localStorage.setItem("ursa_vip_uid", user.uid);
   localStorage.setItem("ursa_vip_udid", udid);
 
@@ -185,7 +184,7 @@ function initVIP() {
   btnBackToInfo?.addEventListener("click", () => { close(modal2); open(modal1); });
   btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
-  // ---- Выбор оплаты → создание заявки → чат ----
+  // ---- Выбор оплаты → заявка → чат ----
   document.querySelector("#payments")?.addEventListener("click", (e) => {
     const chip = e.target.closest(".pay-chip");
     if (!chip) return;
@@ -215,4 +214,17 @@ function initVIP() {
       close(modal1); close(modal2); close(modalChat);
     })
   );
+
+  // ------------------------------------------------
+  // FIX: iOS/Android клавиатура не ломает layout
+  // ------------------------------------------------
+  const chatModal = modalChat;
+  let baseHeight = window.innerHeight;
+
+  window.addEventListener("resize", () => {
+    const h = window.innerHeight;
+    const keyboard = h < baseHeight - 100;
+    chatModal.style.height = keyboard ? h + "px" : "";
+  });
+
 }
