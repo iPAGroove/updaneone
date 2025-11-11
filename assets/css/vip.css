@@ -1,484 +1,336 @@
 :root {
-  --accent: #00d9ff;
-  --accent-soft: rgba(0, 217, 255, 0.2); 
-  --bg-deep: #020407; 
+  --accent: #00d9ff;
+  --accent-soft: rgba(0, 217, 255, 0.2); 
+  --bg-deep: #020407; 
 }
 
 /* Сброс стилей и общая типографика */
 *, *::before, *::after {
-  box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-  background: radial-gradient(circle at 50% 10%, #080d12 0%, var(--bg-deep) 70%); 
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh; 
-  padding: 20px;
-  text-align: center;
-  overflow: hidden; 
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+  background: radial-gradient(circle at 50% 10%, #080d12 0%, var(--bg-deep) 70%); 
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; 
+  padding: 20px;
+  text-align: center;
+  overflow: hidden; 
 }
 
 /* 1. ЗВЕЗДНОЕ ПОЛЕ НА ФОНЕ (Stars) */
 .stars {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
 }
 
 .stars::before,
 .stars::after,
 body::before {
-    content: '';
-    position: absolute;
-    background: transparent;
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    content: '';
+    position: absolute;
+    background: transparent;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
 /* Звезды 1 */
 .stars::before {
-    width: 1px;
-    height: 1px;
-    opacity: 0.8;
-    box-shadow: 
-        100px 300px 0 0 white, 200px 100px 0 0 white, 300px 500px 0 0 white, 
-        400px 200px 0 0 white, 500px 450px 0 0 white, 700px 150px 0 0 white, 
-        900px 300px 0 0 white, 1100px 500px 0 0 white, 1300px 100px 0 0 white;
-    animation: shooting 40s linear infinite;
+    width: 1px;
+    height: 1px;
+    opacity: 0.8;
+    box-shadow: 
+        100px 300px 0 0 white, 200px 100px 0 0 white, 300px 500px 0 0 white, 
+        400px 200px 0 0 white, 500px 450px 0 0 white, 700px 150px 0 0 white, 
+        900px 300px 0 0 white, 1100px 500px 0 0 white, 1300px 100px 0 0 white;
+    animation: shooting 40s linear infinite;
 }
 
 /* Звезды 2 */
 .stars::after {
-    width: 2px;
-    height: 2px;
-    opacity: 0.6;
-    box-shadow: 
-        50px 500px 0 0 white, 350px 150px 0 0 white, 600px 350px 0 0 white,
-        800px 50px 0 0 white, 100px 100px 0 0 white, 500px 200px 0 0 white;
-    animation: shooting 30s linear infinite reverse;
+    width: 2px;
+    height: 2px;
+    opacity: 0.6;
+    box-shadow: 
+        50px 500px 0 0 white, 350px 150px 0 0 white, 600px 350px 0 0 white,
+        800px 50px 0 0 white, 100px 100px 0 0 white, 500px 200px 0 0 white;
+    animation: shooting 30s linear infinite reverse;
 }
 
 /* Звезды 3 */
 body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 3px;
-    opacity: 0.5;
-    box-shadow: 
-        250px 250px 0 0 var(--accent), 550px 400px 0 0 var(--accent);
-    animation: shooting 20s linear infinite;
-    z-index: 2; 
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    opacity: 0.5;
+    box-shadow: 
+        250px 250px 0 0 var(--accent), 550px 400px 0 0 var(--accent);
+    animation: shooting 20s linear infinite;
+    z-index: 2; 
 }
-
 
 /* Основной контейнер */
 .vip-wrapper {
-  position: relative;
-  z-index: 10; 
-  margin-top: 20px; 
-  margin-bottom: 20px;
-  animation: fadeIn 0.7s ease both;
-  transform-style: preserve-3d;
+  position: relative;
+  z-index: 10; 
+  margin-top: 20px; 
+  margin-bottom: 20px;
+  animation: fadeIn 0.7s ease both;
+  transform-style: preserve-3d;
 }
 
-/* Заголовок с неоновым мерцанием */
+/* Заголовок */
 .vip-title {
-  font-size: 48px; 
-  font-weight: 900;
-  letter-spacing: 2px;
-  margin-bottom: 6px;
-  text-shadow: 0 0 20px var(--accent-soft); 
-  color: var(--accent);
-  animation: neonPulse 2s infinite alternate ease-in-out; 
+  font-size: 48px; 
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  text-shadow: 0 0 20px var(--accent-soft); 
+  color: var(--accent);
+  animation: neonPulse 2s infinite alternate ease-in-out; 
 }
 
 .vip-subtitle {
-  font-size: 16px;
-  opacity: 0.7;
-  margin-bottom: 40px;
+  font-size: 16px;
+  opacity: 0.7;
+  margin-bottom: 40px;
 }
 
-/* 2. ПРЕМИАЛЬНАЯ АККУРАТНАЯ КАРТОЧКА */
+/* PREMIUM CARD */
 .vip-card {
-  background: rgba(255, 255, 255, 0.05); 
-  backdrop-filter: blur(25px); 
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px; 
-  padding: 30px 25px; 
-  max-width: 340px; 
-  margin: 0 auto;
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.5), 
-    0 0 10px rgba(0, 217, 255, 0.1); 
-  animation: 
-    popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
-    floatCard 15s infinite ease-in-out;
-  will-change: transform;
+  background: rgba(255, 255, 255, 0.05); 
+  backdrop-filter: blur(25px); 
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px; 
+  padding: 30px 25px; 
+  max-width: 340px; 
+  margin: 0 auto;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.5), 
+    0 0 10px rgba(0, 217, 255, 0.1); 
+  animation: 
+    popIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+    floatCard 15s infinite ease-in-out;
 }
 
 .vip-price {
-  font-size: 36px; 
-  letter-spacing: 1px;
-  margin-bottom: 30px;
-  font-weight: 800;
-  color: var(--accent);
-  text-shadow: 0 0 15px var(--accent-soft);
+  font-size: 36px; 
+  margin-bottom: 30px;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 15px var(--accent-soft);
 }
 
-/* 3. АККУРАТНЫЙ СПИСОК */
+/* BENEFITS LIST */
 .vip-benefits {
-  margin: 0;
-  padding: 0;
-  list-style: none; 
-  font-size: 15px; 
-  line-height: 1.6; 
-  opacity: .98; 
-  margin-bottom: 30px; 
-  text-align: left;
+  margin: 0;
+  padding: 0;
+  list-style: none; 
+  font-size: 15px; 
+  line-height: 1.6; 
+  opacity: .98; 
+  margin-bottom: 30px; 
+  text-align: left;
 }
 
 .vip-benefits li {
-  display: flex;
-  align-items: center; 
-  margin-bottom: 12px; 
-  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center; 
+  margin-bottom: 12px; 
+  transition: transform 0.2s ease;
 }
 
 .vip-benefits li:hover {
-  transform: translateX(3px); 
+  transform: translateX(3px); 
 }
 
 .vip-benefits .icon {
-  font-size: 18px;
-  margin-right: 12px;
-  opacity: 1; 
-  color: var(--accent);
-  text-shadow: 0 0 5px var(--accent-soft); 
+  font-size: 18px;
+  margin-right: 12px;
+  opacity: 1; 
+  color: var(--accent);
+  text-shadow: 0 0 5px var(--accent-soft); 
 }
 
-/* Премиальная Неоновая Кнопка */
+/* BUTTON */
 .vip-btn {
-  display: block; 
-  width: 100%;
-  padding: 14px 24px; 
-  border-radius: 12px;
-  font-size: 16px; 
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--bg-deep); 
-  background: linear-gradient(90deg, var(--accent), #00f6ff, #00d9ff);
-  background-size: 200% 100%;
-  box-shadow: 0 4px 20px var(--accent-soft); 
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  display: block; 
+  width: 100%;
+  padding: 14px 24px; 
+  border-radius: 12px;
+  font-size: 16px; 
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--bg-deep); 
+  background: linear-gradient(90deg, var(--accent), #00f6ff, #00d9ff);
+  background-size: 200% 100%;
+  box-shadow: 0 4px 20px var(--accent-soft); 
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
 .vip-btn:hover {
-  transform: translateY(-2px); 
-  background-position: 100% 0;
-  box-shadow: 0 6px 30px var(--accent);
+  transform: translateY(-2px); 
+  background-position: 100% 0;
+  box-shadow: 0 6px 30px var(--accent);
 }
 
-/* --- СТИЛИ ДЛЯ МОДАЛЬНЫХ ОКОН ОПЛАТЫ --- */
-
-/* Фон модального окна */
+/* MODALS */
 .payment-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7); 
-    display: none; 
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    animation: fadeIn 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); 
+    display: none; 
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
 }
 
-/* Контейнер контента (Glassmorphism) */
 .modal-content {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 350px; /* Более компактный размер для iPhone */
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 10px var(--accent-soft);
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 350px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 10px var(--accent-soft);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .modal-title {
-    font-size: 22px;
-    color: var(--accent);
-    margin-bottom: 25px; /* Увеличиваем отступ */
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 25px;
 }
 
-/* Инструкция (Шаг 1, если используется) */
 .modal-text {
-    font-size: 16px;
-    opacity: 0.85;
-    line-height: 1.5;
+    font-size: 16px;
+    opacity: 0.85;
+    line-height: 1.5;
 }
 
 .modal-btn {
-    display: block;
-    width: 100%;
-    margin-top: 25px;
-    padding: 14px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    text-decoration: none;
-    color: var(--bg-deep); 
-    background: linear-gradient(90deg, var(--accent), #00f6ff);
-    box-shadow: 0 4px 20px var(--accent-soft);
-    border: none;
-    cursor: pointer;
-    transition: 0.25s;
+    display: block;
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--bg-deep); 
+    background: linear-gradient(90deg, var(--accent), #00f6ff);
+    box-shadow: 0 4px 20px var(--accent-soft);
+    border: none;
+    cursor: pointer;
+    transition: 0.25s;
 }
 
 .modal-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 30px var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px var(--accent);
 }
 
-/* Стили для выбора оплаты (Переделано на аккуратный вертикальный стек) */
+/* PAYMENT METHODS */
 .payment-options {
-    display: flex;
-    flex-direction: column; /* Вертикальный стек */
-    gap: 12px;
-    margin: 20px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
 }
 
 .option-btn {
-    display: flex;
-    flex-direction: row; 
-    align-items: center;
-    justify-content: flex-start; /* Выравнивание по левому краю */
-    padding: 15px 20px; 
-    border-radius: 14px; 
-    background: rgba(255, 255, 255, 0.03); 
-    border: 1px solid rgba(255, 255, 255, 0.08); 
-    text-decoration: none;
-    color: white;
-    font-size: 16px; 
-    font-weight: 500;
-    transition: all 0.2s ease;
-    width: 100%; /* Занимает всю ширину контейнера */
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    text-decoration: none;
+    color: white;
+    font-size: 16px; 
+    transition: 0.2s;
 }
 
 .option-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 8px var(--accent-soft); 
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
 }
 
 .option-icon {
-    font-size: 20px;
-    margin-right: 15px; 
-    opacity: 0.9;
+    font-size: 20px;
+    margin-right: 15px; 
 }
 
-/* Убираем ненужные элементы */
-.modal-info {
-    display: none; 
-}
-.payment-options {
-    /* Удаляем grid-template-columns, так как теперь используется flex-direction: column */
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 20px 0 0 0;
-}
-
-/* 5. KEYFRAMES АНИМАЦИИ */
-
-@keyframes shooting {
-  from { transform: translateX(0) translateY(0); }
-  to { transform: translateX(-1500px) translateY(800px); } 
-}
-
-@keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
-@keyframes popIn { from {transform: scale(0.95); opacity:0;} to {transform: scale(1); opacity:1;} } 
-
-@keyframes floatCard {
-    0% { transform: translateY(0px) rotateX(0deg); }
-    50% { transform: translateY(-5px) rotateX(1deg); } 
-    100% { transform: translateY(0px) rotateX(0deg); }
-}
-
-@keyframes neonPulse {
-  from { text-shadow: 0 0 10px var(--accent-soft), 0 0 20px rgba(0, 217, 255, 0.1); }
-  to { text-shadow: 0 0 15px var(--accent), 0 0 25px rgba(0, 217, 255, 0.2); }
-}
-
-@media (max-width: 600px) {
-  .vip-title { font-size: 38px; } 
-  .vip-subtitle { margin-bottom: 30px; }
-  .vip-card { padding: 25px 20px; max-width: 90%; }
-  .vip-price { font-size: 30px; }
-  .vip-benefits { font-size: 14px; }
-  .vip-btn { font-size: 15px; }
-
-  /* Медиа-запрос для модальных окон: не нужен, т.к. используется flex-direction: column */
-}
-/* --- СТИЛИ ДЛЯ ЧАТА --- */
-
-.chat-content {
-    padding: 20px;
-}
-
-.chat-title {
-    margin-bottom: 20px;
-    font-size: 20px;
-    text-align: left;
-}
+/* CHAT */
+.chat-content { padding: 20px; }
+.chat-title { margin-bottom: 20px; font-size: 20px; text-align: left; }
 
 .chat-area {
-    height: 300px; /* Фиксированная высота для скролла */
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    padding: 15px;
-    overflow-y: auto; /* Скролл для длинного чата */
-    margin-bottom: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.message {
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    line-height: 1.4;
-    font-size: 14px;
-    text-align: left;
+    height: 300px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .system-message {
-    background: rgba(0, 217, 255, 0.1);
-    color: white;
-    border-left: 3px solid var(--accent);
-    padding-left: 15px;
+    background: rgba(0, 217, 255, 0.1);
+    border-left: 3px solid var(--accent);
+    padding-left: 15px;
 }
 
 .chat-method-name {
-    font-weight: 700;
-    color: var(--accent);
-    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
 }
 
 .chat-details {
-    font-family: monospace; /* Моноширинный шрифт для реквизитов */
-    background: rgba(255, 255, 255, 0.1);
-    padding: 5px 8px;
-    border-radius: 5px;
-    **display: block;** /* ИЗМЕНЕНИЕ: display: block для лучшего контроля над форматированием */
-    white-space: pre-wrap; /* Сохраняем форматирование для реквизитов */
-    word-break: break-word;
-    **margin-top: 10px;** /* ДОБАВЛЕНО: Отступ от заголовка реквизита */
+    font-family: monospace;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 8px;
+    border-radius: 5px;
+    display: inline-block;
+    white-space: pre-wrap;
 }
 
-.chat-input-container {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
-}
-
-.chat-input {
-    flex-grow: 1;
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    font-size: 14px;
-    outline: none;
-    cursor: not-allowed; /* Заблокирован, т.к. функционал чата локальный */
-}
-
-.chat-send-btn {
-    padding: 10px 15px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.5);
-    border: none;
-    cursor: not-allowed;
-}
-
+/* BACK BUTTON */
 .back-btn {
-    opacity: 0.6;
-    background: none;
-    box-shadow: none;
-    color: white;
-    font-weight: 500;
-    font-size: 14px;
-    transition: 0.2s;
+    opacity: 0.6;
+    background: none;
+    box-shadow: none;
+    color: white;
 }
 
-.back-btn:hover {
-    opacity: 1;
-    transform: none;
-}
+.back-btn:hover { opacity: 1; }
 
-/* --- ДОБАВЛЕННЫЕ СТИЛИ ДЛЯ КНОПОК КОПИРОВАНИЯ/ОПЛАТЫ --- */
-
-.chat-action-container {
-    margin: 15px 0 20px 0; /* Отступ между деталями и текстовым полем */
-    text-align: center;
-}
-
-.chat-action-btn {
-    display: block;
-    width: 100%;
-    padding: 12px 15px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    text-decoration: none; /* Для тега <a> */
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.copy-btn {
-    /* Стиль для кнопки Копировать */
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid var(--accent-soft);
-}
-
-.copy-btn:hover {
-    background: var(--accent);
-    color: var(--bg-deep);
-    box-shadow: 0 0 15px var(--accent);
-}
-
-.pay-btn {
-    /* Стиль для кнопки Оплатить (как основная VIP-кнопка) */
-    color: var(--bg-deep);
-    background: linear-gradient(90deg, var(--accent), #00f6ff);
-    box-shadow: 0 4px 20px var(--accent-soft);
-}
-
-.pay-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 30px var(--accent);
+/* KEYFRAMES */
+@keyframes shooting { from { transform: translate(0,0);} to { transform: translate(-1500px,800px);} }
+@keyframes fadeIn { from {opacity: 0;} to {opacity:1;} }
+@keyframes popIn { from {transform: scale(0.95);} to {transform: scale(1);} }
+@keyframes floatCard { 50% { transform: translateY(-5px);} }
+@keyframes neonPulse {
+  from { text-shadow: 0 0 10px var(--accent-soft); }
+  to { text-shadow: 0 0 25px var(--accent); }
 }
