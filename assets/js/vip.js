@@ -1,12 +1,15 @@
 // ===============================
-// VIP — логика входа, проверка сертификата, шаги и чат
+// VIP — логика входа, проверка сертификата, шаги, чат и создание заявки
 // ===============================
-import { auth } from "./app.js";
+import { auth, db } from "./app.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
+// ------------------------------------------------
+// 0) Ждём восстановления сессии Firebase
+// ------------------------------------------------
 onAuthStateChanged(auth, (user) => {
 
-  // ждем пока Firebase восстановит сессию
   if (!user) {
     alert("⚠️ Чтобы оформить VIP, сначала войдите в аккаунт.");
     window.location.href = "./";
@@ -22,18 +25,41 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
-  // ✅ для отображения в чате
+  // ✅ сохраняем, чтобы отображать в чате и заявке
   localStorage.setItem("ursa_vip_uid", user.uid);
   localStorage.setItem("ursa_vip_udid", udid);
 
   initVIP();
 });
 
+// ------------------------------------------------
+// 1) Создание заявки в Firestore
+// ------------------------------------------------
+async function createVipOrder(methodKey) {
+  try {
+    const uid = localStorage.getItem("ursa_vip_uid");
+    const udid = localStorage.getItem("ursa_vip_udid");
+
+    const docRef = await addDoc(collection(db, "vip_orders"), {
+      uid,
+      udid,
+      method: methodKey,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+
+    console.log("✅ VIP-заявка создана:", docRef.id);
+    localStorage.setItem("ursa_vip_order_id", docRef.id);
+  } catch (err) {
+    console.error("❌ Ошибка создания VIP-заявки:", err);
+  }
+}
+
+// ------------------------------------------------
+// 2) Основная логика UI и чата
+// ------------------------------------------------
 function initVIP() {
 
-  // ===============================
-  // 1) Реквизиты
-  // ===============================
   const PAYMENT = {
     crypto: {
       name: "USDT TRC20 (Crypto World)",
@@ -69,31 +95,20 @@ function initVIP() {
     },
   };
 
-  // ===============================
-  // 2) DOM элементы
-  // ===============================
   const buyBtn = document.getElementById("vip-buy-btn");
   const modal1 = document.getElementById("modal-step-1");
   const modal2 = document.getElementById("modal-step-2");
   const modalChat = document.getElementById("modal-chat");
-
   const btnRead = document.getElementById("btn-read");
   const btnBackToInfo = document.getElementById("btn-back-to-info");
   const btnBackToOptions = document.getElementById("btn-back-to-options");
-
   const payOptions = document.querySelector("#modal-step-2 .payment-options");
   const chatArea = document.getElementById("chat-area");
   const msgTpl = document.getElementById("system-message-template");
 
-  // ===============================
-  // 3) Helpers
-  // ===============================
   const open = (m) => { m.style.display = "flex"; document.body.style.overflow = "hidden"; };
   const close = (m) => { m.style.display = "none"; document.body.style.overflow = ""; };
 
-  // ===============================
-  // 4) ЧАТ + идентификация
-  // ===============================
   function renderMessage(methodKey) {
     const d = PAYMENT[methodKey];
     if (!d) return;
@@ -106,13 +121,13 @@ function initVIP() {
     node.querySelector(".chat-details").textContent = d.show;
 
     const uid = localStorage.getItem("ursa_vip_uid");
-    const udidStored = localStorage.getItem("ursa_vip_udid");
+    const udid = localStorage.getItem("ursa_vip_udid");
 
     const idBlock = document.createElement("div");
     idBlock.style.marginTop = "14px";
     idBlock.style.fontSize = "13px";
     idBlock.style.opacity = "0.82";
-    idBlock.innerHTML = `👤 <b>${uid}</b><br>🔗 UDID: <b>${udidStored}</b>`;
+    idBlock.innerHTML = `👤 <b>${uid}</b><br>🔗 UDID: <b>${udid}</b>`;
     node.appendChild(idBlock);
 
     chatArea.appendChild(node);
@@ -164,20 +179,17 @@ function initVIP() {
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
-  // ===============================
-  // 5) Шаги
-  // ===============================
+  // Шаги
   buyBtn?.addEventListener("click", () => open(modal1));
   btnRead?.addEventListener("click", () => { close(modal1); open(modal2); });
   btnBackToInfo?.addEventListener("click", () => { close(modal2); open(modal1); });
   btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
-  // ===============================
-  // 6) Выбор способов
-  // ===============================
+  // Выбор способа → создание заявки → чат
   document.querySelector("#payments")?.addEventListener("click", (e) => {
     const chip = e.target.closest(".pay-chip");
     if (!chip) return;
+    createVipOrder(chip.dataset.method);
     renderMessage(chip.dataset.method);
     open(modalChat);
   });
@@ -185,14 +197,12 @@ function initVIP() {
   payOptions?.addEventListener("click", (e) => {
     const btn = e.target.closest(".option-btn");
     if (!btn) return;
+    createVipOrder(btn.dataset.method);
     renderMessage(btn.dataset.method);
     close(modal2);
     open(modalChat);
   });
 
-  // ===============================
-  // 7) Закрытия
-  // ===============================
   window.addEventListener("click", (e) => {
     if (e.target === modal1) close(modal1);
     if (e.target === modal2) close(modal2);
