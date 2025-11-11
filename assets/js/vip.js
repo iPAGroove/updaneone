@@ -1,6 +1,8 @@
+// assets/js/vip.js — идеальная финальная версия
+
 document.addEventListener("DOMContentLoaded", () => {
 
-  // --- 1. ДАННЫЕ ДЛЯ ОТОБРАЖЕНИЯ + ЧТО КОПИРУЕМ ---
+  // --- 1. РЕКВИЗИТЫ И ТО, ЧТО КОПИРУЕМ ---
   const PAYMENT_DETAILS = {
     crypto: {
       name: "USDT TRC20 (Crypto World)",
@@ -24,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     ua_card: {
       name: "UA Card (Приват24)",
-      show: "Оплата по ссылке:",
+      show: "Оплатить по ссылке:",
       link: "https://www.privat24.ua/send/373a0"
     },
     ru_card: {
@@ -39,55 +41,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // --- 2. DOM ЭЛЕМЕНТЫ ---
+  // --- 2. DOM ---
   const buyBtn = document.getElementById("vip-buy-btn");
   const modal1 = document.getElementById("modal-step-1");
   const modal2 = document.getElementById("modal-step-2");
   const modalChat = document.getElementById("modal-chat");
+
   const btnRead = document.getElementById("btn-read");
   const btnBackToInfo = document.getElementById("btn-back-to-info");
   const btnBackToOptions = document.getElementById("btn-back-to-options");
+
   const paymentOptions = document.querySelector("#modal-step-2 .payment-options");
   const chatArea = document.getElementById("chat-area");
   const template = document.getElementById("system-message-template");
 
-  // --- 3. ФУНКЦИИ МОДАЛОК ---
+  // --- 3. Модалки ---
   function open(m) { m.style.display = "flex"; document.body.style.overflow = "hidden"; }
   function close(m) { m.style.display = "none"; document.body.style.overflow = ""; }
 
-  // --- 4. ВЫВОД РЕКВИЗИТОВ В ЧАТ ---
+  // --- 4. Вывод реквизитов (НЕ ЛОМАЕМ РАЗМЕТКУ!) ---
   function display(method) {
     const d = PAYMENT_DETAILS[method];
     chatArea.innerHTML = "";
 
-    // карточка
+    // ✅ сохраняем оригинальную разметку карточки
     const box = template.cloneNode(true);
     box.style.display = "block";
     box.querySelector(".chat-method-name").textContent = d.name;
     box.querySelector(".chat-details").textContent = d.show;
     chatArea.appendChild(box);
 
-    // --- КНОПКИ ДЕЙСТВИЙ ---
-    // Gift Card → без кнопок
+    // --- Кнопки действий ---
+    // Binance Gift Card → вообще без кнопок
     if (d.noCopy) {
       chatArea.scrollTop = chatArea.scrollHeight;
       return;
     }
 
-    // UA Card → кнопка открыть ссылку
+    // UA Card → кнопка "Оплатить"
     if (d.link) {
-      let btn = document.createElement("button");
-      btn.className = "modal-btn";
-      btn.textContent = "Оплатить";
-      btn.onclick = () => window.open(d.link, "_blank");
-      chatArea.appendChild(btn);
+      const payBtn = document.createElement("button");
+      payBtn.className = "modal-btn";
+      payBtn.textContent = "Оплатить";
+      payBtn.onclick = () => window.open(d.link, "_blank");
+      chatArea.appendChild(payBtn);
       chatArea.scrollTop = chatArea.scrollHeight;
       return;
     }
 
-    // RU CARD → две отдельные кнопки
+    // RU Card → две отдельные кнопки
     if (method === "ru_card") {
-      let btn1 = document.createElement("button");
+      const btn1 = document.createElement("button");
       btn1.className = "modal-btn";
       btn1.textContent = "Скопировать Т-банк";
       btn1.onclick = () => {
@@ -97,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       chatArea.appendChild(btn1);
 
-      let btn2 = document.createElement("button");
+      const btn2 = document.createElement("button");
       btn2.className = "modal-btn";
       btn2.textContent = "Скопировать СПБ";
       btn2.onclick = () => {
@@ -111,21 +115,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Остальные методы → одна кнопка копирования
-    let btn = document.createElement("button");
-    btn.className = "modal-btn";
-    btn.textContent = "Скопировать реквизиты";
-    btn.onclick = () => {
+    // Все остальные → одна кнопка "Скопировать реквизиты"
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "modal-btn";
+    copyBtn.textContent = "Скопировать реквизиты";
+    copyBtn.onclick = () => {
       navigator.clipboard.writeText(d.copy);
-      btn.textContent = "✅ Скопировано";
-      setTimeout(() => btn.textContent = "Скопировать реквизиты", 1500);
+      copyBtn.textContent = "✅ Скопировано";
+      setTimeout(() => copyBtn.textContent = "Скопировать реквизиты", 1500);
     };
-    chatArea.appendChild(btn);
+    chatArea.appendChild(copyBtn);
 
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
-  // --- 5. СЛУШАТЕЛИ ---
+  // --- 5. События ---
   buyBtn.onclick = (e) => { e.preventDefault(); open(modal1); };
   btnRead.onclick = () => { close(modal1); open(modal2); };
   btnBackToInfo.onclick = () => { close(modal2); open(modal1); };
