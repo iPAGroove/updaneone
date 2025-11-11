@@ -1,110 +1,213 @@
-// assets/js/vip.js (логика оплаты и чата)
+// assets/js/vip.js — надёжная логика шагов и чата, с защитой и делегированием
 
-// --- 1. РЕКВИЗИТЫ ---
-const PAYMENT_DETAILS = {
+document.addEventListener("DOMContentLoaded", () => {
+  // --- 1. РЕКВИЗИТЫ ---
+  const PAYMENT_DETAILS = {
     crypto: {
-        name: "USDT TRC20 (Crypto World)",
-        details: "Адрес кошелька: TJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS\nСеть: TRC20"
+      name: "USDT TRC20 (Crypto World)",
+      details: "Адрес кошелька: TJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS\nСеть: TRC20"
     },
     binance_pay: {
-        name: "Binance Pay ID",
-        details: "ID получателя: 583984119"
+      name: "Binance Pay ID",
+      details: "ID получателя: 583984119"
     },
     gift_card: {
-        name: "Binance Gift Card",
-        details: "Отправьте код подарочной карты в чат."
+      name: "Binance Gift Card",
+      details: "Отправьте код подарочной карты в чат."
     },
     paypal: {
-        name: "PayPal",
-        details: "Адрес: swvts6@gmail.com"
+      name: "PayPal",
+      details: "Адрес: swvts6@gmail.com"
     },
     ua_card: {
-        name: "UA Card (Приват24)",
-        details: "Ссылка для оплаты: https://www.privat24.ua/send/373a0"
+      name: "UA Card (Приват24)",
+      details: "Ссылка для оплаты: https://www.privat24.ua/send/373a0"
     },
     ru_card: {
-        name: "RU Card (Т-банк/СПБ)",
-        details: "Т-банк: 2200702048905611\nСПБ (Т-банк): 89933303390\nПолучатель: Онищенко Пётр А.\n\n⚠️ Комментарий оплаты: @viibbee_17"
+      name: "RU Card (Т-банк/СПБ)",
+      details:
+        "Т-банк: 2200702048905611\nСПБ (Т-банк): 89933303390\nПолучатель: Онищенко Пётр А.\n\n⚠️ Комментарий оплаты: @viibbee_17"
     }
-};
+  };
 
-// --- 2. ЭЛЕМЕНТЫ ---
-const buyBtn = document.getElementById("vip-buy-btn");
-const modalStep1 = document.getElementById("modal-step-1");
-const btnRead = document.getElementById("btn-read");
-const modalStep2 = document.getElementById("modal-step-2");
-const modalChat = document.getElementById("modal-chat");
+  // Отдельно храним прямую ссылку для UA Card
+  const UA_CARD_LINK = "https://www.privat24.ua/send/373a0";
 
-const btnBackToInfo = document.getElementById("btn-back-to-info");
-const btnBackToOptions = document.getElementById("btn-back-to-options");
-const paymentOptions = document.querySelectorAll('.option-btn');
-const chatArea = document.getElementById("chat-area");
+  // --- 2. ЭЛЕМЕНТЫ DOM ---
+  const buyBtn = document.getElementById("vip-buy-btn");
+  const modalStep1 = document.getElementById("modal-step-1");
+  const btnRead = document.getElementById("btn-read");
+  const modalStep2 = document.getElementById("modal-step-2");
+  const modalChat = document.getElementById("modal-chat");
 
-// --- 3. МОДАЛКИ ---
-function openModal(modal) {
+  const btnBackToInfo = document.getElementById("btn-back-to-info");
+  const btnBackToOptions = document.getElementById("btn-back-to-options");
+  const paymentOptionsWrap = document.querySelector("#modal-step-2 .payment-options");
+  const chatArea = document.getElementById("chat-area");
+
+  // --- 3. БАЗОВЫЕ ФУНКЦИИ МОДАЛОК ---
+  function openModal(modal) {
+    if (!modal) return;
     modal.style.display = "flex";
     document.body.style.overflow = "hidden";
-}
-function closeModal(modal) {
+  }
+
+  function closeModal(modal) {
+    if (!modal) return;
     modal.style.display = "none";
     document.body.style.overflow = "";
-}
+  }
 
-// --- 4. ОТОБРАЖЕНИЕ РЕКВИЗИТОВ ---
-function displayPaymentDetails(method) {
-    const details = PAYMENT_DETAILS[method];
-    if (!details) return;
+  // --- 4. БЕЗОПАСНЫЙ РЕНДЕР СООБЩЕНИЯ С РЕКВИЗИТАМИ ---
+  function renderSystemMessage(methodKey) {
+    const details = PAYMENT_DETAILS[methodKey];
+    if (!details) return null;
 
-    chatArea.innerHTML = ""; // Чистим чат
-
+    // Пытаемся использовать шаблон, если он есть
     const template = document.getElementById("system-message-template");
-    const message = template.cloneNode(true);
-    message.style.display = "block";
+    let node;
 
-    message.querySelector(".chat-method-name").textContent = details.name;
-    message.querySelector(".chat-details").textContent = details.details;
+    if (template) {
+      node = template.cloneNode(true);
+      node.style.display = "block";
 
-    chatArea.appendChild(message);
+      const nameEl = node.querySelector(".chat-method-name");
+      const detEl = node.querySelector(".chat-details");
 
-    // --- КНОПКА ДЕЙСТВИЯ ---
-    const actionBtn = document.createElement("button");
-    actionBtn.className = "copy-btn";
+      // Если классы отсутствуют — создаём fallback
+      if (!nameEl || !detEl) {
+        node.innerHTML = ""; // чистим
+        const name = document.createElement("div");
+        name.className = "chat-method-name";
+        name.textContent = details.name;
 
-    if (method === "ua_card") {
-        actionBtn.textContent = "Оплатить";
-        actionBtn.onclick = () => window.open(details.details.replace("Ссылка для оплаты: ", ""), "_blank");
+        const det = document.createElement("div");
+        det.className = "chat-details";
+        det.textContent = details.details;
+
+        node.appendChild(name);
+        node.appendChild(det);
+      } else {
+        nameEl.textContent = details.name;
+        detEl.textContent = details.details;
+      }
     } else {
-        actionBtn.textContent = "Скопировать реквизиты";
-        actionBtn.onclick = () => {
-            navigator.clipboard.writeText(details.details);
-            actionBtn.textContent = "✅ Скопировано!";
-            setTimeout(() => actionBtn.textContent = "Скопировать реквизиты", 1500);
-        };
+      // Полный fallback без шаблона
+      node = document.createElement("div");
+      node.className = "system-message";
+      const name = document.createElement("div");
+      name.className = "chat-method-name";
+      name.textContent = details.name;
+      const det = document.createElement("div");
+      det.className = "chat-details";
+      det.textContent = details.details;
+      node.appendChild(name);
+      node.appendChild(det);
+    }
+
+    return node;
+  }
+
+  // --- 5. ОТОБРАЖЕНИЕ РЕКВИЗИТОВ + КНОПКА ДЕЙСТВИЯ ---
+  function displayPaymentDetails(methodKey) {
+    const details = PAYMENT_DETAILS[methodKey];
+    if (!details || !chatArea) return;
+
+    // Полное обновление чата
+    chatArea.innerHTML = "";
+
+    const messageNode = renderSystemMessage(methodKey);
+    if (messageNode) chatArea.appendChild(messageNode);
+
+    // Кнопка действия
+    const actionBtn = document.createElement("button");
+    actionBtn.className = methodKey === "ua_card" ? "modal-btn" : "copy-btn";
+    actionBtn.style.marginTop = "14px";
+
+    if (methodKey === "ua_card") {
+      actionBtn.textContent = "Оплатить";
+      actionBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(UA_CARD_LINK, "_blank", "noopener,noreferrer");
+      });
+    } else {
+      actionBtn.textContent = "Скопировать реквизиты";
+      actionBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          await navigator.clipboard.writeText(details.details);
+          actionBtn.textContent = "✅ Скопировано";
+          setTimeout(() => (actionBtn.textContent = "Скопировать реквизиты"), 1500);
+        } catch {
+          actionBtn.textContent = "⚠️ Не удалось скопировать";
+          setTimeout(() => (actionBtn.textContent = "Скопировать реквизиты"), 1500);
+        }
+      });
     }
 
     chatArea.appendChild(actionBtn);
     chatArea.scrollTop = chatArea.scrollHeight;
-}
+  }
 
-// --- 5. КЛИКИ ---
-buyBtn.onclick = (e) => { e.preventDefault(); openModal(modalStep1); };
-btnRead.onclick = () => { closeModal(modalStep1); openModal(modalStep2); };
+  // --- 6. ОБРАБОТЧИКИ ---
+  if (buyBtn) {
+    buyBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openModal(modalStep1);
+    });
+  }
 
-paymentOptions.forEach(btn => {
-    btn.onclick = (e) => {
-        e.preventDefault();
-        const method = e.currentTarget.dataset.method;
-        closeModal(modalStep2);
-        displayPaymentDetails(method);
-        openModal(modalChat);
-    };
-});
+  if (btnRead) {
+    btnRead.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal(modalStep1);
+      openModal(modalStep2);
+    });
+  }
 
-btnBackToInfo.onclick = () => { closeModal(modalStep2); openModal(modalStep1); };
-btnBackToOptions.onclick = () => { closeModal(modalChat); openModal(modalStep2); };
+  if (btnBackToInfo) {
+    btnBackToInfo.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal(modalStep2);
+      openModal(modalStep1);
+    });
+  }
 
-window.onclick = (event) => {
+  if (btnBackToOptions) {
+    btnBackToOptions.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal(modalChat);
+      openModal(modalStep2);
+    });
+  }
+
+  // Делегирование для всех .option-btn (надёжнее, чем вешать на каждую ссылку)
+  if (paymentOptionsWrap) {
+    paymentOptionsWrap.addEventListener("click", (e) => {
+      const anchor = e.target.closest(".option-btn");
+      if (!anchor) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const method = anchor.dataset.method;
+      // Порядок важен: сначала закрываем шаг 2, потом заполняем чат, затем открываем чат
+      closeModal(modalStep2);
+      displayPaymentDetails(method);
+      openModal(modalChat);
+    });
+  }
+
+  // Закрытие по клику на подложку
+  window.addEventListener("click", (event) => {
     if (event.target === modalStep1) closeModal(modalStep1);
     if (event.target === modalStep2) closeModal(modalStep2);
     if (event.target === modalChat) closeModal(modalChat);
-};
+  });
+});
