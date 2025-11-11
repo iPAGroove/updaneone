@@ -1,0 +1,325 @@
+:root {
+  --accent: #00d9ff;
+  --accent-soft: rgba(0, 217, 255, 0.22);
+  --accent-glow: rgba(0, 217, 255, 0.65);
+
+  --bg: #020407;
+  --bg-alt: rgba(255,255,255,0.02);
+
+  --card: rgba(255,255,255,0.05);
+  --stroke: rgba(255,255,255,0.10);
+  --text-dim: rgba(255,255,255,0.72);
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --blur: 18px;
+}
+
+/* RESET */
+*,
+*::before,
+*::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  background: var(--bg);
+  color:#fff;
+  overflow-x:hidden;
+  line-height:1.48;
+}
+
+/* STAR BACKGROUND */
+.stars {
+  position:fixed;
+  inset:0;
+  background:url("../img/stars.png") center/cover no-repeat;
+  pointer-events:none;
+  z-index:0;
+  opacity:.4;
+  animation:starsFloat 16s linear infinite alternate;
+}
+@keyframes starsFloat { 
+  from { transform:translateY(0); } 
+  to { transform:translateY(-12px); }
+}
+
+/* HEADER */
+.header {
+  position:sticky;
+  top:0;
+  z-index:20;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  backdrop-filter:blur(14px);
+  background:rgba(0,0,0,0.35);
+  border-bottom:1px solid var(--stroke);
+}
+.brand {
+  font-weight:800;
+  font-size:22px;
+}
+.brand span {
+  color:var(--accent);
+  text-shadow:0 0 14px var(--accent-glow);
+}
+.back {
+  color:var(--accent);
+  text-decoration:none;
+  font-size:14px;
+}
+
+/* HERO */
+.hero {
+  text-align:center;
+  padding:70px 18px 50px;
+  position:relative;
+  z-index:1;
+}
+.hero h1 {
+  font-size:34px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+.hero .sub {
+  opacity:.75;
+  margin-bottom:20px;
+  font-size:16px;
+}
+.hero-cta {
+  margin:0 auto 34px;
+  padding:12px 22px;
+  border-radius:var(--radius-sm);
+  background:none;
+  border:1px solid var(--stroke);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+  transition:.25s;
+}
+.hero-cta:hover {
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+/* TRUST STRIP */
+.trust-strip {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:36px;
+}
+.trust-item {
+  padding:8px 14px;
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:var(--radius-sm);
+  font-size:14px;
+}
+
+/* PRICE BOX */
+.price-box {
+  width:min(480px,90%);
+  margin:0 auto;
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:var(--radius);
+  padding:26px;
+  backdrop-filter:blur(var(--blur));
+}
+.plans { display:flex; flex-direction:column; gap:12px; margin:20px 0; }
+.plan {
+  padding:12px;
+  border-radius:var(--radius-sm);
+  background:var(--bg-alt);
+  border:1px solid var(--stroke);
+  cursor:pointer;
+  transition:.25s;
+}
+.plan:hover { border-color:var(--accent); }
+.plan.active {
+  border-color:var(--accent);
+  background:rgba(0,217,255,0.13);
+  box-shadow:0 0 18px var(--accent-soft);
+}
+.cta {
+  width:100%;
+  padding:14px;
+  font-size:15px;
+  font-weight:700;
+  border:none;
+  border-radius:var(--radius-sm);
+  background:linear-gradient(90deg,var(--accent),#00f6ff);
+  color:#001217;
+  opacity:.45;
+  transition:.25s;
+  cursor:pointer;
+}
+.cta.ready { opacity:1; }
+.cta:hover { transform:translateY(-2px); }
+
+.note {
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+  font-size:13px;
+  color:var(--text-dim);
+}
+.dot {
+  width:6px; height:6px;
+  background:var(--accent);
+  border-radius:50%;
+  box-shadow:0 0 6px var(--accent-glow);
+}
+
+/* SECTIONS */
+.section {
+  padding:60px 18px;
+  max-width:1050px;
+  margin:0 auto;
+  position:relative;
+}
+.section h2 {
+  text-align:center;
+  font-size:26px;
+  font-weight:900;
+  margin-bottom:32px;
+}
+.section.alt {
+  background:var(--bg-alt);
+  border-top:1px solid var(--stroke);
+  border-bottom:1px solid var(--stroke);
+}
+
+/* STEPS */
+.steps {
+  display:grid;
+  gap:22px;
+}
+.step {
+  text-align:center;
+  padding:24px;
+  background:var(--card);
+  border-radius:var(--radius);
+  border:1px solid var(--stroke);
+}
+.step .num {
+  width:42px; height:42px;
+  border-radius:50%;
+  border:2px solid var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 14px;
+  font-weight:800;
+}
+
+/* CARDS */
+.cards-grid {
+  display:grid;
+  gap:20px;
+}
+@media (min-width:700px){
+  .cards-grid { grid-template-columns:repeat(3,1fr); }
+}
+.card {
+  padding:24px;
+  background:var(--card);
+  border-radius:var(--radius);
+  border:1px solid var(--stroke);
+  backdrop-filter:blur(var(--blur));
+}
+.card p { color:var(--text-dim); }
+
+/* CALLOUT */
+.callout {
+  padding:24px;
+  background:var(--card);
+  border-radius:var(--radius);
+  border:1px solid var(--stroke);
+  text-align:center;
+}
+
+/* FAQ */
+.faq-item {
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:var(--radius);
+  padding:16px 18px;
+  margin-bottom:12px;
+}
+.faq-item summary {
+  cursor:pointer;
+  font-weight:600;
+}
+.faq-body { margin-top:10px; color:var(--text-dim); }
+.faq-cta { text-align:center; margin-top:28px; }
+
+/* FOOTER */
+.footer {
+  text-align:center;
+  padding:40px 18px 80px;
+  opacity:.6;
+  font-size:13px;
+}
+
+/* MODAL */
+.modal {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  backdrop-filter:blur(18px);
+  z-index:999;
+}
+.modal.show { display:flex; }
+.modal-content {
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:var(--radius);
+  padding:26px;
+  width:min(420px,90%);
+  text-align:center;
+  position:relative;
+}
+.close {
+  position:absolute;
+  top:14px; right:18px;
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+}
+.methods { display:flex; flex-direction:column; gap:14px; margin:18px 0; }
+.method {
+  padding:12px;
+  border-radius:var(--radius-sm);
+  background:var(--bg-alt);
+  border:1px solid var(--stroke);
+  cursor:pointer;
+}
+.method:hover { border-color:var(--accent); }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position:fixed;
+  bottom:0; left:0; right:0;
+  background:#000;
+  border-top:1px solid var(--stroke);
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0 calc(env(safe-area-inset-bottom) + 6px);
+  z-index:2000;
+}
+.bottom-nav a {
+  color:var(--text-dim);
+  text-decoration:none;
+  font-size:13px;
+  transition:.25s;
+}
+.bottom-nav a.active,
+.bottom-nav a:hover { color:#fff; }
