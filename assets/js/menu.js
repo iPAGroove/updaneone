@@ -13,9 +13,6 @@ import {
 
 import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
-// ✅ Импортируем signOut для выхода
-import { signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-
 
 import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
@@ -232,29 +229,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         closeMenu();
         window.location.href = "./vip.html";
     });
-    
-    // ===============================
-    // ✅ ДОБАВЛЕНО: "КУПИТЬ СЕРТИФИКАТ" → CERT BUY PAGE
-    // ===============================
-    document.querySelector(".buy-cert-btn")?.addEventListener("click", () => {
-        closeMenu();
-        window.location.href = "./buy-cert.html";
-    });
-
-    // ===============================
-    // ✅ ДОБАВЛЕНО: "О НАС" → ЛОГАУТ (для простоты, пока нет отдельной кнопки)
-    // ===============================
-    document.querySelector(".about-us-btn")?.addEventListener("click", async () => {
-        if (auth.currentUser) {
-            await signOut(auth);
-            closeMenu();
-            alert("✅ Вы вышли из аккаунта.");
-        } else {
-             // Если хотите оставить "О нас", замените это
-            alert("ℹ️ Информация о нас будет добавлена позже.");
-        }
-    });
-
 
     // ===============================
     // ✅ СТАТУС FREE / VIP
