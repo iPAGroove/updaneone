@@ -163,11 +163,43 @@ copyright{opacity:.6}
 }
 .chat-warning{opacity:.9}
 
-.chat-input-container{display:flex;gap:8px}
-.chat-input,.chat-send-btn{
-  padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,.2);
-  background:rgba(255,255,255,.04);color:#9fb6c3
+/* Chat input */
+.chat-input-container{
+  display:flex;align-items:center;gap:10px;
 }
 
-/* Animations */
+.chat-attach-btn{
+  font-size:20px;
+  padding:10px;
+  border-radius:10px;
+  border:1px dashed rgba(255,255,255,.28);
+  background:rgba(255,255,255,.06);
+  cursor:pointer;
+  color:#cfefff;
+  transition:.2s;
+}
+.chat-attach-btn:hover{background:rgba(255,255,255,.12)}
+
+.chat-input{
+  flex:1;
+  padding:10px;
+  border-radius:10px;
+  border:1px dashed rgba(255,255,255,.2);
+  background:rgba(255,255,255,.04);
+  color:#cfefff;
+}
+
+.chat-send-btn{
+  padding:10px 14px;
+  border-radius:10px;
+  background:var(--accent);
+  border:none;
+  cursor:pointer;
+  color:#001217;
+  font-weight:700;
+  transition:.2s;
+}
+.chat-send-btn:hover{transform:scale(1.05)}
+
+/* Anim */
 @keyframes shoot{from{transform:translate(0,0)}to{transform:translate(-1400px,720px)}}
