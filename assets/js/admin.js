@@ -33,7 +33,7 @@ let currentChatUnsubscribe = null;
 onAuthStateChanged(auth, (user) => {
     if (user) {
         // 🔥 Проверка, что пользователь - админ (например, по email)
-        if (user.email === "admin@ursa.com" || user.email === "viibbee_17@admin.com") {
+        if (user.email === "admin@ursa.com" || user.email === "vibemusic1712@agmail.com") {
             document.getElementById("admin-auth").style.display = "none";
             document.getElementById("admin-dashboard").style.display = "block";
             initAdminPanel();
