@@ -1,0 +1,475 @@
+// assets/js/admin.js
+
+import { auth, db } from "./app.js"; // Используем твой импорт
+import { 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword, 
+    signOut 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+import {
+    collection,
+    getDocs,
+    doc,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp,
+    arrayRemove
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+
+let allApps = [];
+let allUsers = [];
+let allOrders = [];
+let currentChatUnsubscribe = null;
+
+// ===============================
+// 0. АВТОРИЗАЦИЯ И ИНИЦИАЛИЗАЦИЯ
+// ===============================
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // 🔥 Проверка, что пользователь - админ (например, по email)
+        if (user.email === "admin@ursa.com" || user.email === "viibbee_17@admin.com") {
+            document.getElementById("admin-auth").style.display = "none";
+            document.getElementById("admin-dashboard").style.display = "block";
+            initAdminPanel();
+        } else {
+            signOut(auth);
+            document.getElementById("auth-error").textContent = "Нет прав администратора.";
+        }
+    } else {
+        document.getElementById("admin-auth").style.display = "block";
+        document.getElementById("admin-dashboard").style.display = "none";
+    }
+});
+
+document.getElementById("auth-login-btn").addEventListener("click", async () => {
+    const email = document.getElementById("auth-email").value;
+    const password = document.getElementById("auth-password").value;
+    const errorEl = document.getElementById("auth-error");
+    errorEl.textContent = "";
+
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+        errorEl.textContent = "Ошибка входа: " + err.message;
+    }
+});
+
+document.getElementById("admin-logout-btn").addEventListener("click", () => {
+    signOut(auth);
+});
+
+// ===============================
+// 1. УПРАВЛЕНИЕ ВИДАМИ / НАВИГАЦИЯ
+// ===============================
+function initAdminPanel() {
+    document.querySelectorAll(".admin-nav .nav-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const view = e.target.dataset.view;
+            document.querySelectorAll(".admin-nav .nav-btn").forEach(b => b.classList.remove("active"));
+            e.target.classList.add("active");
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            document.getElementById(`view-${view}`).classList.add("active");
+            
+            // Обновление данных при смене вкладки
+            if (view === 'apps') loadApps();
+            if (view === 'users') loadUsers();
+            if (view === 'orders') loadVipOrders();
+            if (view === 'dashboard') loadDashboardStats();
+        });
+    });
+    
+    // Загружаем стартовые данные
+    loadDashboardStats();
+    setupAppModalListeners();
+    setupSearchListeners();
+}
+
+// ===============================
+// 2. ЗАГРУЗКА ДАННЫХ
+// ===============================
+
+async function loadDashboardStats() {
+    try {
+        // Apps
+        const appsSnap = await getDocs(collection(db, "ursa_ipas"));
+        document.getElementById("stat-apps").textContent = appsSnap.size;
+
+        // Users & VIP
+        const usersSnap = await getDocs(collection(db, "ursa_users"));
+        const vipCount = usersSnap.docs.filter(d => d.data().status === 'vip').length;
+        document.getElementById("stat-vip").textContent = vipCount;
+        
+        // Orders
+        const ordersSnap = await getDocs(collection(db, "vip_orders"));
+        const pendingOrders = ordersSnap.docs.filter(d => d.data().status === 'pending' || d.data().status === 'processing').length;
+        document.getElementById("stat-orders").textContent = pendingOrders;
+
+        // Signers (Certificates)
+        const signersSnap = await getDocs(collection(db, "ursa_signers"));
+        document.getElementById("stat-signers").textContent = signersSnap.size;
+
+    } catch (err) {
+        console.error("Ошибка загрузки статистики:", err);
+    }
+}
+
+
+// --- Приложения ---
+async function loadApps(query = '') {
+    const snap = await getDocs(collection(db, "ursa_ipas"));
+    allApps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAppsTable(allApps, query);
+}
+
+function renderAppsTable(apps, query) {
+    const tbody = document.getElementById("apps-table").querySelector("tbody");
+    tbody.innerHTML = "";
+    
+    const filtered = apps.filter(app => 
+        !query || app.NAME.toLowerCase().includes(query.toLowerCase())
+    );
+
+    filtered.forEach(app => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><img src="${app.iconUrl || 'https://placehold.co/32x32'}" class="app-icon-small"></td>
+            <td>${app.NAME || 'N/A'}</td>
+            <td>${app.vipOnly ? '⭐ VIP' : 'FREE'}</td>
+            <td>${app.downloadCount || 0}</td>
+            <td>
+                <button class="btn small-btn edit-app-btn" data-id="${app.id}">✏️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// --- Пользователи ---
+async function loadUsers(query = '') {
+    const usersSnap = await getDocs(collection(db, "ursa_users"));
+    const signersSnap = await getDocs(collection(db, "ursa_signers"));
+    
+    const signersMap = signersSnap.docs.reduce((map, doc) => {
+        map[doc.id] = doc.data();
+        return map;
+    }, {});
+
+    allUsers = usersSnap.docs.map(d => ({ id: d.id, ...d.data(), signer: signersMap[d.id] }));
+    renderUsersTable(allUsers, query);
+}
+
+function renderUsersTable(users, query) {
+    const tbody = document.getElementById("users-table").querySelector("tbody");
+    tbody.innerHTML = "";
+    
+    const filtered = users.filter(user => 
+        !query || 
+        user.email?.toLowerCase().includes(query.toLowerCase()) || 
+        user.id.toLowerCase().includes(query.toLowerCase())
+    );
+
+    filtered.forEach(user => {
+        const certStatus = user.signer 
+            ? (new Date(user.signer.expires) > new Date() ? '✅ Активен' : '❌ Истек') 
+            : 'Нет';
+        const vipStatus = user.status === 'vip' ? '⭐ VIP' : 'FREE';
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${user.email || 'N/A'}</td>
+            <td>${user.id.substring(0, 8)}...</td>
+            <td>${vipStatus}</td>
+            <td>${certStatus}</td>
+            <td>
+                <button class="btn small-btn set-vip-status-btn" data-id="${user.id}" data-status="${user.status}">${user.status === 'vip' ? '↓ FREE' : '↑ VIP'}</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// --- VIP Заявки ---
+async function loadVipOrders() {
+    const q = query(collection(db, "vip_orders"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderOrdersTable(allOrders);
+}
+
+function renderOrdersTable(orders) {
+    const tbody = document.getElementById("orders-table").querySelector("tbody");
+    tbody.innerHTML = "";
+    
+    orders.forEach(order => {
+        const date = order.createdAt?.toDate()?.toLocaleString() || 'N/A';
+        const statusText = {
+            pending: '🟡 Ожидает', processing: '🟠 В работе', 
+            completed: '🟢 Завершено', canceled: '⚫ Отменено'
+        }[order.status] || order.status;
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${order.id.substring(0, 8)}...</td>
+            <td>${order.uid.substring(0, 8)}...</td>
+            <td>${order.method}</td>
+            <td>${statusText}</td>
+            <td>${date}</td>
+            <td>
+                <button class="btn small-btn open-chat-btn" data-id="${order.id}">💬 Чат</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// ===============================
+// 3. ОБРАБОТЧИКИ СОБЫТИЙ
+// ===============================
+
+function setupSearchListeners() {
+    document.getElementById("app-search")?.addEventListener("input", (e) => 
+        renderAppsTable(allApps, e.target.value)
+    );
+    document.getElementById("user-search")?.addEventListener("input", (e) => 
+        renderUsersTable(allUsers, e.target.value)
+    );
+}
+
+document.addEventListener("click", (e) => {
+    // Редактировать приложение
+    if (e.target.classList.contains("edit-app-btn")) {
+        const appId = e.target.dataset.id;
+        openAppModal(appId);
+    }
+    // Открыть VIP-чат
+    if (e.target.classList.contains("open-chat-btn")) {
+        const orderId = e.target.dataset.id;
+        openChatModal(orderId);
+    }
+    // Изменить VIP статус пользователя
+    if (e.target.classList.contains("set-vip-status-btn")) {
+        const userId = e.target.dataset.id;
+        const currentStatus = e.target.dataset.status;
+        toggleUserVipStatus(userId, currentStatus);
+    }
+});
+
+document.getElementById("add-app-btn")?.addEventListener("click", () => openAppModal(null));
+
+// ===============================
+// 4. CRUD ДЛЯ ПРИЛОЖЕНИЙ
+// ===============================
+function setupAppModalListeners() {
+    const modal = document.getElementById("app-modal");
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal || e.target.closest("[data-action='close']")) modal.classList.remove("visible");
+    });
+
+    document.getElementById("app-edit-form").addEventListener("submit", saveApp);
+    document.getElementById("app-delete-btn").addEventListener("click", deleteApp);
+}
+
+function openAppModal(appId) {
+    const modal = document.getElementById("app-modal");
+    const app = allApps.find(a => a.id === appId);
+
+    document.getElementById("app-id").value = appId || "";
+    document.getElementById("app-modal-title").textContent = appId ? "Редактировать приложение" : "Добавить новое приложение";
+    
+    document.getElementById("app-name").value = app?.NAME || "";
+    document.getElementById("app-version").value = app?.Version || "";
+    document.getElementById("app-url").value = app?.DownloadUrl || "";
+    document.getElementById("app-icon").value = app?.iconUrl || "";
+    document.getElementById("app-tags").value = Array.isArray(app?.tags) ? app.tags.join(", ") : app?.tags || "";
+    document.getElementById("app-vip-only").checked = app?.vipOnly === true;
+    document.getElementById("app-desc").value = app?.description_ru || app?.description_en || app?.desc || "";
+
+    document.getElementById("app-delete-btn").style.display = appId ? "inline-block" : "none";
+
+    modal.classList.add("visible");
+}
+
+async function saveApp(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById("app-id").value;
+    const data = {
+        NAME: document.getElementById("app-name").value,
+        Version: document.getElementById("app-version").value,
+        DownloadUrl: document.getElementById("app-url").value,
+        iconUrl: document.getElementById("app-icon").value,
+        tags: document.getElementById("app-tags").value.split(",").map(t => t.trim().toLowerCase()).filter(Boolean),
+        vipOnly: document.getElementById("app-vip-only").checked,
+        description_ru: document.getElementById("app-desc").value,
+        updatedAt: new Date().toISOString()
+    };
+
+    try {
+        if (id) {
+            await updateDoc(doc(db, "ursa_ipas", id), data);
+            alert("Приложение обновлено!");
+        } else {
+            // При создании нового, создаем пустой документ для получения ID
+            const newDocRef = doc(collection(db, "ursa_ipas"));
+            await setDoc(newDocRef, { ...data, createdAt: new Date().toISOString(), downloadCount: 0 });
+            alert("Приложение добавлено!");
+        }
+        
+        document.getElementById("app-modal").classList.remove("visible");
+        loadApps(); // Обновляем таблицу
+    } catch (err) {
+        alert("Ошибка сохранения: " + err.message);
+    }
+}
+
+async function deleteApp() {
+    const id = document.getElementById("app-id").value;
+    if (!id || !confirm("Вы уверены, что хотите удалить это приложение?")) return;
+
+    try {
+        await deleteDoc(doc(db, "ursa_ipas", id));
+        alert("Приложение удалено.");
+        
+        document.getElementById("app-modal").classList.remove("visible");
+        loadApps();
+    } catch (err) {
+        alert("Ошибка удаления: " + err.message);
+    }
+}
+
+
+// ===============================
+// 5. VIP ЧАТ И УПРАВЛЕНИЕ
+// ===============================
+
+function openChatModal(orderId) {
+    const modal = document.getElementById("chat-modal");
+    const order = allOrders.find(o => o.id === orderId);
+
+    document.getElementById("chat-order-id").textContent = orderId.substring(0, 8) + '...';
+    document.getElementById("order-status-select").value = order?.status || 'pending';
+    
+    modal.classList.add("visible");
+    
+    // Отписка от предыдущего чата (если был)
+    if (currentChatUnsubscribe) currentChatUnsubscribe();
+    
+    // Подписка на новый чат
+    const chatRef = collection(db, "vip_orders", orderId, "messages");
+    const q = query(chatRef, orderBy("timestamp"));
+    currentChatUnsubscribe = onSnapshot(q, (snap) => renderChat(snap, order));
+    
+    // Обработчик отправки сообщения админа
+    document.getElementById("admin-chat-send").onclick = () => sendAdminMessage(orderId);
+    document.getElementById("admin-chat-input").onkeydown = (e) => {
+        if (e.key === "Enter") { e.preventDefault(); sendAdminMessage(orderId); }
+    };
+    
+    // Обработчик смены статуса
+    document.getElementById("order-status-select").onchange = (e) => 
+        updateDoc(doc(db, "vip_orders", orderId), { status: e.target.value })
+        .then(() => loadVipOrders()); // Обновляем список заказов
+    
+    // Обработчик выдачи VIP
+    document.getElementById("set-vip-btn").onclick = () => 
+        setVipStatusForUser(order.uid, orderId);
+}
+
+function renderChat(snap, order) {
+    const chatArea = document.getElementById("admin-chat-area");
+    chatArea.innerHTML = `
+        <div class="system-message">
+            💸 Заявка: ${order.id.substring(0, 8)}... (Метод: ${order.method})<br>
+            👤 UID: ${order.uid.substring(0, 8)}...<br>
+            🔗 UDID: ${order.udid.substring(0, 8)}...
+        </div>
+    `;
+    
+    snap.forEach((doc) => {
+        const m = doc.data();
+        const el = document.createElement("div");
+        el.className = (m.sender === "admin") ? "msg admin" : "msg user";
+        el.textContent = m.text || (m.fileName || m.mime || "Файл");
+        
+        // Добавление ссылки на файл
+        if (m.fileUrl) {
+            const a = document.createElement("a");
+            a.href = m.fileUrl;
+            a.target = "_blank";
+            a.textContent = m.fileName || "Файл";
+            a.style.display = "block";
+            el.innerHTML = m.text ? `${m.text}<br>` : ''; // Сохраняем текст, если есть
+            el.appendChild(a);
+        }
+        chatArea.appendChild(el);
+    });
+
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+async function sendAdminMessage(orderId) {
+    const input = document.getElementById("admin-chat-input");
+    const text = input.value.trim();
+    if (!text) return;
+    
+    await setDoc(doc(collection(db, "vip_orders", orderId, "messages")), {
+        sender: "admin",
+        text: text,
+        timestamp: serverTimestamp(),
+    });
+    input.value = "";
+}
+
+// ===============================
+// 6. УПРАВЛЕНИЕ СТАТУСАМИ
+// ===============================
+
+async function setVipStatusForUser(uid, orderId = null) {
+    if (!confirm(`Вы уверены, что хотите присвоить VIP-статус пользователю ${uid.substring(0, 8)}...?`)) return;
+
+    try {
+        // 1. Обновляем статус пользователя в ursa_users
+        await updateDoc(doc(db, "ursa_users", uid), {
+            status: "vip",
+            vip_activated_at: new Date().toISOString()
+        });
+        
+        // 2. Обновляем статус заказа (если есть)
+        if (orderId) {
+            await updateDoc(doc(db, "vip_orders", orderId), {
+                status: "completed"
+            });
+            document.getElementById("chat-modal")?.classList.remove("visible");
+        }
+
+        alert(`VIP-статус для пользователя ${uid.substring(0, 8)}... успешно установлен.`);
+        loadUsers();
+        loadVipOrders();
+
+    } catch (err) {
+        alert("Ошибка выдачи VIP: " + err.message);
+    }
+}
+
+async function toggleUserVipStatus(uid, currentStatus) {
+    const newStatus = currentStatus === 'vip' ? 'free' : 'vip';
+    if (!confirm(`Изменить статус пользователя ${uid.substring(0, 8)}... на ${newStatus.toUpperCase()}?`)) return;
+
+    try {
+        await updateDoc(doc(db, "ursa_users", uid), {
+            status: newStatus,
+            vip_activated_at: newStatus === 'vip' ? new Date().toISOString() : arrayRemove("vip_activated_at")
+        });
+
+        alert(`Статус изменен на ${newStatus.toUpperCase()}`);
+        loadUsers(); // Обновляем таблицу
+    } catch (err) {
+        alert("Ошибка: " + err.message);
+    }
+}
