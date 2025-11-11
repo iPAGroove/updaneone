@@ -2,21 +2,19 @@
 // VIP — логика входа, проверка сертификата, шаги и чат
 // ===============================
 import { auth } from "./app.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+onAuthStateChanged(auth, (user) => {
 
-  // ===============================
-  // 0) Проверка входа и сертификата
-  // ===============================
-  const user = auth.currentUser;
-  const udid = localStorage.getItem("ursa_cert_udid");
-  const exp = localStorage.getItem("ursa_cert_exp");
-
+  // ждем пока Firebase восстановит сессию
   if (!user) {
     alert("⚠️ Чтобы оформить VIP, сначала войдите в аккаунт.");
     window.location.href = "./";
     return;
   }
+
+  const udid = localStorage.getItem("ursa_cert_udid");
+  const exp = localStorage.getItem("ursa_cert_exp");
 
   if (!udid || !exp) {
     alert("⚠️ Добавьте сертификат в меню, чтобы мы могли связать ваш UDID с VIP.");
@@ -27,6 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // ✅ для отображения в чате
   localStorage.setItem("ursa_vip_uid", user.uid);
   localStorage.setItem("ursa_vip_udid", udid);
+
+  initVIP();
+});
+
+function initVIP() {
 
   // ===============================
   // 1) Реквизиты
@@ -102,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
     node.querySelector(".chat-method-name").textContent = d.name;
     node.querySelector(".chat-details").textContent = d.show;
 
-    // ✅ Добавляем UID + UDID
     const uid = localStorage.getItem("ursa_vip_uid");
     const udidStored = localStorage.getItem("ursa_vip_udid");
 
@@ -115,10 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     chatArea.appendChild(node);
 
-    // 💎 gift card
     if (d.noCopy) return chatArea.scrollTop = chatArea.scrollHeight;
 
-    // 🇺🇦 UA card
     if (d.link) {
       const payBtn = document.createElement("button");
       payBtn.className = "modal-btn";
@@ -128,14 +128,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // 🇷🇺 RU card
     if (methodKey === "ru_card") {
       const b1 = document.createElement("button");
       b1.className = "modal-btn";
       b1.textContent = "Скопировать Т-банк";
       b1.onclick = async () => {
-        try { await navigator.clipboard.writeText(d.tBank); b1.textContent = "✅ Скопировано"; }
-        catch { b1.textContent = "⚠️ Не удалось"; }
+        await navigator.clipboard.writeText(d.tBank);
+        b1.textContent = "✅ Скопировано";
         setTimeout(() => b1.textContent = "Скопировать Т-банк", 1400);
       };
       chatArea.appendChild(b1);
@@ -144,8 +143,8 @@ document.addEventListener("DOMContentLoaded", () => {
       b2.className = "modal-btn";
       b2.textContent = "Скопировать СПБ";
       b2.onclick = async () => {
-        try { await navigator.clipboard.writeText(d.spb); b2.textContent = "✅ Скопировано"; }
-        catch { b2.textContent = "⚠️ Не удалось"; }
+        await navigator.clipboard.writeText(d.spb);
+        b2.textContent = "✅ Скопировано";
         setTimeout(() => b2.textContent = "Скопировать СПБ", 1400);
       };
       chatArea.appendChild(b2);
@@ -153,13 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // остальные
     const copyBtn = document.createElement("button");
     copyBtn.className = "modal-btn";
     copyBtn.textContent = "Скопировать реквизиты";
     copyBtn.onclick = async () => {
-      try { await navigator.clipboard.writeText(d.copy); copyBtn.textContent = "✅ Скопировано"; }
-      catch { copyBtn.textContent = "⚠️ Не удалось"; }
+      await navigator.clipboard.writeText(d.copy);
+      copyBtn.textContent = "✅ Скопировано";
       setTimeout(() => copyBtn.textContent = "Скопировать реквизиты", 1400);
     };
     chatArea.appendChild(copyBtn);
@@ -206,5 +204,4 @@ document.addEventListener("DOMContentLoaded", () => {
       close(modal1); close(modal2); close(modalChat);
     })
   );
-
-});
+}
