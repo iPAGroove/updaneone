@@ -1,7 +1,7 @@
 :root {
   --accent: #00d9ff;
-  --accent-soft: rgba(0, 217, 255, 0.2); 
-  --bg-deep: #020407; 
+  --accent-soft: rgba(0, 217, 255, 0.2);
+  --bg-deep: #020407;
 }
 
 /* Сброс */
@@ -44,7 +44,7 @@ body::before {
 }
 
 /* Главный блок */
-.vip-wrapper { position:relative; z-index:10; margin:20px 0; animation: fadeIn .7s ease both; }
+.vip-wrapper { position:relative; z-index:10; margin:20px 0; animation:fadeIn .7s ease both; }
 .vip-title {
   font-size:48px; font-weight:900; margin-bottom:6px;
   color:var(--accent); text-shadow:0 0 20px var(--accent-soft);
@@ -52,7 +52,7 @@ body::before {
 }
 .vip-subtitle { opacity:.7; margin-bottom:40px; }
 
-/* Карточка VIP */
+/* VIP-карта */
 .vip-card {
   background:rgba(255,255,255,.05);
   backdrop-filter:blur(25px);
@@ -122,7 +122,7 @@ body::before {
 .option-btn:hover { background:rgba(255,255,255,.15); }
 .option-icon { margin-right:12px; }
 
-/* === ЧАТ (увеличенный, красивый) === */
+/* === ЧАТ (КРАСИВОЕ БОЛЬШОЕ ОКНО) === */
 #modal-chat .modal-content.chat-content {
   width: 92%;
   max-width: 420px;
@@ -150,7 +150,7 @@ body::before {
   margin-bottom: 18px;
 }
 
-/* Реквизиты */
+/* Сообщение */
 .system-message {
   background: rgba(0,217,255,0.08);
   border: 1px solid rgba(0,217,255,0.35);
@@ -160,10 +160,13 @@ body::before {
   margin-bottom: 14px;
   text-align: center;
 }
+.system-message p { margin:0; padding:0; }
+
 .chat-method-name {
   font-size:18px; font-weight:700; margin-bottom:14px;
   color:var(--accent); text-shadow:0 0 8px rgba(0,255,255,0.35);
 }
+
 .chat-details {
   font-family:monospace; font-size:15px; line-height:1.45;
   background:rgba(255,255,255,0.07);
@@ -173,15 +176,9 @@ body::before {
 }
 
 /* Кнопка копирования */
-.copy-btn {
-  display:block; width:100%; padding:13px; margin-top:14px;
-  border-radius:12px; font-weight:700;
-  background:linear-gradient(90deg,var(--accent),#00f6ff);
-  color:var(--bg-deep); border:none; cursor:pointer;
-  box-shadow:0 4px 18px rgba(0,217,255,0.35);
-  transition:.25s;
+.copy-btn, .modal-btn {
+  margin-top:14px;
 }
-.copy-btn:hover { transform:translateY(-2px); }
 
 /* Назад */
 #btn-back-to-options { margin-top:auto; opacity:.7; }
