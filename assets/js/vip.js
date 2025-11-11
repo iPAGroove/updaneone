@@ -1,4 +1,4 @@
-// assets/js/vip.js (Логика трехшагового процесса и чата)
+// assets/js/vip.js (логика оплаты и чата)
 
 // --- 1. РЕКВИЗИТЫ ---
 const PAYMENT_DETAILS = {
@@ -28,7 +28,7 @@ const PAYMENT_DETAILS = {
     }
 };
 
-// --- 2. ЭЛЕМЕНТЫ DOM ---
+// --- 2. ЭЛЕМЕНТЫ ---
 const buyBtn = document.getElementById("vip-buy-btn");
 const modalStep1 = document.getElementById("modal-step-1");
 const btnRead = document.getElementById("btn-read");
@@ -40,52 +40,45 @@ const btnBackToOptions = document.getElementById("btn-back-to-options");
 const paymentOptions = document.querySelectorAll('.option-btn');
 const chatArea = document.getElementById("chat-area");
 
-// --- 3. МОДАЛЬНЫЕ ОКНА ---
+// --- 3. МОДАЛКИ ---
 function openModal(modal) {
-    if (modal) {
-        modal.style.display = "flex";
-        document.body.style.overflow = "hidden";
-    }
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
 }
-
 function closeModal(modal) {
-    if (modal) {
-        modal.style.display = "none";
-        document.body.style.overflow = "";
-    }
+    modal.style.display = "none";
+    document.body.style.overflow = "";
 }
 
-// --- 4. ЛОГИКА ЧАТА + КНОПКИ ДЕЙСТВИЙ ---
+// --- 4. ОТОБРАЖЕНИЕ РЕКВИЗИТОВ ---
 function displayPaymentDetails(method) {
     const details = PAYMENT_DETAILS[method];
     if (!details) return;
 
-    const template = document.getElementById('system-message-template');
-    const messageClone = template.cloneNode(true);
+    chatArea.innerHTML = ""; // Чистим чат
 
-    messageClone.querySelector('.chat-method-name').textContent = details.name;
-    messageClone.querySelector('.chat-details').textContent = details.details;
+    const template = document.getElementById("system-message-template");
+    const message = template.cloneNode(true);
+    message.style.display = "block";
 
-    chatArea.innerHTML = '';
-    messageClone.style.display = 'block';
-    chatArea.appendChild(messageClone);
+    message.querySelector(".chat-method-name").textContent = details.name;
+    message.querySelector(".chat-details").textContent = details.details;
 
-    // === ДОБАВЛЯЕМ КНОПКУ ДЕЙСТВИЯ ===
-    let actionBtn = document.createElement("button");
-    actionBtn.className = "modal-btn";
-    actionBtn.style.marginTop = "15px";
+    chatArea.appendChild(message);
+
+    // --- КНОПКА ДЕЙСТВИЯ ---
+    const actionBtn = document.createElement("button");
+    actionBtn.className = "copy-btn";
 
     if (method === "ua_card") {
         actionBtn.textContent = "Оплатить";
-        actionBtn.onclick = () => {
-            window.open("https://www.privat24.ua/send/373a0", "_blank");
-        };
+        actionBtn.onclick = () => window.open(details.details.replace("Ссылка для оплаты: ", ""), "_blank");
     } else {
         actionBtn.textContent = "Скопировать реквизиты";
         actionBtn.onclick = () => {
             navigator.clipboard.writeText(details.details);
             actionBtn.textContent = "✅ Скопировано!";
-            setTimeout(() => actionBtn.textContent = "Скопировать реквизиты", 2000);
+            setTimeout(() => actionBtn.textContent = "Скопировать реквизиты", 1500);
         };
     }
 
@@ -93,46 +86,22 @@ function displayPaymentDetails(method) {
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// --- 5. ОБРАБОТКА КЛИКОВ ---
-
-if (buyBtn) {
-    buyBtn.onclick = (e) => {
-        e.preventDefault();
-        openModal(modalStep1);
-    };
-}
-
-if (btnRead) {
-    btnRead.onclick = () => {
-        closeModal(modalStep1);
-        openModal(modalStep2);
-    };
-}
+// --- 5. КЛИКИ ---
+buyBtn.onclick = (e) => { e.preventDefault(); openModal(modalStep1); };
+btnRead.onclick = () => { closeModal(modalStep1); openModal(modalStep2); };
 
 paymentOptions.forEach(btn => {
     btn.onclick = (e) => {
         e.preventDefault();
-        const method = e.currentTarget.getAttribute('data-method');
-
+        const method = e.currentTarget.dataset.method;
         closeModal(modalStep2);
         displayPaymentDetails(method);
         openModal(modalChat);
     };
 });
 
-if (btnBackToInfo) {
-    btnBackToInfo.onclick = () => {
-        closeModal(modalStep2);
-        openModal(modalStep1);
-    };
-}
-
-if (btnBackToOptions) {
-    btnBackToOptions.onclick = () => {
-        closeModal(modalChat);
-        openModal(modalStep2);
-    };
-}
+btnBackToInfo.onclick = () => { closeModal(modalStep2); openModal(modalStep1); };
+btnBackToOptions.onclick = () => { closeModal(modalChat); openModal(modalStep2); };
 
 window.onclick = (event) => {
     if (event.target === modalStep1) closeModal(modalStep1);
