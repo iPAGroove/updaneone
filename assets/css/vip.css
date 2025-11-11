@@ -1,195 +1,160 @@
 :root {
   --accent: #00d9ff;
-  --accent-soft: rgba(0, 217, 255, 0.2);
+  --accent-soft: rgba(0, 217, 255, 0.25);
   --bg-deep: #020407;
+  --card: rgba(255,255,255,.06);
+  --stroke: rgba(255,255,255,.14);
 }
 
-/* Сброс */
-*, *::before, *::after { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-  background: radial-gradient(circle at 50% 10%, #080d12 0%, var(--bg-deep) 70%);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  text-align: center;
-  overflow: hidden;
+/* Reset */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",sans-serif;
+  background:radial-gradient(80% 50% at 50% 10%,#081119 0%,var(--bg-deep) 60%);
+  overflow-x:hidden;
 }
 
-/* Фон-звезды */
-.stars { position: fixed; inset: 0; z-index: 1; overflow: hidden; }
-.stars::before,
-.stars::after,
-body::before { content:''; position:absolute; border-radius:50%; background:transparent; }
-.stars::before {
-  width:1px; height:1px; opacity:.8;
-  box-shadow:100px 300px white,200px 100px white,300px 500px white,400px 200px white,500px 450px white;
-  animation:shooting 40s linear infinite;
-}
-.stars::after {
-  width:2px; height:2px; opacity:.6;
-  box-shadow:50px 500px white,350px 150px white,600px 350px white;
-  animation:shooting 30s linear infinite reverse;
-}
-body::before {
-  width:3px; height:3px; opacity:.5;
-  box-shadow:250px 250px var(--accent),550px 400px var(--accent);
-  animation:shooting 20s linear infinite;
-  z-index:2;
-}
+/* Stars */
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.stars::before,.stars::after,body::before{content:"";position:absolute;border-radius:50%}
+.stars::before{width:1px;height:1px;opacity:.8;box-shadow:100px 300px #fff,200px 120px #fff,480px 420px #fff,820px 260px #fff,1080px 520px #fff;animation:shoot 38s linear infinite}
+.stars::after{width:2px;height:2px;opacity:.5;box-shadow:60px 520px #fff,350px 150px #fff,640px 360px #fff,900px 80px #fff;animation:shoot 28s linear infinite reverse}
+body::before{width:3px;height:3px;opacity:.4;box-shadow:260px 260px var(--accent),560px 420px var(--accent);animation:shoot 20s linear infinite}
 
-/* Главный блок */
-.vip-wrapper { position:relative; z-index:10; margin:20px 0; animation:fadeIn .7s ease both; }
-.vip-title {
-  font-size:48px; font-weight:900; margin-bottom:6px;
-  color:var(--accent); text-shadow:0 0 20px var(--accent-soft);
-  animation:neonPulse 2s infinite alternate ease-in-out;
+/* Header */
+.site-header{
+  position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
+  backdrop-filter:saturate(120%) blur(8px);
 }
-.vip-subtitle { opacity:.7; margin-bottom:40px; }
+.brand{font-weight:900;letter-spacing:.5px}
+.brand span{color:var(--accent);text-shadow:0 0 10px var(--accent-soft)}
+.top-actions{display:flex;gap:10px}
+.nav-link{padding:8px 12px;border-radius:10px;color:#cfefff;text-decoration:none;border:1px solid transparent}
+.nav-link:hover{border-color:var(--stroke);background:rgba(255,255,255,.04)}
 
-/* VIP-карта */
-.vip-card {
-  background:rgba(255,255,255,.05);
-  backdrop-filter:blur(25px);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:20px;
-  padding:30px 25px;
-  max-width:340px; margin:0 auto;
-  box-shadow:0 8px 30px rgba(0,0,0,.5), 0 0 10px rgba(0,217,255,.1);
-  animation:popIn .7s cubic-bezier(.175,.885,.32,1.275) forwards, floatCard 15s infinite ease-in-out;
-}
-.vip-price {
-  font-size:36px; font-weight:800; margin-bottom:30px;
-  color:var(--accent); text-shadow:0 0 15px var(--accent-soft);
-}
+/* Hero */
+.hero{position:relative;z-index:1;display:grid;place-items:center;padding:28px 18px}
+.hero h1{margin:8px 0 0;font-weight:900;font-size:34px;letter-spacing:.3px}
+.hero .hero-sub{opacity:.75;margin:10px 0 20px}
 
-/* Преимущества */
-.vip-benefits { list-style:none; padding:0; margin:0 0 30px; text-align:left; font-size:15px; }
-.vip-benefits li { display:flex; align-items:center; margin-bottom:12px; transition:.2s; }
-.vip-benefits li:hover { transform:translateX(3px); }
-.vip-benefits .icon { margin-right:12px; color:var(--accent); }
-
-/* Кнопка */
-.vip-btn {
-  width:100%; padding:14px 24px; border-radius:12px;
-  font-weight:700; color:var(--bg-deep);
-  background:linear-gradient(90deg, var(--accent), #00f6ff, #00d9ff);
-  background-size:200% 100%; box-shadow:0 4px 20px var(--accent-soft);
-  text-decoration:none; transition:.4s;
+.price-card{
+  width:min(420px,92vw);padding:22px;border-radius:18px;
+  background:var(--card);backdrop-filter:blur(20px);
+  border:1px solid var(--stroke);
+  box-shadow:0 10px 40px rgba(0,0,0,.45),0 0 14px var(--accent-soft);
 }
-.vip-btn:hover { transform:translateY(-2px); background-position:100% 0; }
-
-/* Модалки */
-.payment-modal {
-  position:fixed; inset:0; display:none;
-  justify-content:center; align-items:center;
-  background:rgba(0,0,0,.65);
-  backdrop-filter:blur(8px);
-  z-index:1000;
-}
-.modal-content {
-  background:rgba(255,255,255,.05);
-  backdrop-filter:blur(25px);
-  border-radius:18px;
-  padding:30px; width:90%; max-width:350px;
-  box-shadow:0 0 30px rgba(0,0,0,.6);
-}
-.modal-title { margin-bottom:20px; color:var(--accent); }
-.modal-text { opacity:.85; line-height:1.45; }
-.modal-btn {
-  margin-top:25px; width:100%; padding:14px;
-  border-radius:12px; border:none; cursor:pointer;
-  font-weight:700; color:var(--bg-deep);
+.price-line{display:flex;align-items:baseline;gap:8px;justify-content:center;margin-bottom:8px}
+.price{font-size:44px;font-weight:900;color:var(--accent);text-shadow:0 0 16px var(--accent-soft)}
+.per{opacity:.7}
+.bullet{list-style:none;margin:14px 0 18px;padding:0;text-align:left}
+.bullet li{padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.bullet li:last-child{border-bottom:0}
+.cta{
+  width:100%;padding:14px 18px;border-radius:12px;border:none;cursor:pointer;
   background:linear-gradient(90deg,var(--accent),#00f6ff);
-  box-shadow:0 4px 20px var(--accent-soft);
-  transition:.25s;
+  color:#001217;font-weight:800;letter-spacing:.3px;
+  box-shadow:0 10px 32px rgba(0,217,255,.3);transition:.2s transform;
 }
-.modal-btn:hover { transform:translateY(-2px); }
+.cta:hover{transform:translateY(-2px)}
 
-/* Способы оплаты */
-.payment-options { display:flex; flex-direction:column; gap:12px; }
-.option-btn {
-  display:flex; align-items:center; padding:14px;
-  border-radius:14px; background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.15);
-  color:white; text-decoration:none; transition:.2s;
+/* Sections */
+.section{padding:32px 18px}
+.section h2{text-align:center;margin:0 0 18px}
+.grid-3{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.grid-3{grid-template-columns:repeat(3,1fr)}}
+
+.card{
+  background:var(--card);border:1px solid var(--stroke);border-radius:16px;
+  padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.35)
 }
-.option-btn:hover { background:rgba(255,255,255,.15); }
-.option-icon { margin-right:12px; }
+.card-ico{font-size:22px;margin-bottom:8px}
+.card-title{font-weight:800;margin-bottom:6px}
+.card-text{opacity:.8}
 
-/* === ЧАТ === */
-#modal-chat .modal-content.chat-content {
-  width: 92%;
-  max-width: 420px;
-  height: 85vh;
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  border-radius: 22px;
+.pay-grid .pay-chip{
+  padding:12px 14px;border-radius:12px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.03);color:#fff;cursor:pointer
+}
+.pay-grid .pay-chip:hover{background:rgba(255,255,255,.08)}
+
+/* FAQ */
+.faq details{
+  background:var(--card);border:1px solid var(--stroke);
+  border-radius:14px;padding:12px 14px;margin-bottom:10px
+}
+.faq summary{cursor:pointer;font-weight:700;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq-a{margin-top:8px;opacity:.85}
+
+/* Footer */
+.site-footer{padding:24px 18px;display:grid;place-items:center}
+.foot{display:flex;gap:16px;align-items:center}
+.tg{padding:10px 14px;border-radius:12px;border:1px solid var(--stroke);text-decoration:none;color:#cfefff}
+.tg:hover{background:rgba(255,255,255,.06)}
+copyright{opacity:.6}
+
+/* Modals */
+.payment-modal{
+  position:fixed;inset:0;display:none;justify-content:center;align-items:center;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(10px);z-index:20
+}
+.modal-content{
+  width:min(420px,92vw);padding:24px;border-radius:18px;
+  background:var(--card);border:1px solid var(--stroke);box-shadow:0 10px 40px rgba(0,0,0,.6)
+}
+.modal-title{margin:0 0 10px;color:var(--accent);text-align:center}
+.modal-text{opacity:.85;text-align:center}
+.modal-btn{
+  width:100%;padding:13px;border-radius:12px;margin-top:16px;border:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--accent),#00f6ff);color:#001217;font-weight:800
+}
+.back-btn{background:transparent;color:#cfefff;border:1px solid var(--stroke)}
+
+/* Step 2 list */
+.payment-options{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.option-btn{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;
+  text-decoration:none;color:#fff;background:rgba(255,255,255,.04);border:1px solid var(--stroke)
+}
+.option-btn:hover{background:rgba(255,255,255,.08)}
+.option-icon{font-size:18px}
+
+/* Chat modal (big) */
+#modal-chat .modal-content.chat-content{
+  height:85vh;display:flex;flex-direction:column
+}
+.chat-title{text-align:center;margin-bottom:10px}
+.chat-area{
+  flex:1;overflow:auto;padding:16px;border-radius:14px;
+  background:rgba(0,0,0,.22);border:1px solid var(--stroke);margin-bottom:14px
 }
 
-.chat-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  text-align: center;
+/* System message */
+.system-message{
+  display:block;background:rgba(0,217,255,.08);
+  border:1px solid rgba(0,217,255,.35);
+  border-radius:14px;padding:16px;text-align:center;
+  box-shadow:0 0 24px rgba(0,217,255,.08) inset
+}
+.chat-method-name,.chat-details,.chat-warning{display:block;margin-bottom:10px}
+.chat-method-name{font-weight:900;color:var(--accent);text-shadow:0 0 10px var(--accent-soft)}
+.chat-details{
+  font:600 14px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;padding:10px;white-space:pre-wrap;word-break:break-word
+}
+.chat-warning{opacity:.9}
+
+/* Chat input (disabled placeholder) */
+.chat-input-container{display:flex;gap:8px}
+.chat-input,.chat-send-btn{
+  padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,.2);
+  background:rgba(255,255,255,.04);color:#9fb6c3
 }
 
-.chat-area {
-  flex-grow: 1;
-  overflow-y: auto;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 18px;
-}
-
-/* Сообщение */
-.system-message {
-  background: rgba(0,217,255,0.08);
-  border: 1px solid rgba(0,217,255,0.35);
-  border-radius: 14px;
-  padding: 18px;
-  backdrop-filter: blur(14px);
-  margin-bottom: 14px;
-  text-align: center;
-}
-
-/* ✅ Исправление разметки */
-.chat-method-name,
-.chat-details,
-.chat-warning {
-  display: block;
-  margin-bottom: 12px;
-}
-
-.chat-method-name {
-  font-size:18px; font-weight:700;
-  color:var(--accent);
-  text-shadow:0 0 8px rgba(0,255,255,0.35);
-}
-
-.chat-details {
-  font-family:monospace; font-size:15px;
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.18);
-  padding:12px; border-radius:10px;
-  white-space:pre-wrap; word-break:break-all;
-}
-
-/* Назад */
-#btn-back-to-options { margin-top:auto; opacity:.7; }
-#btn-back-to-options:hover { opacity:1; }
-
-/* Анимации */
-@keyframes shooting { from{transform:translate(0,0);} to{transform:translate(-1500px,800px);} }
-@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-@keyframes popIn { from{transform:scale(.95);} to{transform:scale(1);} }
-@keyframes floatCard { 50%{transform:translateY(-5px);} }
-@keyframes neonPulse { from{text-shadow:0 0 10px var(--accent-soft);} to{text-shadow:0 0 25px var(--accent);} }
+/* Animations */
+@keyframes shoot{from{transform:translate(0,0)}to{transform:translate(-1400px,720px)}}
