@@ -1,102 +1,87 @@
 // ===============================
-// URSA CERT PAGE — PLANS + PAYMENT + NAV ACTIVE HIGHLIGHT
+// URSA CERT PAGE — PLANS + PAYMENT MODAL (v2)
 // ===============================
 
 const buyBtn = document.getElementById("buy-btn");
 const plans = document.querySelectorAll(".plan");
 const modal = document.getElementById("pay-modal");
+const planDisplay = document.getElementById("plan-display"); // Новый элемент
 const faqOpenBtn = document.querySelector("[data-open-pay]");
-const bottomNavLinks = document.querySelectorAll(".bottom-nav a");
+
 let selectedMonths = null;
+let selectedPlanText = null; // Новый элемент для текста плана
 
 // -------------------------------
-// ВЫБОР ПЛАНА
+// Выбор срока сертификата
 // -------------------------------
 plans.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    plans.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
+  btn.addEventListener("click", () => {
+    // снимаем active со всех
+    plans.forEach((b) => b.classList.remove("active"));
 
-    selectedMonths = btn.dataset.months;
+    // ставим active на выбранный
+    btn.classList.add("active");
 
-    buyBtn.disabled = false;
-    buyBtn.classList.add("ready");
-    buyBtn.textContent = `Купить (${btn.textContent})`;
-  });
+    // сохраняем выбранный срок и текст
+    selectedMonths = btn.dataset.months;
+    
+    // Получаем чистый текст (убираем бейдж, если есть)
+    selectedPlanText = btn.textContent.replace(/🔥 Выгодно/g, '').trim(); 
+
+    // активируем кнопку "Купить"
+    buyBtn.disabled = false;
+    buyBtn.classList.add("ready");
+    buyBtn.textContent = `Купить (${selectedPlanText})`;
+  });
 });
 
 // -------------------------------
-// ОТКРЫТЬ ОКНО ОПЛАТЫ
+// Открыть окно оплаты
 // -------------------------------
 function openModal() {
-  if (!selectedMonths) return;
-  modal.classList.add("show");
+  if (!selectedMonths) return;
+  
+  // Обновляем текст в модальном окне перед открытием
+  if (planDisplay && selectedPlanText) {
+    planDisplay.textContent = `Вы выбрали: ${selectedPlanText}`;
+  }
+  
+  modal.classList.add("show");
 }
 
 buyBtn.addEventListener("click", openModal);
-faqOpenBtn?.addEventListener("click", openModal);
+
+// CTA в FAQ → тоже открывает модал (хук в HTML)
 
 // -------------------------------
-// ЗАКРЫТЬ МОДАЛ (крест/фон/назад)
+// Закрытие модала (крест + фон)
 // -------------------------------
 modal.addEventListener("click", (e) => {
-  if (e.target.dataset.close || e.target === modal) {
-    modal.classList.remove("show");
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") modal.classList.remove("show");
+  if (e.target.dataset.close || e.target === modal) {
+    modal.classList.remove("show");
+  }
 });
 
 // -------------------------------
-// ВЫБОР СПОСОБА ОПЛАТЫ
+// Выбор способа оплаты
 // -------------------------------
 document.querySelectorAll(".method").forEach((btn) =>
-  btn.addEventListener("click", () => {
-    const method = btn.dataset.method;
+  btn.addEventListener("click", () => {
+    const method = btn.dataset.method;
 
-    localStorage.setItem("ursa_buy_cert_months", selectedMonths);
-    localStorage.setItem("ursa_buy_cert_method", method);
+    // сохраняем выбранные параметры
+    localStorage.setItem("ursa_buy_cert_months", selectedMonths);
+    localStorage.setItem("ursa_buy_cert_method", method);
 
-    window.location.href = "./vip.html#chat";
-  })
+    // временно отправляем в чат оплаты
+    // позже заменим на "pay.html"
+    window.location.href = "./vip.html#chat";
+  })
 );
 
 // -------------------------------
-// ПЛАВНЫЕ ПЕРЕХОДЫ ПО ЯКОРЯМ
+// Accessibility (Esc закрывает модал)
 // -------------------------------
-bottomNavLinks.forEach((link) => {
-  link.addEventListener("click", (e) => {
-    const href = link.getAttribute("href");
-    if (href.startsWith("#")) {
-      e.preventDefault();
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
-    }
-  });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") modal.classList.remove("show");
 });
-
-// -------------------------------
-// ПОДСВЕТКА АКТИВНОГО РАЗДЕЛА
-// -------------------------------
-const sections = document.querySelectorAll("section[id]");
-
-const highlightActiveNav = () => {
-  let scrollY = window.scrollY + window.innerHeight / 3;
-
-  sections.forEach((section) => {
-    const id = section.getAttribute("id");
-    const top = section.offsetTop;
-    const height = section.offsetHeight;
-
-    if (scrollY >= top && scrollY < top + height) {
-      bottomNavLinks.forEach((link) => link.classList.remove("active"));
-      document
-        .querySelector(`.bottom-nav a[href="#${id}"]`)
-        ?.classList.add("active");
-    }
-  });
-};
-
-window.addEventListener("scroll", highlightActiveNav);
-highlightActiveNav(); // запустить на старте
