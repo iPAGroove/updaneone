@@ -36,9 +36,9 @@
     <div class="modal-content">
         <h3 class="modal-title">💸 Шаг 1: Инструкция по оплате VIP</h3>
         <p class="modal-text">
-            Для активации VIP доступа необходимо выполнить оплату услуги и отправить чек.
+            Для активации VIP необходимо выполнить оплату услуги и отправить чек.
             <br><br>
-            После оплаты вам нужно будет предоставить скриншот или чек в этот чат.
+            После оплаты вы отправляете скриншот в чат и мы активируем VIP.
         </p>
         <button id="btn-read" class="modal-btn">Я прочитал(а)</button>
     </div>
@@ -60,25 +60,21 @@
     </div>
 </div>
 
-<!-- 3. Шаг 3 — Чат с реквизитами -->
+<!-- 3. Шаг 3 — Чат -->
 <div id="modal-chat" class="payment-modal">
     <div class="modal-content chat-content">
         <h3 class="modal-title chat-title">💬 Чат поддержки VIP</h3>
 
         <div class="chat-area" id="chat-area">
-            <div id="system-message-template" class="message system-message" style="display: none;">
-                <p>
-                    <span class="chat-method-name"></span>
-                    <br><br>
-                    <span class="chat-details"></span>
-                    <br><br>
-                    ⚠️ Важно: После оплаты обязательно отправьте скриншот/чек в этот чат!
-                </p>
+            <div id="system-message-template" class="system-message" style="display: none;">
+                <span class="chat-method-name"></span>
+                <span class="chat-details"></span>
+                <span class="chat-warning">⚠️ После оплаты отправьте скриншот в этот чат для активации VIP</span>
             </div>
         </div>
 
         <div class="chat-input-container">
-            <input type="text" placeholder="Прикрепить скриншот / Ввести код..." class="chat-input" disabled>
+            <input type="text" placeholder="Прикрепить скриншот / код..." class="chat-input" disabled>
             <button class="chat-send-btn" disabled>Отправить</button>
         </div>
 
