@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Купить сертификат — URSA</title>
+
+  <link rel="stylesheet" href="assets/css/cert.css?v=1" />
+</head>
+<body>
+
+<div class="stars"></div>
+
+<header class="header">
+  <div class="brand">URSA <span>SIGNER</span></div>
+  <a href="./" class="back">← Назад</a>
+</header>
+
+<section class="hero">
+  <h1>Сертификат для установки IPA</h1>
+  <p class="sub">Подпись приложений без jailbreak</p>
+
+  <div class="price-box">
+    <p>🔑 Выберите срок действия сертификата</p>
+
+    <div class="plans">
+      <button class="plan" data-months="1">$4 / 1 месяц</button>
+      <button class="plan" data-months="3">$9 / 3 месяца</button>
+      <button class="plan" data-months="6">$15 / 6 месяцев</button>
+      <button class="plan" data-months="12">$25 / 12 месяцев</button>
+    </div>
+
+    <button id="buy-btn" class="cta" disabled>Выберите план</button>
+  </div>
+</section>
+
+<!-- МОДАЛ: выбор способа оплаты -->
+<div id="pay-modal" class="modal">
+  <div class="modal-content">
+    <button class="close" data-close>✕</button>
+    <h3>Выберите способ оплаты</h3>
+
+    <div class="methods">
+      <button class="method" data-method="crypto">💎 Crypto (USDT TRC20)</button>
+      <button class="method" data-method="binance_pay">🔶 Binance Pay</button>
+      <button class="method" data-method="ua_card">🇺🇦 UA Card</button>
+      <button class="method" data-method="ru_card">🇷🇺 RU Card</button>
+    </div>
+
+    <button class="back-btn" data-close>← Назад</button>
+  </div>
+</div>
+
+<script type="module" src="assets/js/cert.js?v=1"></script>
+<script src="assets/js/mobile-parallax.js"></script>
+</body>
+</html>
