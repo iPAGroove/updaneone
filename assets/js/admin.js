@@ -7,7 +7,6 @@
 import { auth, db } from "./app.js"; 
 
 import {
-    // Импорты для Firestore (оставляем те, что были в новой структуре)
     collection,
     getDocs,
     doc,
@@ -21,18 +20,17 @@ import {
     arrayRemove
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// Импортируем Google Auth прямо сюда
 import { 
     onAuthStateChanged, 
     signOut,
-    GoogleAuthProvider, // <--- ИМПОРТ ПРОВАЙДЕРА
-    signInWithPopup     // <--- ИМПОРТ POPUP
+    GoogleAuthProvider, 
+    signInWithPopup 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 
 // === СПИСОК АДМИНОВ ===
 const ADMIN_EMAILS = [
-    "vibemusic1712@gmail.com", // <-- ТВОЙ EMAIL (Использую твой список)
+    "vibemusic1712@gmail.com", 
     "kotvlad400@gmail.com",
     "olesyazardina@gmail.com"
 ];
@@ -86,7 +84,6 @@ loginBtn.addEventListener("click", async () => {
     errorEl.textContent = "";
     try {
         await signInWithPopup(auth, provider);
-        // После успешного входа onAuthStateChanged проверит права
     } catch (err) {
         // Обработка ошибок, например, закрытие окна или network error
         console.error("Auth Error:", err);
