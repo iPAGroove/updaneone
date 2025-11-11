@@ -1,10 +1,36 @@
 // ===============================
-// VIP — шаги + выбор оплаты + чат + кнопки закрытия
+// VIP — логика входа, проверка сертификата, шаги и чат
 // ===============================
+import { auth } from "./app.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  // ===============================
+  // 0) Проверка, что юзер вошёл и добавил сертификат
+  // ===============================
+  const user = auth.currentUser;
+  const udid = localStorage.getItem("ursa_cert_udid");
+  const exp = localStorage.getItem("ursa_cert_exp");
+
+  if (!user) {
+    alert("⚠️ Чтобы оформить VIP, сначала войдите в аккаунт.");
+    window.location.href = "./";
+    return;
+  }
+
+  if (!udid || !exp) {
+    alert("⚠️ Добавьте сертификат в меню, чтобы мы могли связать ваш UDID с VIP.");
+    window.location.href = "./#menu";
+    return;
+  }
+
+  // ✅ Сохраняем для чата
+  localStorage.setItem("ursa_vip_uid", user.uid);
+  localStorage.setItem("ursa_vip_udid", udid);
+
+  // ===============================
   // 1) Данные реквизитов
+  // ===============================
   const PAYMENT = {
     crypto: {
       name: "USDT TRC20 (Crypto World)",
@@ -40,7 +66,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
 
-  // 2) DOM элементы
+  // ===============================
+  // 2) DOM
+  // ===============================
   const buyBtn = document.getElementById("vip-buy-btn");
   const modal1 = document.getElementById("modal-step-1");
   const modal2 = document.getElementById("modal-step-2");
@@ -52,11 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatArea = document.getElementById("chat-area");
   const msgTpl = document.getElementById("system-message-template");
 
-  // 3) Хелперы модалок
-  const open = (m) => { if (!m) return; m.style.display = "flex"; document.body.style.overflow = "hidden"; };
-  const close = (m) => { if (!m) return; m.style.display = "none"; document.body.style.overflow = ""; };
+  // ===============================
+  // 3) Helpers
+  // ===============================
+  const open = (m) => { m.style.display = "flex"; document.body.style.overflow = "hidden"; };
+  const close = (m) => { m.style.display = "none"; document.body.style.overflow = ""; };
 
-  // 4) Генерация сообщений
+  // ===============================
+  // 4) Рендер сообщения + UID/UDID
+  // ===============================
   function renderMessage(methodKey) {
     const d = PAYMENT[methodKey];
     if (!d) return;
@@ -66,29 +98,34 @@ document.addEventListener("DOMContentLoaded", () => {
     node.style.display = "block";
     node.querySelector(".chat-method-name").textContent = d.name;
     node.querySelector(".chat-details").textContent = d.show;
+
+    // ✅ Добавляем идентификацию пользователя
+    const uid = localStorage.getItem("ursa_vip_uid");
+    const udid = localStorage.getItem("ursa_vip_udid");
+
+    const idBlock = document.createElement("div");
+    idBlock.style.marginTop = "14px";
+    idBlock.style.fontSize = "13px";
+    idBlock.style.opacity = "0.82";
+    idBlock.innerHTML = `👤 <b>${uid}</b><br>🔗 UDID: <b>${udid}</b>`;
+    node.appendChild(idBlock);
+
     chatArea.appendChild(node);
 
-    // gift card = без кнопок
-    if (d.noCopy) {
-      chatArea.scrollTop = chatArea.scrollHeight;
-      return;
-    }
+    // 💎 gift card = без кнопок
+    if (d.noCopy) return chatArea.scrollTop = chatArea.scrollHeight;
 
-    // UA Card → кнопка оплатить
+    // 🇺🇦 UA Card
     if (d.link) {
       const payBtn = document.createElement("button");
       payBtn.className = "modal-btn";
       payBtn.textContent = "Оплатить";
-      payBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        window.open(d.link, "_blank", "noopener,noreferrer");
-      });
+      payBtn.onclick = () => window.open(d.link, "_blank", "noopener,noreferrer");
       chatArea.appendChild(payBtn);
-      chatArea.scrollTop = chatArea.scrollHeight;
-      return;
+      return chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // RU Card → две кнопки копирования
+    // 🇷🇺 RU Card
     if (methodKey === "ru_card") {
       const b1 = document.createElement("button");
       b1.className = "modal-btn";
@@ -110,11 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       chatArea.appendChild(b2);
 
-      chatArea.scrollTop = chatArea.scrollHeight;
-      return;
+      return chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // Остальные: одна кнопка копирования
+    // 🟦 остальные
     const copyBtn = document.createElement("button");
     copyBtn.className = "modal-btn";
     copyBtn.textContent = "Скопировать реквизиты";
@@ -127,13 +163,17 @@ document.addEventListener("DOMContentLoaded", () => {
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
-  // 5) Навигация по шагам
-  buyBtn?.addEventListener("click", (e) => { e.preventDefault(); open(modal1); });
+  // ===============================
+  // 5) ШАГИ
+  // ===============================
+  buyBtn?.addEventListener("click", () => open(modal1));
   btnRead?.addEventListener("click", () => { close(modal1); open(modal2); });
   btnBackToInfo?.addEventListener("click", () => { close(modal2); open(modal1); });
   btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
-  // 6) Выбор оплаты из секции
+  // ===============================
+  // 6) Выбор оплат
+  // ===============================
   document.querySelector("#payments")?.addEventListener("click", (e) => {
     const chip = e.target.closest(".pay-chip");
     if (!chip) return;
@@ -141,30 +181,27 @@ document.addEventListener("DOMContentLoaded", () => {
     open(modalChat);
   });
 
-  // 7) Выбор оплаты на шаге 2
   payOptions?.addEventListener("click", (e) => {
     const btn = e.target.closest(".option-btn");
     if (!btn) return;
-    e.preventDefault();
     renderMessage(btn.dataset.method);
     close(modal2);
     open(modalChat);
   });
 
-  // 8) Закрытие по подложке
+  // ===============================
+  // 7) Закрытия
+  // ===============================
   window.addEventListener("click", (e) => {
     if (e.target === modal1) close(modal1);
     if (e.target === modal2) close(modal2);
     if (e.target === modalChat) close(modalChat);
   });
 
-  // 9) Закрытие по кнопкам ✕
-  document.querySelectorAll("[data-close]").forEach(btn => {
+  document.querySelectorAll("[data-close]").forEach(btn =>
     btn.addEventListener("click", () => {
-      close(modal1);
-      close(modal2);
-      close(modalChat);
-    });
-  });
+      close(modal1); close(modal2); close(modalChat);
+    })
+  );
 
 });
