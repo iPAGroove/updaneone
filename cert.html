@@ -1,361 +1,168 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Купить Сертификат URSA SIGNER | Установка IPA без Jailbreak</title>
-  <meta name="description" content="Персональные сертификаты URSA для установки IPA без jailbreak на iOS 12+. Гарантия замены при отзыве, быстрый выпуск (минуты), безлимитная установка IPA. Цены и инструкция." />
-  <meta name="theme-color" content="#00d9ff" />
-    <meta property="og:url" content="https://[ВАШ_ДОМЕН]/cert.html" /> 
-  <meta property="og:title" content="Купить Сертификат URSA SIGNER | Установка IPA без Jailbreak" />
-  <meta property="og:description" content="Подпись приложений без jailbreak. Пошаговая инструкция, гарантии, поддержка, цены и ответы на вопросы." />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="assets/img/og_cert.jpg" />
-  
-  <link rel="icon" href="assets/img/favicon.png" sizes="any" />
-  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
-  <link rel="stylesheet" href="/updaneone/assets/css/cert-new.css?v=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Купить сертификат — URSA SIGNER</title>
+  <meta name="description" content="Сертификаты URSA для установки IPA без jailbreak. Что такое UDID, чёрный список, типы сертификатов, гарантии, ограничения, совместимость с iOS. Пошаговая инструкция и цены." />
+  <meta name="theme-color" content="#00d9ff" />
+  <meta property="og:title" content="URSA SIGNER — Сертификат для установки IPA" />
+  <meta property="og:description" content="Подпись приложений без jailbreak. Пошаговая инструкция, гарантии, поддержка, цены и ответы на вопросы." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/og_cert.jpg" />
+
+  <link rel="icon" href="assets/img/favicon.png" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+
+  <!-- UPDATED CSS (будет следующим сообщением) -->
+  <link rel="stylesheet" href="assets/css/cert.css?v=2" />
 </head>
+
 <body>
-    <div class="stars" aria-hidden="true"></div>
+  <div class="stars" aria-hidden="true"></div>
 
-    <header class="header">
-    <div class="brand">URSA <span>SIGNER</span></div>
-        <nav class="top-nav">
-      <a href="#plans">Планы</a>
-      <a href="#how">Как это работает</a>
-      <a href="#compare">Сравнение</a>
-      <a href="#guarantees">Гарантии</a>
-      <a href="#faq">FAQ</a>
-    </nav>
-    <a href="./" class="back">← В каталог URSA IPA</a>
-  </header>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">URSA <span>SIGNER</span></div>
+    <a href="./" class="back">← Назад</a>
+  </header>
 
-    <section class="hero" id="plans">
-        <h1>Персональный Сертификат URSA: Установка IPA без Jailbreak</h1>
-    <p class="sub">Подпись приложений <strong>без jailbreak</strong> — быстро, безопасно и без лимитов</p>
+  <!-- HERO -->
+  <section class="hero" id="plans">
+    <h1>Сертификат для установки IPA</h1>
+    <p class="sub">Подпись приложений <strong>без jailbreak</strong></p>
 
-    <div class="trust-strip" role="list">
-            <div class="trust-item" role="listitem">⚡️ Оформление ~ за минуты</div>
-      <div class="trust-item" role="listitem">🛡 Замена при отзыве в сроке действия</div>
-      <div class="trust-item" role="listitem">💬 Поддержка 24/7</div>
-      <div class="trust-item" role="listitem">🔄 iOS 12+</div>
-    </div>
+    <button class="hero-cta" onclick="document.querySelector('#how').scrollIntoView({behavior:'smooth'})">
+      Как это работает →
+    </button>
 
-    <div class="price-box">
-      <p>🔑 Выберите срок действия сертификата</p>
-      <div class="plans">
-                <button class="plan" data-months="1" aria-label="Купить сертификат на 1 месяц за 4 доллара">$4 / 1 месяц</button>
-        <button class="plan" data-months="3" aria-label="Купить сертификат на 3 месяца за 9 долларов">$9 / 3 месяца</button>
-        <button class="plan" data-months="6" aria-label="Купить сертификат на 6 месяцев за 15 долларов">$15 / 6 месяцев</button>
-        <button class="plan" data-months="12" aria-label="Купить сертификат на 12 месяцев за 25 долларов">$25 / 12 месяцев</button>
-      </div>
-      <button id="buy-btn" class="cta" disabled>Выберите план</button>
-      
-            <a href="https://t.me/ursaipa_support" target="_blank" class="support-link">Нужна помощь с выбором? Напишите нам в Telegram.</a>
+    <div class="trust-strip">
+      <div class="trust-item">⚡️ Оформление ~ за минуты</div>
+      <div class="trust-item">🛡 Замена при отзыве в сроке действия</div>
+      <div class="trust-item">💬 Поддержка 24/7</div>
+    </div>
 
-      <div class="note">
-        <span class="dot"></span>
-        Сертификат привязывается к вашему устройству (UDID). В течение выбранного срока можно
-        устанавливать и переустанавливать IPA через URSA IPA без лимита по количеству приложений.
-      </div>
-    </div>
-  </section>
+    <div class="price-box">
+      <p>🔑 Выберите срок действия</p>
+      <div class="plans">
+        <button class="plan" data-months="1">$4 / 1 месяц</button>
+        <button class="plan" data-months="3">$9 / 3 месяца</button>
+        <button class="plan" data-months="6">$15 / 6 месяцев</button>
+        <button class="plan" data-months="12">$25 / 12 месяцев</button>
+      </div>
+      <button id="buy-btn" class="cta" disabled>Выберите план</button>
 
-    <section class="section how" id="how" aria-labelledby="how-title">
-    <h2 id="how-title">Как это работает: Установка в 4 шага</h2>
-    <div class="steps">
-      <article class="step">
-        <div class="num">1</div>
-        <h3>Выбор плана и оплата</h3>
-        <p>Выберите срок действия сертификата и удобный способ оплаты (Crypto, Card и др.).</p>
-      </article>
-      <article class="step">
-        <div class="num">2</div>
-        <h3>Получение UDID</h3>
-        <p>Система подскажет, как получить ваш UDID за 10–20 секунд (через профиль-конфиг).</p>
-      </article>
-      <article class="step">
-        <div class="num">3</div>
-        <h3>Выпуск сертификата</h3>
-        <p>Мы регистрируем UDID и выпускаем персональный сертификат. Обычно это занимает считанные минуты.</p>
-      </article>
-      <article class="step">
-        <div class="num">4</div>
-        <h3>Установка IPA</h3>
-        <p>Открывайте URSA IPA и устанавливайте нужные приложения без ограничений по количеству.</p>
-      </article>
-    </div>
-  </section>
+      <div class="note">
+        <span class="dot"></span>
+        Сертификат привязывается к вашему устройству (UDID). Установок IPA — без ограничений.
+      </div>
+    </div>
+  </section>
 
-    <section class="section about" id="about" aria-labelledby="about-title">
-    <h2 id="about-title">Что такое «сертификат URSA»</h2>
-    <div class="cards-grid">
-      <article class="card">
-        <h3>Цифровая подпись</h3>
-        <p>Сертификат — это цифровая подпись, позволяющая запускать на вашем iPhone/iPad приложения,
-          не установленные из App Store. Подпись подтверждает целостность IPA и разрешает установку на конкретное устройство.</p>
-      </article>
-      <article class="card">
-        <h3>Интеграция с URSA IPA</h3>
-        <p>Мы подписываем IPA этим сертификатом и привязываем его к вашему UDID. После выпуска вы просто нажимаете «Установить» в каталоге URSA IPA — всё остальное автоматизировано.</p>
-      </article>
-      <article class="card">
-        <h3>Свобода установки</h3>
-        <p>Чтобы ставить модифицированные, снятые с App Store или собственные сборки приложений без компьютера и без jailbreak. Удобно для мод-игр, клоноустановок и кастомных утилит.</p>
-      </article>
-    </div>
-  </section>
+  <!-- HOW -->
+  <section class="section alt" id="how">
+    <h2>Как это работает</h2>
+    <div class="steps">
+      <article class="step">
+        <div class="num">1</div>
+        <h3>Выбор плана</h3>
+        <p>Выберите срок и оплату.</p>
+      </article>
+      <article class="step">
+        <div class="num">2</div>
+        <h3>Получение UDID</h3>
+        <p>Мы подскажем, как получить автоматически за 20 секунд.</p>
+      </article>
+      <article class="step">
+        <div class="num">3</div>
+        <h3>Выпуск сертификата</h3>
+        <p>Регистрация происходит за минуты.</p>
+      </article>
+      <article class="step">
+        <div class="num">4</div>
+        <h3>Установка IPA</h3>
+        <p>Открываете URSA IPA → «Установить».</p>
+      </article>
+    </div>
+  </section>
 
-    <section class="section udid" id="udid" aria-labelledby="udid-title">
-    <h2 id="udid-title">Что такое UDID и «чёрный список»</h2>
-    <div class="split">
-      <div class="pane">
-        <h3>UDID (Unique Device ID)</h3>
-        <p><strong>UDID</strong> — уникальный идентификатор вашего устройства (например, <code>00008030-00XXXXXXXXXXXX</code>).
-          Он нужен, чтобы выпустить персональный сертификат, действующий именно на вашем iPhone/iPad.</p>
-        <ul class="ul">
-          <li>Получается через установку короткого профиля-конфига (1 тап).</li>
-          <li>Мы не просим Apple ID, пароли или доступ к данным — только UDID.</li>
-        </ul>
-      </div>
-      <div class="pane">
-        <h3>Чёрный список UDID</h3>
-        <p>Если UDID нарушал правила (спам-установки, злоупотребления), он может попасть в «чёрный список».
-          Таким UDID нельзя выпустить/продлить сертификат.</p>
-        <div class="note">
-          <span class="dot"></span>
-          **Если ваш UDID в чёрном списке** — напишите в поддержку, мы проверим и предложим варианты решения.
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- ABOUT -->
+  <section class="section" id="about">
+    <h2>Что такое сертификат URSA</h2>
+    <div class="cards-grid">
+      <article class="card">
+        <h3>Что это</h3>
+        <p>Цифровая подпись, позволяющая запускать IPA вне App Store на вашем устройстве.</p>
+      </article>
+      <article class="card">
+        <h3>Как используется</h3>
+        <p>URSA автоматически подписывает и устанавливает приложения под ваш UDID.</p>
+      </article>
+      <article class="card">
+        <h3>Для чего нужен</h3>
+        <p>Моды, клоны, кастомные утилиты, снятые приложения — без ПК и джейла.</p>
+      </article>
+    </div>
+  </section>
 
-    <section class="section types" id="types" aria-labelledby="types-title">
-    <h2 id="types-title">Какие бывают сертификаты</h2>
-    <div class="cards-grid">
-      <article class="card">
-        <h3>Персональный (по UDID) 🥇</h3>
-        <p>Привязан к одному устройству. Оптимален для большинства пользователей:
-          стабильно работает, быстрый выпуск, комфортная цена. **Основной вид**.</p>
-      </article>
-      <article class="card">
-        <h3>Корпоративный/командный</h3>
-        <p>Используется для рабочих сценариев/команд. Мы применяем собственные меры антиотзыва и мониторим статус,
-          чтобы поддерживать максимальную доступность приложений.</p>
-      </article>
-      <article class="card">
-        <h3>По срокам (1 до 12 месяцев)</h3>
-        <p>1, 3, 6 или 12 месяцев — выбирайте удобный срок. В течение действия можно переустанавливать приложения
-           без ограничений по количеству.</p>
-      </article>
-    </div>
-  </section>
+  <!-- LIMITS -->
+  <section class="section alt" id="limits">
+    <h2>Сколько IPA можно установить</h2>
+    <div class="callout">
+      <p><strong>Без ограничений.</strong> Ограничение только по памяти устройства.</p>
+    </div>
+  </section>
 
-    <section class="section guarantees" id="guarantees" aria-labelledby="guarantees-title">
-    <h2 id="guarantees-title">Гарантии и срок действия</h2>
-    <div class="split">
-      <div class="pane">
-        <h3>Срок действия</h3>
-        <ul class="ul">
-          <li>Работает весь выбранный период: <em>1/3/6/12 месяцев</em>.</li>
-          <li>Приложения можно переустанавливать и обновлять через URSA IPA.</li>
-          <li>Сертификат действует только на том устройстве, чей UDID был указан.</li>
-        </ul>
-      </div>
-      <div class="pane">
-        <h3>Гарантии URSA (Отзыв подписи)</h3>
-        <ul class="ul">
-          <li>🛡 <strong>Замена при отзыве</strong>: Если Apple отзовет подпись, мы оперативно заменим ее в период действия сертификата.</li>
-          <li>⚙️ <strong>Мониторинг статуса</strong>: Мы следим за статусом подписей и проводим своевременные переустановки.</li>
-          <li>💬 <strong>Поддержка 24/7</strong>: Помощь с установкой и решением проблем в Telegram.</li>
-        </ul>
-        <div class="note">
-          <span class="dot"></span>
-          В редких случаях Apple может отзывать подписи. Мы оперативно переоформляем инсталлы в рамках ваших сроков.
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <h2>FAQ</h2>
 
-    <section class="section limits" id="limits" aria-labelledby="limits-title">
-    <h2 id="limits-title">Ограничения и лимиты</h2>
-    <div class="callout">
-      <p>✅ **Безлимитная установка.** Нет лимита на количество приложений — ограничение только по памяти устройства и здравому смыслу. Сертификат действует на одно устройство (по UDID), и все установки проходят через URSA IPA.</p>
-    </div>
-    <ul class="ul bullets">
-      <li>Можно держать несколько версий одного приложения (клоноустановка), если bundle id отличается.</li>
-      <li>Сертификат привязан к одному UDID. Для нескольких устройств нужны отдельные планы.</li>
-      <li>При истечении срока приложения могут потребовать переподпись — просто продлите план.</li>
-    </ul>
-  </section>
+    <details class="faq-item" open>
+      <summary>Как пользоваться сертификатом?</summary>
+      <div class="faq-body">После выпуска просто используйте кнопку «Установить» в URSA IPA.</div>
+    </details>
 
-    <section class="section compare" id="compare" aria-labelledby="compare-title">
-    <h2 id="compare-title">Сертификат VS Jailbreak: Сравнение</h2>
-    <div class="table-wrap" role="region" aria-label="Сравнение сертификата и jailbreak">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Критерий</th>
-            <th>Сертификат URSA (Рекомендуется)</th>
-            <th>Jailbreak (Сложный путь)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Безопасность</td>
-            <td>Не меняет систему, подпись только у приложений. Высокий уровень.</td>
-            <td>Изменяет системные компоненты, повышенные риски и уязвимости.</td>
-          </tr>
-          <tr>
-            <td>Сложность установки</td>
-            <td>Пара кликов, всё в URSA IPA. Максимально просто.</td>
-            <td>Сложные гайды, зависимость от версий iOS и устройств.</td>
-          </tr>
-          <tr>
-            <td>Гарантия стабильности</td>
-            <td>Замена подписи в сроке действия (Гарантия URSA).</td>
-            <td>Нет гарантий стабильности/откатов. Полная ответственность пользователя.</td>
-          </tr>
-          <tr>
-            <td>App Store / Банкинг</td>
-            <td>Сохраняется штатная работа всех приложений.</td>
-            <td>Могут быть детекты, ограничения и отказы в работе банковских приложений.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+    <details class="faq-item">
+      <summary>Нужен ли jailbreak?</summary>
+      <div class="faq-body">Нет. Система не изменяется, всё делается автоматически.</div>
+    </details>
 
-    <section class="section ios" id="ios" aria-labelledby="ios-title">
-    <h2 id="ios-title">Совместимость с iOS</h2>
-    <p>Поддерживаем **iOS 12 и выше** на iPhone и iPad. Новые версии iOS обычно поддерживаются сразу — если потребуется доп. действие, мы подскажем в интерфейсе URSA IPA.</p>
-  </section>
+    <div class="faq-cta">
+      <button class="cta" data-open-pay>Купить сертификат</button>
+    </div>
+  </section>
 
-    <section class="section faq" id="faq" aria-labelledby="faq-title">
-    <h2 id="faq-title">Частые вопросы</h2>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="brand">URSA <span>SIGNER</span></div>
+    <p class="muted">© URSA. Все права защищены.</p>
+  </footer>
 
-    <details class="faq-item" open>
-      <summary>Что такое сертификат и как им пользоваться на URSA IPA?</summary>
-      <div class="faq-body">
-        <p>Это цифровая подпись, которую мы выдаём под ваш UDID. После выпуска просто заходите в URSA IPA и ставьте приложения кнопкой «Установить». Ничего дополнительно настраивать не нужно.</p>
-      </div>
-    </details>
+  <!-- PAYMENT MODAL -->
+  <div id="pay-modal" class="modal">
+    <div class="modal-content">
+      <button class="close" data-close>✕</button>
+      <h3>Выберите способ оплаты</h3>
+      <div class="methods">
+        <button class="method" data-method="crypto">💎 Crypto (USDT)</button>
+        <button class="method" data-method="binance_pay">🔶 Binance Pay</button>
+        <button class="method" data-method="ua_card">🇺🇦 Карта UA</button>
+        <button class="method" data-method="ru_card">🇷🇺 Карта RU</button>
+      </div>
+      <button class="back-btn" data-close>← Назад</button>
+    </div>
+  </div>
 
-    <details class="faq-item">
-      <summary>Зачем нужен UDID и что делать с чёрным списком?</summary>
-      <div class="faq-body">
-        <p>UDID идентифицирует ваше устройство для Apple-подписи. Если UDID в чёрном списке — обратитесь в поддержку, мы проверим статус и поможем с решением. **Напишите нам, прежде чем покупать.**</p>
-      </div>
-    </details>
+  <!-- BOTTOM NAV (НОВАЯ НАВИГАЦИЯ) -->
+  <nav class="bottom-nav">
+    <a href="#plans">🏷 Планы</a>
+    <a href="#about">❓ Что это</a>
+    <a href="#how">🧩 Установка</a>
+    <a href="#faq">💬 FAQ</a>
+  </nav>
 
-    <details class="faq-item">
-      <summary>Какие гарантии даёт URSA?</summary>
-      <div class="faq-body">
-        <p>**Гарантия замены подписи при отзыве** в сроке действия, мониторинг статуса, помощь 24/7. Мы стремимся поддерживать стабильность установок максимально быстро.</p>
-      </div>
-    </details>
-    
-    <details class="faq-item">
-      <summary>Сколько IPA можно установить с 1 сертификатом? Есть ли ограничения?</summary>
-      <div class="faq-body">
-        <p>Без ограничений по количеству — действует на одно устройство (ваш UDID). Лимит — только память и здравый смысл. Для нескольких устройств оформляется отдельный план.</p>
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Чем сертификат отличается от jailbreak?</summary>
-      <div class="faq-body">
-        <p>Сертификат не изменяет систему и безопаснее, всё делается в пару кликов. Джейл даёт больше свободы, но повышает риски и сложность, а также может блокировать работу банковских приложений.</p>
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Какие версии iOS подходят для регистрации по UDID?</summary>
-      <div class="faq-body">
-        <p>iOS 12 и выше на iPhone/iPad. Мы оперативно адаптируем установку под новые версии iOS.</p>
-      </div>
-    </details>
-
-    <div class="faq-cta">
-      <button class="cta" data-open-pay>Купить сертификат</button>
-      <p class="mini">Остались вопросы? Напишите в поддержку — ответим за минуты.</p>
-    </div>
-  </section>
-
-    <footer class="footer">
-    <div class="brandline">
-      <div class="brand">URSA <span>SIGNER</span></div>
-      <div class="socials">
-        <a href="https://t.me/ursaipa" target="_blank" rel="noopener">Telegram-канал</a>
-        <a href="https://t.me/ursaipa_support" target="_blank" rel="noopener">Поддержка (Telegram)</a>
-        <a href="./" class="muted">URSA IPA (Каталог)</a>
-      </div>
-    </div>
-    <p class="muted">© URSA, все права защищены. Используя сервис, вы соглашаетесь с <a href="/rules.html" target="_blank">правилами</a> и <a href="/privacy.html" target="_blank">политикой конфиденциальности</a>.</p>
-  </footer>
-
-    <div id="pay-modal" class="modal" aria-hidden="true" role="dialog" aria-label="Выбор способа оплаты">
-    <div class="modal-content">
-      <button class="close" data-close aria-label="Закрыть">✕</button>
-      <h3>Выберите способ оплаты</h3>
-      <div class="methods">
-        <button class="method" data-method="crypto">💎 Crypto (USDT TRC20)</button>
-        <button class="method" data-method="binance_pay">🔶 Binance Pay</button>
-        <button class="method" data-method="ua_card">🇺🇦 UA Card</button>
-        <button class="method" data-method="ru_card">🇷🇺 RU Card</button>
-      </div>
-      <button class="back-btn" data-close>← Назад</button>
-    </div>
-  </div>
-
-   <script type="module" src="/updaneone/assets/js/cert.js?v=2"></script>
-<script src="/updaneone/assets/js/mobile-parallax.js"></script>
-
-    <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"FAQPage",
-    "mainEntity":[
-      {
-        "@type":"Question",
-        "name":"Что такое сертификат и как им пользоваться на URSA IPA?",
-        "acceptedAnswer":{"@type":"Answer","text":"Это цифровая подпись под ваш UDID. После выпуска заходите в URSA IPA и устанавливаете приложения кнопкой «Установить» — всё автоматизировано."}
-      },
-      {
-        "@type":"Question",
-        "name":"Зачем нужен UDID и что делать с чёрным списком?",
-        "acceptedAnswer":{"@type":"Answer","text":"UDID идентифицирует устройство. Если UDID в чёрном списке — напишите в поддержку, проверим и предложим решение."}
-      },
-      {
-        "@type":"Question",
-        "name":"Какие гарантии даёт URSA?",
-        "acceptedAnswer":{"@type":"Answer","text":"Замена подписи при отзыве в сроке действия, мониторинг статуса, поддержка 24/7."}
-      },
-      {
-        "@type":"Question",
-        "name":"Сколько IPA можно установить с 1 сертификатом? Есть ли ограничения?",
-        "acceptedAnswer":{"@type":"Answer","text":"Без ограничений по количеству — сертификат действует на одно устройство (ваш UDID). Ограничение только по памяти устройства."}
-      },
-      {
-        "@type":"Question",
-        "name":"Чем сертификат отличается от jailbreak?",
-        "acceptedAnswer":{"@type":"Answer","text":"Сертификат безопаснее и проще — не меняет систему. Джейл даёт больше свободы, но повышает риски и сложность."}
-      },
-      {
-        "@type":"Question",
-        "name":"Какие версии iOS подходят для регистрации по UDID?",
-        "acceptedAnswer":{"@type":"Answer","text":"iOS 12 и выше на iPhone и iPad. Новые версии поддерживаются оперативно."}
-      }
-    ]
-  }
-</script>
-
-    <script>
-    // Открыть модал оплат из FAQ CTA (оставлено для совместимости)
-    document.querySelector('[data-open-pay]')?.addEventListener('click', () => {
-      document.getElementById('pay-modal')?.classList.add('show');
-    });
-  </script>
+  <!-- UPDATED JS (будет следующим сообщением) -->
+  <script type="module" src="assets/js/cert.js?v=2"></script>
+  <script src="assets/js/mobile-parallax.js"></script>
 </body>
 </html>
