@@ -3,7 +3,22 @@
 // ===============================
 import { auth, db } from "./app.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  onSnapshot,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+
+const storage = getStorage();
 
 // ------------------------------------------------
 // 0) Ждём восстановления сессии
@@ -32,7 +47,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ------------------------------------------------
-// 1) Создание VIP-заявки
+// 1) Создание VIP-заявки (возвращает ID)
 // ------------------------------------------------
 async function createVipOrder(methodKey) {
   try {
@@ -47,18 +62,20 @@ async function createVipOrder(methodKey) {
       createdAt: serverTimestamp()
     });
 
-    console.log("✅ VIP-заявка создана:", docRef.id);
-    localStorage.setItem("ursa_vip_order_id", docRef.id);
+    const orderId = docRef.id;
+    console.log("✅ VIP-заявка создана:", orderId);
+    localStorage.setItem("ursa_vip_order_id", orderId);
+    return orderId;
   } catch (err) {
     console.error("❌ Ошибка создания VIP-заявки:", err);
+    throw err;
   }
 }
 
 // ------------------------------------------------
-// 2) UI + Чат (пока без отправки сообщений)
+// 2) UI + Чат
 // ------------------------------------------------
 function initVIP() {
-
   const PAYMENT = {
     crypto: {
       name: "USDT TRC20 (Crypto World)",
@@ -108,7 +125,7 @@ function initVIP() {
   const open = (m) => { m.style.display = "flex"; document.body.style.overflow = "hidden"; };
   const close = (m) => { m.style.display = "none"; document.body.style.overflow = ""; };
 
-  function renderMessage(methodKey) {
+  function renderSystemMessage(methodKey) {
     const d = PAYMENT[methodKey];
     if (!d) return;
 
@@ -130,51 +147,6 @@ function initVIP() {
     node.appendChild(idBlock);
 
     chatArea.appendChild(node);
-
-    if (d.noCopy) return chatArea.scrollTop = chatArea.scrollHeight;
-
-    if (d.link) {
-      const payBtn = document.createElement("button");
-      payBtn.className = "modal-btn";
-      payBtn.textContent = "Оплатить";
-      payBtn.onclick = () => window.open(d.link, "_blank", "noopener,noreferrer");
-      chatArea.appendChild(payBtn);
-      return chatArea.scrollTop = chatArea.scrollHeight;
-    }
-
-    if (methodKey === "ru_card") {
-      const b1 = document.createElement("button");
-      b1.className = "modal-btn";
-      b1.textContent = "Скопировать Т-банк";
-      b1.onclick = async () => {
-        await navigator.clipboard.writeText(d.tBank);
-        b1.textContent = "✅ Скопировано";
-        setTimeout(() => b1.textContent = "Скопировать Т-банк", 1400);
-      };
-      chatArea.appendChild(b1);
-
-      const b2 = document.createElement("button");
-      b2.className = "modal-btn";
-      b2.textContent = "Скопировать СПБ";
-      b2.onclick = async () => {
-        await navigator.clipboard.writeText(d.spb);
-        b2.textContent = "✅ Скопировано";
-        setTimeout(() => b2.textContent = "Скопировать СПБ", 1400);
-      };
-      chatArea.appendChild(b2);
-
-      return chatArea.scrollTop = chatArea.scrollHeight;
-    }
-
-    const copyBtn = document.createElement("button");
-    copyBtn.className = "modal-btn";
-    copyBtn.textContent = "Скопировать реквизиты";
-    copyBtn.onclick = async () => {
-      await navigator.clipboard.writeText(d.copy);
-      copyBtn.textContent = "✅ Скопировано";
-      setTimeout(() => copyBtn.textContent = "Скопировать реквизиты", 1400);
-    };
-    chatArea.appendChild(copyBtn);
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
@@ -184,22 +156,163 @@ function initVIP() {
   btnBackToInfo?.addEventListener("click", () => { close(modal2); open(modal1); });
   btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
+  // ------------------------------------------------
+  // ЧАТ: биндим realtime только после создания заявки
+  // ------------------------------------------------
+  let chatBound = false;
+  let unsubs = null;
+
+  const input = document.querySelector(".chat-input");
+  const sendBtn = document.querySelector(".chat-send-btn");
+
+  // создаём (если нет) кнопку-скрепку и скрытый input[type=file]
+  let attachBtn = document.querySelector(".chat-attach-btn");
+  if (!attachBtn) {
+    attachBtn = document.createElement("button");
+    attachBtn.type = "button";
+    attachBtn.className = "chat-attach-btn";
+    attachBtn.textContent = "📎";
+    const container = document.querySelector(".chat-input-container");
+    container?.insertBefore(attachBtn, input);
+  }
+  const hiddenFile = document.createElement("input");
+  hiddenFile.type = "file";
+  hiddenFile.accept = "image/*,application/pdf,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  hiddenFile.style.display = "none";
+  document.body.appendChild(hiddenFile);
+
+  function bindChatIfNeeded() {
+    if (chatBound) return;
+    const orderId = localStorage.getItem("ursa_vip_order_id");
+    if (!orderId) return;
+
+    const messagesRef = collection(db, "vip_orders", orderId, "messages");
+    const q = query(messagesRef, orderBy("timestamp"));
+
+    unsubs = onSnapshot(q, (snap) => {
+      // если на экране системное сообщение — не стираем его, а добавляем ниже
+      // но для простоты — перерисуем весь чат: системку покажем отдельно
+      // рендерим поток сообщений
+      const existingSystem = chatArea.querySelector(".system-message")?.cloneNode(true);
+      chatArea.innerHTML = "";
+      if (existingSystem) {
+        existingSystem.style.display = "block";
+        chatArea.appendChild(existingSystem);
+      }
+
+      snap.forEach((doc) => {
+        const m = doc.data();
+
+        const wrap = document.createElement("div");
+        wrap.className = (m.sender === "admin") ? "msg admin" : "msg user";
+
+        if (m.text) {
+          const t = document.createElement("div");
+          t.textContent = m.text;
+          wrap.appendChild(t);
+        }
+
+        if (m.fileUrl) {
+          // если картинка — превью, иначе — ссылка
+          if (m.mime?.startsWith("image/")) {
+            const img = document.createElement("img");
+            img.src = m.fileUrl;
+            img.alt = m.fileName || "image";
+            img.style.maxWidth = "220px";
+            img.style.borderRadius = "10px";
+            img.style.display = "block";
+            img.style.marginTop = "6px";
+            wrap.appendChild(img);
+          } else {
+            const a = document.createElement("a");
+            a.href = m.fileUrl;
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.textContent = m.fileName || "Файл";
+            a.style.display = "inline-block";
+            a.style.marginTop = "6px";
+            a.style.color = "#9fdfff";
+            wrap.appendChild(a);
+          }
+        }
+
+        chatArea.appendChild(wrap);
+      });
+
+      chatArea.scrollTop = chatArea.scrollHeight;
+    });
+
+    // включаем инпуты
+    sendBtn?.removeAttribute("disabled");
+    input?.removeAttribute("disabled");
+    attachBtn?.removeAttribute("disabled");
+
+    // отправка текста
+    const sendText = async () => {
+      const text = input.value.trim();
+      if (!text) return;
+      await addDoc(collection(db, "vip_orders", orderId, "messages"), {
+        sender: "user",
+        text,
+        timestamp: serverTimestamp()
+      });
+      input.value = "";
+    };
+    sendBtn?.addEventListener("click", sendText);
+    input?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendText();
+      }
+    });
+
+    // загрузка файла
+    attachBtn?.addEventListener("click", () => hiddenFile.click());
+    hiddenFile.addEventListener("change", async () => {
+      const file = hiddenFile.files?.[0];
+      if (!file) return;
+      try {
+        const path = `vip_chats/${orderId}/${Date.now()}_${file.name}`;
+        const sref = ref(storage, path);
+        await uploadBytes(sref, file);
+        const url = await getDownloadURL(sref);
+
+        await addDoc(collection(db, "vip_orders", orderId, "messages"), {
+          sender: "user",
+          fileUrl: url,
+          fileName: file.name,
+          mime: file.type || "application/octet-stream",
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Ошибка загрузки файла:", e);
+        alert("Не удалось загрузить файл.");
+      } finally {
+        hiddenFile.value = "";
+      }
+    });
+
+    chatBound = true;
+  }
+
   // ---- Выбор оплаты → заявка → чат ----
-  document.querySelector("#payments")?.addEventListener("click", (e) => {
+  document.querySelector("#payments")?.addEventListener("click", async (e) => {
     const chip = e.target.closest(".pay-chip");
     if (!chip) return;
-    createVipOrder(chip.dataset.method);
-    renderMessage(chip.dataset.method);
+    const orderId = await createVipOrder(chip.dataset.method);
+    renderSystemMessage(chip.dataset.method);
     open(modalChat);
+    bindChatIfNeeded(orderId);
   });
 
-  payOptions?.addEventListener("click", (e) => {
+  payOptions?.addEventListener("click", async (e) => {
     const btn = e.target.closest(".option-btn");
     if (!btn) return;
-    createVipOrder(btn.dataset.method);
-    renderMessage(btn.dataset.method);
+    const orderId = await createVipOrder(btn.dataset.method);
+    renderSystemMessage(btn.dataset.method);
     close(modal2);
     open(modalChat);
+    bindChatIfNeeded(orderId);
   });
 
   // ---- Закрытия ----
@@ -226,5 +339,4 @@ function initVIP() {
     const keyboard = h < baseHeight - 100;
     chatModal.style.height = keyboard ? h + "px" : "";
   });
-
 }
