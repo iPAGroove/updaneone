@@ -1,0 +1,44 @@
+/* assets/css/buy-cert.css */
+
+/* Специальные стили для страницы покупки сертификата, использующие VIP-базу */
+
+.site-header {
+    justify-content: space-between;
+}
+.site-header .back-link {
+    padding: 8px 12px;
+    border-radius: 10px;
+    color: #cfefff;
+    text-decoration: none;
+    border: 1px solid var(--stroke);
+    transition: 0.2s;
+}
+.site-header .back-link:hover {
+    background: rgba(255,255,255,.04);
+}
+.site-header .brand {
+    flex-grow: 1; /* чтобы бренд был по центру */
+    text-align: center;
+}
+.site-header .empty-space {
+    width: 90px; /* чтобы сдвинуть бренд в центр, балансируя back-link */
+}
+
+/* Уникальный цвет акцента для Cert */
+.brand span {
+    color: #ffb300; /* Золотой/желтый акцент для сертификатов */
+    text-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+}
+.price {
+    color: #ffb300;
+    text-shadow: 0 0 16px rgba(255, 179, 0, 0.4);
+}
+.cta {
+    /* Меняем градиент CTA */
+    background: linear-gradient(90deg, #ffb300, #ffec00);
+    box-shadow: 0 10px 32px rgba(255, 179, 0, 0.4);
+}
+.cta:hover { transform: translateY(-2px); }
+
+/* Подтверждаем, что модалы будут над всем */
+.payment-modal { z-index: 50; }
