@@ -1,19 +1,19 @@
 :root {
-  --accent: #00d9ff;
-  --accent-soft: rgba(0, 217, 255, 0.25);
-  --bg-deep: #020407;
-  --card: rgba(255,255,255,.06);
-  --stroke: rgba(255,255,255,.14);
+  --accent: #00d9ff;
+  --accent-soft: rgba(0, 217, 255, 0.25);
+  --bg-deep: #020407;
+  --card: rgba(255,255,255,.06);
+  --stroke: rgba(255,255,255,.14);
 }
 
 /* Reset */
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0;color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",sans-serif;
-  background:radial-gradient(80% 50% at 50% 10%,#081119 0%,var(--bg-deep) 60%);
-  overflow-x:hidden;
+  margin:0;color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",sans-serif;
+  background:radial-gradient(80% 50% at 50% 10%,#081119 0%,var(--bg-deep) 60%);
+  overflow-x:hidden;
 }
 
 /* Stars */
@@ -25,10 +25,10 @@ body::before{width:3px;height:3px;opacity:.4;box-shadow:260px 260px var(--accent
 
 /* Header */
 .site-header{
-  position:sticky;top:0;z-index:5;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 18px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
-  backdrop-filter:saturate(120%) blur(8px);
+  position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
+  backdrop-filter:saturate(120%) blur(8px);
 }
 .brand{font-weight:900;letter-spacing:.5px}
 .brand span{color:var(--accent);text-shadow:0 0 10px var(--accent-soft)}
@@ -42,10 +42,10 @@ body::before{width:3px;height:3px;opacity:.4;box-shadow:260px 260px var(--accent
 .hero .hero-sub{opacity:.75;margin:10px 0 20px}
 
 .price-card{
-  width:min(420px,92vw);padding:22px;border-radius:18px;
-  background:var(--card);backdrop-filter:blur(20px);
-  border:1px solid var(--stroke);
-  box-shadow:0 10px 40px rgba(0,0,0,.45),0 0 14px var(--accent-soft);
+  width:min(420px,92vw);padding:22px;border-radius:18px;
+  background:var(--card);backdrop-filter:blur(20px);
+  border:1px solid var(--stroke);
+  box-shadow:0 10px 40px rgba(0,0,0,.45),0 0 14px var(--accent-soft);
 }
 .price-line{display:flex;align-items:baseline;gap:8px;justify-content:center;margin-bottom:8px}
 .price{font-size:44px;font-weight:900;color:var(--accent);text-shadow:0 0 16px var(--accent-soft)}
@@ -54,10 +54,10 @@ body::before{width:3px;height:3px;opacity:.4;box-shadow:260px 260px var(--accent
 .bullet li{padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
 .bullet li:last-child{border-bottom:0}
 .cta{
-  width:100%;padding:14px 18px;border-radius:12px;border:none;cursor:pointer;
-  background:linear-gradient(90deg,var(--accent),#00f6ff);
-  color:#001217;font-weight:800;letter-spacing:.3px;
-  box-shadow:0 10px 32px rgba(0,217,255,.3);transition:.2s transform;
+  width:100%;padding:14px 18px;border-radius:12px;border:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--accent),#00f6ff);
+  color:#001217;font-weight:800;letter-spacing:.3px;
+  box-shadow:0 10px 32px rgba(0,217,255,.3);transition:.2s transform;
 }
 .cta:hover{transform:translateY(-2px)}
 
@@ -68,23 +68,23 @@ body::before{width:3px;height:3px;opacity:.4;box-shadow:260px 260px var(--accent
 @media (min-width:760px){.grid-3{grid-template-columns:repeat(3,1fr)}}
 
 .card{
-  background:var(--card);border:1px solid var(--stroke);border-radius:16px;
-  padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.35)
+  background:var(--card);border:1px solid var(--stroke);border-radius:16px;
+  padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.35)
 }
 .card-ico{font-size:22px;margin-bottom:8px}
 .card-title{font-weight:800;margin-bottom:6px}
 .card-text{opacity:.8}
 
 .pay-grid .pay-chip{
-  padding:12px 14px;border-radius:12px;border:1px solid var(--stroke);
-  background:rgba(255,255,255,.03);color:#fff;cursor:pointer
+  padding:12px 14px;border-radius:12px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.03);color:#fff;cursor:pointer
 }
 .pay-grid .pay-chip:hover{background:rgba(255,255,255,.08)}
 
 /* FAQ */
 .faq details{
-  background:var(--card);border:1px solid var(--stroke);
-  border-radius:14px;padding:12px 14px;margin-bottom:10px
+  background:var(--card);border:1px solid var(--stroke);
+  border-radius:14px;padding:12px 14px;margin-bottom:10px
 }
 .faq summary{cursor:pointer;font-weight:700;list-style:none}
 .faq summary::-webkit-details-marker{display:none}
@@ -99,81 +99,74 @@ copyright{opacity:.6}
 
 /* Modals */
 .payment-modal{
-  position:fixed;inset:0;display:none;justify-content:center;align-items:center;
-  background:rgba(0,0,0,.65);backdrop-filter:blur(10px);z-index:20
+  position:fixed;inset:0;display:none;justify-content:center;align-items:center;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(10px);z-index:20;
+  animation:modalFade .25s ease;
 }
+@keyframes modalFade {from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)}}
+
 .modal-content{
-  width:min(420px,92vw);padding:24px;border-radius:18px;
-  background:var(--card);border:1px solid var(--stroke);box-shadow:0 10px 40px rgba(0,0,0,.6);
-  position: relative; /* <-- ИЗМЕНЕНО: Добавлено для позиционирования кнопки закрытия */
+  width:min(420px,92vw);padding:24px;border-radius:18px;position:relative;
+  background:var(--card);border:1px solid var(--stroke);
+  box-shadow:0 10px 40px rgba(0,0,0,.6)
 }
+
+/* ✕ кнопка */
+.modal-close{
+  position:absolute;top:10px;right:14px;
+  font-size:20px;border:none;background:transparent;
+  color:#cfefff;cursor:pointer;opacity:.75;transition:.2s;
+}
+.modal-close:hover{opacity:1;transform:scale(1.12)}
+
 .modal-title{margin:0 0 10px;color:var(--accent);text-align:center}
 .modal-text{opacity:.85;text-align:center}
+
 .modal-btn{
-  width:100%;padding:13px;border-radius:12px;margin-top:16px;border:none;cursor:pointer;
-  background:linear-gradient(90deg,var(--accent),#00f6ff);color:#001217;font-weight:800
+  width:100%;padding:13px;border-radius:12px;margin-top:16px;border:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--accent),#00f6ff);color:#001217;font-weight:800
 }
 .back-btn{background:transparent;color:#cfefff;border:1px solid var(--stroke)}
 
-/* Close Button */
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  opacity: .6;
-  transition: opacity .2s;
-}
-.close-btn:hover {
-  opacity: 1;
-}
-
-/* Step 2 list */
+/* Step 2 */
 .payment-options{display:flex;flex-direction:column;gap:10px;margin:14px 0}
 .option-btn{
-  display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;
-  text-decoration:none;color:#fff;background:rgba(255,255,255,.04);border:1px solid var(--stroke)
+  display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;
+  text-decoration:none;color:#fff;background:rgba(255,255,255,.04);border:1px solid var(--stroke)
 }
 .option-btn:hover{background:rgba(255,255,255,.08)}
 .option-icon{font-size:18px}
 
-/* Chat modal (big) */
+/* Chat */
 #modal-chat .modal-content.chat-content{
-  height:85vh;display:flex;flex-direction:column
+  height:85vh;display:flex;flex-direction:column
 }
 .chat-title{text-align:center;margin-bottom:10px}
+
 .chat-area{
-  flex:1;overflow:auto;padding:16px;border-radius:14px;
-  background:rgba(0,0,0,.22);border:1px solid var(--stroke);margin-bottom:14px
+  flex:1;overflow:auto;padding:16px;border-radius:14px;
+  background:rgba(0,0,0,.22);border:1px solid var(--stroke);margin-bottom:14px
 }
 
-/* System message */
 .system-message{
-  display:block;background:rgba(0,217,255,.08);
-  border:1px solid rgba(0,217,255,.35);
-  border-radius:14px;padding:16px;text-align:center;
-  box-shadow:0 0 24px rgba(0,217,255,.08) inset
+  display:block;background:rgba(0,217,255,.08);
+  border:1px solid rgba(0,217,255,.35);
+  border-radius:14px;padding:16px;text-align:center;
+  box-shadow:0 0 24px rgba(0,217,255,.08) inset
 }
 .chat-method-name,.chat-details,.chat-warning{display:block;margin-bottom:10px}
 .chat-method-name{font-weight:900;color:var(--accent);text-shadow:0 0 10px var(--accent-soft)}
 .chat-details{
-  font:600 14px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);
-  border-radius:10px;padding:10px;white-space:pre-wrap;word-break:break-word
+  font:600 14px/1.45 ui-monospace, Menlo, Monaco, Consolas;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;padding:10px;white-space:pre-wrap;word-break:break-word
 }
 .chat-warning{opacity:.9}
 
-/* Chat input (disabled placeholder) */
 .chat-input-container{display:flex;gap:8px}
 .chat-input,.chat-send-btn{
-  padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,.2);
-  background:rgba(255,255,255,.04);color:#9fb6c3
+  padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,.2);
+  background:rgba(255,255,255,.04);color:#9fb6c3
 }
 
 /* Animations */
