@@ -25,6 +25,7 @@ body {
   line-height:1.45; overflow-x:hidden;
 }
 
+/* Glow background */
 .glow-bg {
   position:fixed; inset:0; pointer-events:none; z-index:0;
   background:
@@ -32,21 +33,23 @@ body {
     radial-gradient(650px 650px at 15% 85%, rgba(0,188,212,0.15), transparent 70%);
 }
 
+/* Header */
 .header {
   position:sticky; top:0; z-index:20;
   display:flex; justify-content:space-between; align-items:center;
   padding:14px 18px; backdrop-filter:blur(14px);
   background:rgba(0,0,0,0.35); border-bottom:1px solid rgba(255,255,255,0.05);
 }
-
 .brand { font-size:20px; font-weight:800; }
 .brand span { color:var(--accent); text-shadow:0 0 14px var(--accent-glow); }
 .back { color:var(--accent); text-decoration:none; font-weight:600; }
 
+/* Hero */
 .hero { padding:60px 18px 40px; text-align:center; z-index:1; position:relative; }
 .hero h1 { font-size:32px; font-weight:800; margin-bottom:10px; }
 .hero .sub { opacity:.85; font-size:16px; margin-bottom:30px; }
 
+/* Benefits */
 .benefits { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
 .benefit {
   padding:8px 14px; background:var(--bg-light);
@@ -54,20 +57,26 @@ body {
   font-size:14px;
 }
 
+/* Sections */
 .section { max-width:1100px; margin:0 auto; padding:60px 18px; }
 .section h2 { text-align:center; font-size:26px; font-weight:800; margin-bottom:30px; }
 
+/* Cards grid */
 .cards { display:grid; gap:20px; grid-template-columns:1fr; }
 .cards.two { grid-template-columns:1fr; }
 @media(min-width:700px){
   .cards.two { grid-template-columns:1fr 1fr; }
 }
 
+/* Card */
 .card {
   background:var(--card); border:1px solid var(--stroke);
   border-radius:var(--radius); padding:24px; backdrop-filter:blur(var(--blur));
 }
+.card h3 { font-weight:700; margin-bottom:10px; }
+.card p { color:var(--text-dim); }
 
+/* Plan cards */
 .plan-card { text-align:center; padding:28px 20px; }
 .plan-card .price {
   font-size:20px; font-weight:800;
@@ -75,15 +84,15 @@ body {
   text-shadow:0 0 12px var(--accent-soft);
 }
 
+/* Featured (Супер-моментальный) */
 .featured {
   border-color:var(--accent);
   background:rgba(0,188,212,0.12);
   box-shadow:0 0 35px var(--accent-soft);
 }
-.featured .price {
-  color:#00eaff; text-shadow:0 0 18px var(--accent-glow);
-}
+.featured .price { color:#00eaff; text-shadow:0 0 18px var(--accent-glow); }
 
+/* CTA */
 .cta {
   width:100%; margin-top:18px; padding:14px;
   border:none; border-radius:var(--radius);
@@ -93,13 +102,26 @@ body {
 }
 .cta:hover { transform:translateY(-2px); box-shadow:0 8px 28px var(--accent-soft); }
 
-.faq { background:var(--card); border:1px solid var(--stroke); border-radius:var(--radius); padding:18px 20px; }
+/* FAQ */
+.faq {
+  background:var(--card); border:1px solid var(--stroke);
+  border-radius:var(--radius); padding:18px 20px; margin-bottom:10px;
+  backdrop-filter:blur(var(--blur));
+}
 .faq summary { cursor:pointer; font-weight:600; }
 .faq p { margin-top:10px; color:var(--text-dim); }
+.faq-cta { text-align:center; margin-top:30px; }
 
+/* Footer */
 .footer { text-align:center; padding:40px 18px; opacity:.6; font-size:13px; }
 
-.modal { position:fixed; inset:0; display:none; justify-content:center; align-items:center; background:rgba(0,0,0,0.7); backdrop-filter:blur(18px); z-index:999; }
+/* Pay modal */
+.modal {
+  position:fixed; inset:0; display:none;
+  justify-content:center; align-items:center;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(18px);
+  z-index:999;
+}
 .modal.show { display:flex; }
 .modal-content {
   width:min(420px,90%); background:var(--card);
@@ -107,7 +129,13 @@ body {
   padding:26px; position:relative; text-align:center;
   backdrop-filter:blur(var(--blur));
 }
-.close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; cursor:pointer; color:#fff; }
+.close {
+  position:absolute; top:14px; right:16px;
+  background:none; border:none; font-size:20px; cursor:pointer; color:#fff;
+}
 .methods { display:flex; flex-direction:column; gap:12px; margin-top:18px; }
-.method { padding:12px; background:var(--bg-light); border-radius:var(--radius); border:1px solid var(--stroke); cursor:pointer; }
+.method {
+  padding:12px; background:var(--bg-light);
+  border-radius:var(--radius); border:1px solid var(--stroke); cursor:pointer;
+}
 .method:hover { border-color:var(--accent); }
