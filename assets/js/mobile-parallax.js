@@ -1,4 +1,3 @@
-// Лёгкий параллакс для фоновых звёзд (без зависимостей)
 (() => {
   const stars = document.querySelector('.stars');
   if (!stars) return;
