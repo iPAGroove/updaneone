@@ -1,6 +1,9 @@
 // assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip + Переход в VIP страницу + Переход на покупку сертификата
+// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip
+// + Переход в VIP страницу
+// + Переход на покупку сертификата
+// + Переход в "О нас"
 // ===============================
 import {
     loginWithGoogle,
@@ -181,12 +184,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // ✅ Переход на страницу покупки сертификата
+    // ✅ Переход на cert.html
     document.body.addEventListener("click", (e) => {
         if (e.target.classList.contains("buy-cert-btn")) {
             closeMenu();
             window.location.href = "./cert.html";
         }
+    });
+
+    // ✅ Переход в VIP
+    document.querySelector(".select-plan-btn")?.addEventListener("click", () => {
+        closeMenu();
+        window.location.href = "./vip.html";
+    });
+
+    // ✅ Переход в About
+    document.querySelector(".about-us-btn")?.addEventListener("click", () => {
+        closeMenu();
+        window.location.href = "./about.html";
     });
 
     // ===============================
@@ -232,17 +247,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await loginWithFacebook();
     });
 
-    // ===============================
-    // ✅ "ВЫБРАТЬ ПЛАН" → VIP PAGE
-    // ===============================
-    document.querySelector(".select-plan-btn")?.addEventListener("click", () => {
-        closeMenu();
-        window.location.href = "./vip.html";
-    });
-
-    // ===============================
-    // ✅ СТАТУС FREE / VIP
-    // ===============================
+    // ✅ FREE/VIP статус
     onUserChanged(async (user) => {
         if (!user) {
             localStorage.setItem("ursa_user_status", "free");
