@@ -1,194 +1,226 @@
-/* assets/css/cert.css */
-/* ================================
-   Темы, базовые переменные
-==================================*/
-:root{
-  --accent:#00d9ff;
-  --accent-soft:rgba(0,217,255,.25);
-  --bg:#020407;
-  --card:rgba(255,255,255,.06);
-  --card-strong:rgba(255,255,255,.08);
-  --stroke:rgba(255,255,255,.14);
-  --text:#eaf6ff;
-  --muted:#b7dfff;
-  --shadow:0 10px 40px rgba(0,0,0,.45), 0 0 14px var(--accent-soft);
+:root {
+--accent: #00d9ff;
+--accent-soft: rgba(0, 217, 255, 0.25);
+--bg: #020407;
+--card: rgba(255,255,255,.06);
+--stroke: rgba(255,255,255,.15);
+}
+/* Background */
+body {
+margin: 0;
+font-family:-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+background: radial-gradient(80% 50% at 50% 10%, #081119 0%, var(--bg) 60%);
+color: #fff;
+overflow-x: hidden;
+}
+/* Stars */
+.stars { position: fixed; inset: 0; pointer-events:none; z-index:0; }
+header { position:sticky; top:0; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(10px); z-index:10; }
+.brand { font-weight:900; } .brand span { color:var(--accent); text-shadow:0 0 14px var(--accent-soft); }
+.back { color:#9fdfff; text-decoration:none; }
+.hero { text-align:center; padding:40px 18px; position:relative; z-index:1; }
+.hero h1 { margin-bottom:6px; font-size:28px; font-weight:800; }
+.sub { opacity:.7; margin-bottom:24px; }
+.price-box {
+width:min(440px,90vw);
+background:var(--card);
+border:1px solid var(--stroke);
+backdrop-filter:blur(18px);
+padding:20px 18px;
+border-radius:18px;
+margin:0 auto;
+box-shadow:0 10px 40px rgba(0,0,0,.45), 0 0 14px var(--accent-soft);
+}
+.plans { display:flex; flex-direction:column; gap:10px; margin:18px 0; }
+.plan {
+padding:12px;
+border-radius:12px;
+border:1px solid var(--stroke);
+background:rgba(255,255,255,.04);
+color:#fff;
+cursor:pointer;
+transition:all .2s;
+}
+.plan:hover { background:rgba(255,255,255,.08); }
+.plan.active { border-color:var(--accent); background:rgba(0,217,255,.12); }
+.cta {
+width:100%;
+padding:14px;
+border-radius:12px;
+border:none;
+font-weight:800;
+cursor:pointer;
+background:linear-gradient(90deg,var(--accent),#00f6ff);
+color:#001217;
+opacity:.4;
+transition:opacity .3s, box-shadow .3s;
+}
+.cta.ready { opacity:1; box-shadow:0 10px 32px rgba(0,217,255,.25); }
+
+
+/* === НОВЫЕ СТИЛИ ДЛЯ INFO SECTION === */
+.info-section {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 0 18px 40px;
+    z-index: 1;
+    position: relative;
 }
 
-/* ================================
-   База
-==================================*/
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: Inter, -apple-system,BlinkMacSystemFont,"Segoe UI","SF Pro Display",Roboto,Helvetica,Arial,sans-serif;
-  background: radial-gradient(80% 50% at 50% 10%, #081119 0%, var(--bg) 60%);
-  color:var(--text);
-  overflow-x:hidden;
+.info-section h2 {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
 }
 
-/* декоративные звезды (отрисовываются в отдельном скрипте при желании) */
-.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
-
-/* ================================
-   Шапка
-==================================*/
-.header{
-  position:sticky;top:0;z-index:20;
-  padding:14px 18px;
-  display:flex;align-items:center;gap:12px;
-  justify-content:space-between;
-  backdrop-filter:blur(10px);
-  background:linear-gradient(180deg, rgba(2,4,7,.7), rgba(2,4,7,.25));
-  border-bottom:1px solid var(--stroke);
-}
-.brand{font-weight:900;letter-spacing:.5px}
-.brand span{color:var(--accent);text-shadow:0 0 14px var(--accent-soft)}
-.back{color:#9fdfff;text-decoration:none}
-.top-nav{display:none;gap:12px}
-.top-nav .nav-link{
-  color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:10px;border:1px solid transparent
-}
-.top-nav .nav-link:hover{border-color:var(--stroke)}
-.top-nav .nav-link.active{border-color:var(--accent);color:#cfffff}
-
-@media (min-width:860px){
-  .top-nav{display:flex}
+.section-sub {
+    text-align: center;
+    opacity: .7;
+    margin-bottom: 40px;
 }
 
-/* ================================
-   Hero
-==================================*/
-.hero{position:relative;z-index:1;padding:40px 18px 28px}
-.hero-inner{max-width:980px;margin:0 auto;text-align:center}
-.hero h1{margin:0 0 6px;font-size:34px;font-weight:900;letter-spacing:.2px}
-.hero .sub{opacity:.9;margin:0 auto 18px;max-width:760px}
-.badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 20px}
-.badge{
-  padding:8px 12px;border-radius:999px;border:1px solid var(--stroke);
-  background:rgba(255,255,255,.04);backdrop-filter:blur(8px);font-weight:600;
+/* Accordion Styles */
+.accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-/* прайс */
-.price-box{
-  width:min(540px,92vw);margin:0 auto 12px;
-  background:var(--card);border:1px solid var(--stroke);backdrop-filter:blur(18px);
-  padding:20px 18px;border-radius:18px;box-shadow:var(--shadow)
-}
-.pb-title{margin:0 0 12px}
-.plans{display:flex;flex-direction:column;gap:10px;margin:14px 0 18px}
-.plan{
-  padding:12px;border-radius:12px;border:1px solid var(--stroke);
-  background:rgba(255,255,255,.04);color:#fff;cursor:pointer;font-weight:700;text-align:center
-}
-.plan:hover{border-color:var(--accent)}
-.plan.active{border-color:var(--accent);background:rgba(0,217,255,.12)}
-.cta{
-  width:100%;padding:14px;border-radius:12px;border:none;font-weight:800;cursor:pointer;
-  background:linear-gradient(90deg,var(--accent),#00f6ff);color:#001217;opacity:.4;transition:opacity .2s ease, transform .06s ease
-}
-.cta.ready{opacity:1;box-shadow:0 10px 32px rgba(0,217,255,.25)}
-.cta:active{transform:translateY(1px)}
-.hint{margin-top:10px;color:var(--muted);font-size:.95rem}
-
-.trust{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
-.trust-item{padding:8px 10px;border:1px dashed var(--stroke);border-radius:10px;color:#dff7ff}
-.footnote{display:block;margin-top:6px;color:#b3e9ff99}
-
-/* ================================
-   Секции
-==================================*/
-.section{position:relative;z-index:1;padding:36px 18px}
-.section h2{font-size:28px;margin:0 0 12px}
-.container{max-width:1100px;margin:0 auto}
-
-/* HOW */
-.steps{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:14px}
-.steps li{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--stroke);padding:14px;border-radius:14px}
-.step-num{
-  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:rgba(0,217,255,.12);border:1px solid var(--accent);font-weight:800
+.accordion-item {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: all .3s ease-in-out;
 }
 
-/* INFO GRID */
-.info-grid .grid{
-  display:grid;gap:14px;margin-top:12px
-}
-@media (min-width:860px){
-  .info-grid .grid{grid-template-columns:repeat(3,1fr)}
-}
-.card{
-  background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:16px;box-shadow:var(--shadow)
-}
-.card h3{margin:0 0 8px}
-.list{margin:8px 0 0 18px}
-
-/* COMPARE */
-.compare .table-wrap{overflow:auto;border-radius:14px;border:1px solid var(--stroke);background:var(--card);box-shadow:var(--shadow)}
-.table{width:100%;border-collapse:collapse;min-width:720px}
-.table th,.table td{padding:12px 14px;border-bottom:1px solid var(--stroke)}
-.table thead th{background:rgba(255,255,255,.04);text-align:left}
-.note{margin-top:10px;color:var(--muted)}
-
-/* COMPAT */
-.compat .compat-list{display:grid;gap:10px;margin-top:10px}
-.compat .compat-list li{
-  list-style:none;padding:12px;border:1px solid var(--stroke);border-radius:12px;background:rgba(255,255,255,.04)
+.accordion-title {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #fff;
+    padding: 18px 24px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color .2s;
 }
 
-/* GUARANTEES */
-.guarantee .guarantee-grid{display:grid;gap:14px;margin-top:12px}
-@media (min-width:860px){
-  .guarantee .guarantee-grid{grid-template-columns:repeat(2,1fr)}
-}
-.g-card{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:16px}
-.legal{margin-top:12px;color:var(--muted)}
-
-/* FAQ */
-.faq .acc{border:1px solid var(--stroke);border-radius:12px;background:var(--card);margin-bottom:10px;overflow:hidden}
-.acc-h{
-  width:100%;text-align:left;padding:14px 44px 14px 14px;background:transparent;border:none;color:#fff;cursor:pointer;position:relative;font-weight:700
-}
-.acc-h::after{
-  content:"+";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-weight:900;color:var(--muted)
-}
-.acc.open .acc-h::after{content:"–"}
-.acc-b{display:none;padding:0 14px 14px;color:#e6f6ff}
-.acc.open .acc-b{display:block}
-
-/* CTA secondary */
-.cta-2 .cta-plate{
-  display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;
-  border:1px solid var(--stroke);background:var(--card-strong);padding:16px;border-radius:16px;box-shadow:var(--shadow)
-}
-.btn-ghost{
-  border:1px solid var(--accent);color:#eaffff;text-decoration:none;padding:10px 14px;border-radius:12px;font-weight:800
-}
-.btn-ghost:hover{background:rgba(0,217,255,.12)}
-
-/* ================================
-   Модальное окно оплаты
-==================================*/
-.modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.6);backdrop-filter:blur(14px);z-index:100}
-.modal.show{display:grid}
-.modal-content{
-  width:min(420px,92vw);background:var(--card);padding:24px;border-radius:18px;border:1px solid var(--stroke);
-  text-align:center;box-shadow:var(--shadow);position:relative
-}
-.close{
-  position:absolute;top:12px;right:14px;background:transparent;border:1px solid var(--stroke);border-radius:10px;
-  color:#fff;font-size:16px;cursor:pointer;width:36px;height:32px;display:flex;align-items:center;justify-content:center
-}
-.methods{display:flex;flex-direction:column;gap:12px;margin:18px 0}
-.method{
-  padding:12px;border:1px solid var(--stroke);border-radius:12px;background:rgba(255,255,255,.05);cursor:pointer;font-weight:800
-}
-.method:hover{border-color:var(--accent)}
-.back-btn{
-  padding:10px;background:none;border:1px solid var(--stroke);border-radius:12px;color:#9fdfff;cursor:pointer;width:100%
+.accordion-title:hover {
+    background-color: rgba(255, 255, 255, 0.04);
 }
 
-/* ================================
-   Служебное
-==================================*/
-.modal-open{overflow:hidden}
+.accordion-title.active {
+    color: var(--accent);
+}
+
+.accordion-title .icon {
+    font-size: 24px;
+    line-height: 1;
+    transform: rotate(0deg);
+    transition: transform .3s;
+}
+
+.accordion-title.active .icon {
+    transform: rotate(45deg);
+}
+
+.accordion-content {
+    max-height: 0;
+    padding: 0 24px;
+    overflow: hidden;
+    transition: max-height .4s ease-in-out, padding .4s ease-in-out;
+}
+
+.accordion-content p {
+    line-height: 1.6;
+    margin-top: 0;
+    padding-bottom: 18px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.accordion-content ol, .accordion-content ul {
+    margin: 0 0 18px;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.accordion-content ol {
+    list-style-type: decimal;
+}
+
+.accordion-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Comparison Table */
+.comparison-table {
+    margin: 20px 0;
+    overflow-x: auto;
+}
+
+.comparison-table table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 400px;
+}
+
+.comparison-table th, .comparison-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid var(--stroke);
+}
+
+.comparison-table th {
+    background-color: rgba(0, 217, 255, 0.1);
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.comparison-table td {
+    background-color: rgba(255, 255, 255, 0.02);
+    font-size: 14px;
+}
+
+
+/* MODAL */
+.modal { position:fixed; inset:0; display:none; justify-content:center; align-items:center; background:rgba(0,0,0,.7); backdrop-filter:blur(14px); z-index:1000; }
+.modal.show { display:flex; }
+.modal-content {
+width:min(400px,92vw);
+background:var(--card);
+padding:24px;
+border-radius:18px;
+border:1px solid var(--stroke);
+text-align:center;
+position:relative;
+}
+.close { position:absolute; top:14px; right:18px; background:transparent; border:none; color:#fff; font-size:20px; cursor:pointer; }
+.methods { display:flex; flex-direction:column; gap:12px; margin:18px 0; }
+.method {
+padding:12px;
+border:1px solid var(--stroke);
+border-radius:12px;
+background:rgba(255,255,255,.05);
+color: #fff;
+cursor:pointer;
+transition: background-color .2s;
+}
+.method:hover { background:rgba(255,255,255,.1); }
+.back-btn {
+padding:10px;
+background:none;
+border:1px solid var(--stroke);
+border-radius:12px;
+color:#9fdfff;
+cursor:pointer;
+transition: background-color .2s;
+}
+.back-btn:hover { background:rgba(255,255,255,.05); }
