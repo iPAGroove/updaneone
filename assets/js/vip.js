@@ -166,20 +166,44 @@ function initVIP() {
   const sendBtn = document.querySelector(".chat-send-btn");
 
   // создаём (если нет) кнопку-скрепку и скрытый input[type=file]
+  // В HTML уже есть элементы с id="chat-attach" и id="chat-file", используем их
+  // или оставляем твой код, чтобы гарантировать наличие элементов:
   let attachBtn = document.querySelector(".chat-attach-btn");
   if (!attachBtn) {
-    attachBtn = document.createElement("button");
-    attachBtn.type = "button";
-    attachBtn.className = "chat-attach-btn";
-    attachBtn.textContent = "📎";
-    const container = document.querySelector(".chat-input-container");
-    container?.insertBefore(attachBtn, input);
+    // В оригинальном HTML есть <button id="chat-attach" class="chat-attach">📎</button>
+    // и <input type="file" id="chat-file" hidden .../>
+    // Для совместимости используем то, что есть в DOM:
+    attachBtn = document.getElementById("chat-attach");
+    if (attachBtn) {
+        attachBtn.className = "chat-attach-btn"; // Добавляем класс, который стилизован
+    }
   }
-  const hiddenFile = document.createElement("input");
-  hiddenFile.type = "file";
-  hiddenFile.accept = "image/*,application/pdf,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  hiddenFile.style.display = "none";
-  document.body.appendChild(hiddenFile);
+  const hiddenFile = document.getElementById("chat-file");
+
+  if (!attachBtn || !hiddenFile) {
+    console.warn("⚠️ Элементы чата (скрепка/input) не найдены. Создание элементов...");
+    // Твой код для создания элементов, если их нет в DOM (хотя они есть в HTML)
+    // Это может быть причиной, по которой ты их создаёшь
+    if (!attachBtn) {
+      attachBtn = document.createElement("button");
+      attachBtn.type = "button";
+      attachBtn.className = "chat-attach-btn";
+      attachBtn.textContent = "📎";
+      const container = document.querySelector(".chat-input-container");
+      container?.insertBefore(attachBtn, input);
+    }
+    if (!hiddenFile) {
+        hiddenFile = document.createElement("input");
+        hiddenFile.type = "file";
+        hiddenFile.accept = "image/*,application/pdf,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        hiddenFile.style.display = "none";
+        document.body.appendChild(hiddenFile);
+    }
+  }
+  
+  // Добавляем правильный атрибут типа, если его нет
+  if (attachBtn) { attachBtn.type = "button"; }
+
 
   function bindChatIfNeeded() {
     if (chatBound) return;
@@ -295,14 +319,15 @@ function initVIP() {
     chatBound = true;
   }
 
-  // ---- Выбор оплаты → заявка → чат ----
-  document.querySelector("#payments")?.addEventListener("click", async (e) => {
-    const chip = e.target.closest(".pay-chip");
-    if (!chip) return;
-    const orderId = await createVipOrder(chip.dataset.method);
-    renderSystemMessage(chip.dataset.method);
-    open(modalChat);
-    bindChatIfNeeded(orderId);
+  // --- ИСПРАВЛЕНИЕ: Прямая привязка к кнопкам оплаты в секции #payments ---
+  document.querySelectorAll("#payments .pay-chip").forEach(chip => {
+    chip.addEventListener("click", async () => {
+      const method = chip.dataset.method;
+      const orderId = await createVipOrder(method);
+      renderSystemMessage(method);
+      open(modalChat);
+      bindChatIfNeeded(orderId);
+    });
   });
 
   payOptions?.addEventListener("click", async (e) => {
@@ -314,6 +339,7 @@ function initVIP() {
     open(modalChat);
     bindChatIfNeeded(orderId);
   });
+  // -----------------------------------------------------------------------
 
   // ---- Закрытия ----
   window.addEventListener("click", (e) => {
