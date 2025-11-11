@@ -212,3 +212,24 @@ copyright{opacity:.6}
 .chat-send-btn:hover{transform:scale(1.05)}
 
 @keyframes shoot{from{transform:translate(0,0)}to{transform:translate(-1400px,720px)}}
+.msg {
+  max-width: 80%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.msg.user {
+  background: rgba(0,217,255,.18);
+  align-self: flex-end;
+  border: 1px solid rgba(0,217,255,.35);
+}
+
+.msg.admin {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.24);
+  align-self: flex-start;
+}
