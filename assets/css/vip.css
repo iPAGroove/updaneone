@@ -8,12 +8,17 @@
 
 /* Reset */
 *,*::before,*::after{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%;-webkit-text-size-adjust:100%}
 body{
   margin:0;color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",sans-serif;
   background:radial-gradient(80% 50% at 50% 10%,#081119 0%,var(--bg-deep) 60%);
   overflow-x:hidden;
+}
+
+/* iOS FIX — не увеличивать зум при вводе */
+input, textarea, select {
+  font-size:16px !important;
 }
 
 /* Stars */
@@ -121,14 +126,12 @@ copyright{opacity:.6}
 
 .modal-title{margin:0 0 10px;color:var(--accent);text-align:center}
 .modal-text{opacity:.85;text-align:center}
-
 .modal-btn{
   width:100%;padding:13px;border-radius:12px;margin-top:16px;border:none;cursor:pointer;
   background:linear-gradient(90deg,var(--accent),#00f6ff);color:#001217;font-weight:800
 }
 .back-btn{background:transparent;color:#cfefff;border:1px solid var(--stroke)}
 
-/* Step 2 */
 .payment-options{display:flex;flex-direction:column;gap:10px;margin:14px 0}
 .option-btn{
   display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;
@@ -139,8 +142,9 @@ copyright{opacity:.6}
 
 /* Chat */
 #modal-chat .modal-content.chat-content{
-  height:85vh;display:flex;flex-direction:column
+  height:85vh;display:flex;flex-direction:column;transition:height .25s ease;
 }
+
 .chat-title{text-align:center;margin-bottom:10px}
 
 .chat-area{
@@ -168,17 +172,23 @@ copyright{opacity:.6}
   display:flex;align-items:center;gap:10px;
 }
 
+/* 📎 attach button — красивое свечение */
 .chat-attach-btn{
-  font-size:20px;
-  padding:10px;
-  border-radius:10px;
+  width:42px;height:42px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:12px;
   border:1px dashed rgba(255,255,255,.28);
   background:rgba(255,255,255,.06);
   cursor:pointer;
-  color:#cfefff;
-  transition:.2s;
+  color:var(--accent);
+  font-size:20px;
+  transition:.25s;
 }
-.chat-attach-btn:hover{background:rgba(255,255,255,.12)}
+.chat-attach-btn:hover{
+  background:rgba(255,255,255,.12);
+  border-color:var(--accent);
+  box-shadow:0 0 12px var(--accent-soft);
+}
 
 .chat-input{
   flex:1;
@@ -201,5 +211,4 @@ copyright{opacity:.6}
 }
 .chat-send-btn:hover{transform:scale(1.05)}
 
-/* Anim */
 @keyframes shoot{from{transform:translate(0,0)}to{transform:translate(-1400px,720px)}}
