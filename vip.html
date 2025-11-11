@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>URSA VIP</title>
-  <!-- Используем v=5, чтобы загрузить чистые стили оплаты -->
-  <link rel="stylesheet" href="assets/css/vip.css?v=5"> 
+  <link rel="stylesheet" href="assets/css/vip.css?v=5">
 </head>
 <body>
 
@@ -16,7 +15,7 @@
   <h1 class="vip-title">URSA VIP</h1>
   <p class="vip-subtitle">Премиальный доступ ко всему</p>
 
-  <div class="vip-card"> 
+  <div class="vip-card">
     <h2 class="vip-price">5$ / месяц</h2>
 
     <ul class="vip-benefits">
@@ -32,64 +31,50 @@
 
 </div>
 
-<!-- 1. МОДАЛЬНОЕ ОКНО ШАГ 1: Инструкция (возвращаем) -->
+<!-- 1. Шаг 1 — Инструкция -->
 <div id="modal-step-1" class="payment-modal">
     <div class="modal-content">
         <h3 class="modal-title">💸 Шаг 1: Инструкция по оплате VIP</h3>
-        <p class="modal-text">Для активации VIP доступа необходимо выполнить оплату услуги и отправить чек.
-        <br><br>
-        После оплаты вам нужно будет предоставить скриншот или чек в чат для активации доступа.</p>
+        <p class="modal-text">
+            Для активации VIP доступа необходимо выполнить оплату услуги и отправить чек.
+            <br><br>
+            После оплаты вам нужно будет предоставить скриншот или чек в этот чат.
+        </p>
         <button id="btn-read" class="modal-btn">Я прочитал(а)</button>
     </div>
 </div>
 
-<!-- 2. МОДАЛЬНОЕ ОКНО ШАГ 2: Выбор метода оплаты -->
+<!-- 2. Шаг 2 — Выбор способа оплаты -->
 <div id="modal-step-2" class="payment-modal">
     <div class="modal-content">
-        <h3 class="modal-title">💳 Выберите способ оплаты</h3> 
+        <h3 class="modal-title">💳 Выберите способ оплаты</h3>
         <div class="payment-options">
-            <!-- Добавляем data-method для JS -->
-            <a href="#" class="option-btn" data-method="crypto">
-                <span class="option-icon">💎</span> Crypto World
-            </a>
-            <a href="#" class="option-btn" data-method="binance_pay">
-                <span class="option-icon">🔶</span> Binance Pay
-            </a>
-            <a href="#" class="option-btn" data-method="gift_card">
-                <span class="option-icon">🎁</span> Binance Gift Card
-            </a>
-            <a href="#" class="option-btn" data-method="paypal">
-                <span class="option-icon">🅿️</span> PayPal
-            </a>
-            <a href="#" class="option-btn" data-method="ua_card">
-                <span class="option-icon">🇺🇦</span> UA Card
-            </a>
-            <a href="#" class="option-btn" data-method="ru_card">
-                <span class="option-icon">🇷🇺</span> RU Card
-            </a>
+            <a href="#" class="option-btn" data-method="crypto"><span class="option-icon">💎</span> Crypto World</a>
+            <a href="#" class="option-btn" data-method="binance_pay"><span class="option-icon">🔶</span> Binance Pay</a>
+            <a href="#" class="option-btn" data-method="gift_card"><span class="option-icon">🎁</span> Binance Gift Card</a>
+            <a href="#" class="option-btn" data-method="paypal"><span class="option-icon">🅿️</span> PayPal</a>
+            <a href="#" class="option-btn" data-method="ua_card"><span class="option-icon">🇺🇦</span> UA Card</a>
+            <a href="#" class="option-btn" data-method="ru_card"><span class="option-icon">🇷🇺</span> RU Card</a>
         </div>
         <button id="btn-back-to-info" class="modal-btn back-btn">← Назад</button>
     </div>
 </div>
 
-<!-- 3. НОВОЕ МОДАЛЬНОЕ ОКНО: ЧАТ С РЕКВИЗИТАМИ -->
+<!-- 3. Шаг 3 — Чат с реквизитами -->
 <div id="modal-chat" class="payment-modal">
     <div class="modal-content chat-content">
         <h3 class="modal-title chat-title">💬 Чат поддержки VIP</h3>
-        
+
         <div class="chat-area" id="chat-area">
-            <!-- Сообщение от системы (скрыто) -->
             <div id="system-message-template" class="message system-message" style="display: none;">
                 <p>
                     <span class="chat-method-name"></span>
                     <br><br>
                     <span class="chat-details"></span>
                     <br><br>
-                    ⚠️ Важно: После оплаты **обязательно** предоставьте скриншот/чек в этот чат!
+                    ⚠️ Важно: После оплаты обязательно отправьте скриншот/чек в этот чат!
                 </p>
             </div>
-            
-            <!-- Здесь будет отображаться сообщение о методе оплаты -->
         </div>
 
         <div class="chat-input-container">
@@ -101,8 +86,8 @@
     </div>
 </div>
 
-
-<script src="assets/js/mobile-parallax.js"></script> 
+<script src="assets/js/mobile-parallax.js"></script>
 <script src="assets/js/vip.js" type="module"></script>
+
 </body>
 </html>
