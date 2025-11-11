@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#00bcd4" />
 
   <link rel="icon" href="assets/img/favicon.png" />
-  <link rel="stylesheet" href="assets/css/cert.css?v=4" />
+  <link rel="stylesheet" href="assets/css/cert.css?v=5" />
 </head>
 
 <body>
@@ -32,7 +32,9 @@
   </div>
 </section>
 
-<!-- ТИПЫ СЕРТИФИКАТОВ -->
+<!-- =============================
+      ТИПЫ СЕРТИФИКАТОВ
+============================= -->
 <section class="section" id="types">
   <h2>Выберите сертификат</h2>
 
@@ -41,21 +43,29 @@
     <article class="card plan-card" data-plan="standard">
       <h3>Обычный сертификат</h3>
       <p class="price">$10 • гарантия 1 месяц</p>
-      <p>Стандартный персональный сертификат, выпускается под ваш UDID. Подходит для большинства устройств. Сбалансированный вариант по цене и стабильности.</p>
+      <p>
+        Персональный сертификат, выпускается под ваш UDID. Подходит для большинства устройств.
+        Оптимален по цене и стабильности.
+      </p>
       <button class="cta buy" data-plan="standard">Выбрать</button>
     </article>
 
     <article class="card plan-card featured" data-plan="instant">
       <h3>Супер-моментальный</h3>
       <p class="price">$17 • гарантия 4 месяца</p>
-      <p><strong>Работает сразу, даже если UDID в чёрном списке.</strong><br>Обходит авто-блокировку и даёт увеличенный срок стабильной работы.</p>
+      <p>
+        <strong>Работает сразу, даже если UDID в чёрном списке.</strong><br>
+        Обходит авто-блокировку Apple и даёт увеличенный срок стабильной работы.
+      </p>
       <button class="cta buy" data-plan="instant">Выбрать</button>
     </article>
 
   </div>
 </section>
 
-<!-- ИНСТРУКЦИИ -->
+<!-- =============================
+      ИНСТРУКЦИИ
+============================= -->
 <section class="section" id="guides">
   <h2>Видео-инструкции</h2>
 
@@ -74,28 +84,49 @@
   </div>
 </section>
 
-<!-- ГАРАНТИЯ -->
+<!-- =============================
+      ГАРАНТИЯ
+============================= -->
 <section class="section" id="guarantees">
   <h2>О гарантии</h2>
   <div class="cards two">
     <article class="card">
       <h3>Срок работы</h3>
-      <p>Сертификат может работать до года и дольше — это зависит от политики Apple.</p>
+      <p>Сертификат может работать до года и дольше — фактический срок зависит от политики Apple.</p>
     </article>
     <article class="card">
       <h3>Гарантия URSA</h3>
-      <p>В течение гарантии мы <strong>бесплатно восстанавливаем</strong> подпись при отзыве.</p>
+      <p>В течение гарантийного срока мы <strong>бесплатно восстанавливаем</strong> сертификат при отзыве.</p>
     </article>
   </div>
 </section>
 
-<!-- FAQ -->
+<!-- =============================
+      FAQ
+============================= -->
 <section class="section" id="faq">
   <h2>FAQ</h2>
 
   <details class="faq"><summary>Сколько приложений можно устанавливать?</summary><p>Без ограничений. Единственный лимит — память устройства.</p></details>
-  <details class="faq"><summary>Какие устройства поддерживаются?</summary><p>iPhone и iPad на iOS 12+.</p></details>
-  <details class="faq"><summary>UDID в чёрном списке?</summary><p>Выбирайте Супер-моментальный сертификат — он работает с любым UDID.</p></details>
+
+  <details class="faq"><summary>Работает на всех версиях iOS?</summary><p>Да, сертификаты поддерживаются на всех версиях iOS 12+.</p></details>
+
+  <details class="faq"><summary>Можно использовать сертификат на двух устройствах?</summary><p>Нет. Сертификат выпускается строго под один UDID (одно устройство).</p></details>
+
+  <details class="faq"><summary>Что такое чёрный список UDID?</summary><p>Если ранее на устройстве использовались отозванные подписи, Apple может временно заблокировать возможность выпуска нового сертификата для данного UDID.</p></details>
+
+  <details class="faq"><summary>Может ли обычный сертификат попасть под блокировку?</summary><p>Да. Небольшой шанс существует. Если UDID заносится в чёрный список, установка становится невозможной до снятия блокировки Apple.</p></details>
+
+  <details class="faq"><summary>Что делать, если UDID занесён в чёрный список?</summary>
+    <p>Есть два пути:</p>
+    <p>1) Ожидать от 1 до 180 дней, пока Apple снимет блокировку автоматически.</p>
+    <p>2) Заказать <strong>Супер-моментальный сертификат</strong>, который работает независимо от статуса UDID.</p>
+  </details>
+
+  <details class="faq"><summary>Важно при заказе обычного сертификата</summary>
+    <p>Если ранее ваш UDID уже попадал под отзыв, Apple может потребовать от 14 до 180 дней ожидания для повторной регистрации. В этом случае выпуск сертификата будет отложен.</p>
+    <p><strong>Если нужно получить сертификат сразу — выбирайте Супер-моментальный.</strong></p>
+  </details>
 
   <div class="faq-cta">
     <button class="cta" data-open-pay>Купить сертификат</button>
@@ -107,7 +138,9 @@
   <p>© URSA. Все права защищены.</p>
 </footer>
 
-<!-- PAY MODAL -->
+<!-- =============================
+      PAY MODAL
+============================= -->
 <div id="pay-modal" class="modal">
   <div class="modal-content">
     <button class="close" data-close>✕</button>
@@ -121,7 +154,7 @@
   </div>
 </div>
 
-<script type="module" src="assets/js/cert.js?v=4"></script>
+<script type="module" src="assets/js/cert.js?v=5"></script>
 
 </body>
 </html>
