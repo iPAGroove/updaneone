@@ -33,7 +33,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ------------------------------------------------
-// 1) Создание заявки в Firestore
+// 1) Создание VIP-заявки
 // ------------------------------------------------
 async function createVipOrder(methodKey) {
   try {
@@ -56,7 +56,7 @@ async function createVipOrder(methodKey) {
 }
 
 // ------------------------------------------------
-// 2) Основная логика UI и чата
+// 2) UI + Чат (пока без отправки сообщений)
 // ------------------------------------------------
 function initVIP() {
 
@@ -179,13 +179,13 @@ function initVIP() {
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
-  // Шаги
+  // ---- Шаги ----
   buyBtn?.addEventListener("click", () => open(modal1));
   btnRead?.addEventListener("click", () => { close(modal1); open(modal2); });
   btnBackToInfo?.addEventListener("click", () => { close(modal2); open(modal1); });
   btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
-  // Выбор способа → создание заявки → чат
+  // ---- Выбор оплаты → создание заявки → чат ----
   document.querySelector("#payments")?.addEventListener("click", (e) => {
     const chip = e.target.closest(".pay-chip");
     if (!chip) return;
@@ -203,6 +203,7 @@ function initVIP() {
     open(modalChat);
   });
 
+  // ---- Закрытия ----
   window.addEventListener("click", (e) => {
     if (e.target === modal1) close(modal1);
     if (e.target === modal2) close(modal2);
