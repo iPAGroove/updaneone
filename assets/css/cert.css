@@ -147,13 +147,56 @@ body {
 }
 
 .plan {
-  background: var(--bg-light);
-  border:1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.05);
+  border:1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius);
-  padding:20px 14px;
+  padding:22px 16px;
   cursor:pointer;
   text-align:center;
   transition:.3s;
+  backdrop-filter: blur(12px);
+  position: relative;
+}
+
+.plan::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.14) 100%);
+  opacity:0;
+  transition:.35s;
+}
+
+.plan:hover::after {
+  opacity:0.35;
+}
+
+.plan .title {
+  font-weight:700;
+  font-size:14px;
+  letter-spacing:0.2px;
+  margin-bottom:6px;
+  color:#dce9ef;
+}
+
+.plan .price {
+  font-size:22px;
+  font-weight:800;
+  color:var(--accent);
+  text-shadow:0 0 10px var(--accent-soft);
+}
+
+/* при выборе */
+.plan.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 22px var(--accent-soft), 0 0 40px rgba(0,188,212,0.15);
+  background: rgba(0,188,212,0.12);
+}
+
+.plan.active .price {
+  color:#00e6ff;
+  text-shadow:0 0 14px var(--accent-glow);
 }
 .plan:hover {
   border-color:var(--accent);
