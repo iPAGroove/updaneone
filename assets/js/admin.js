@@ -1,7 +1,7 @@
-// assets/js/admin.js — v4 (sidebar + grid + slide chat + Cert Orders)
+// assets/js/admin.js — v5 (Classic IPA View + Unified Orders)
 // ======================================================
 // Requirements: Firebase v9 (modular), app.js exports { auth, db }
-// Focus: VIP Orders + Cert Orders + universal chat panel
+// Focus: VIP Orders + Cert Orders + universal chat panel + Classic IPA Edit
 
 import { auth, db } from "./app.js";
 
@@ -18,7 +18,8 @@ import {
   where,
   orderBy,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp,
+  deleteField
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 import {
@@ -36,6 +37,10 @@ const ADMIN_EMAILS = [
   "kotvlad400@gmail.com",
   "olesyazardina@gmail.com"
 ];
+const COLLECTIONS = {
+  vip: "vip_orders",
+  cert: "cert_orders"
+};
 
 // ===============================
 // STATE
@@ -45,7 +50,7 @@ const state = {
   apps: [],
   users: [],
   orders: [], // VIP Orders
-  certOrders: [], // Cert Orders <-- NEW
+  certOrders: [], // Cert Orders
   chat: {
     orderId: null,
     orderType: null, // 'vip' or 'cert'
@@ -66,15 +71,15 @@ const topbarTitle = $("#topbar-title");
 // Sidebar
 const sideLinks = $$(".side-link");
 const ordersCounter = $("#orders-counter");
-const certOrdersCounter = $("#cert-orders-counter"); // <-- NEW
+const certOrdersCounter = $("#cert-orders-counter"); 
 
 // Views
 const views = {
   dashboard: $("#view-dashboard"),
   apps: $("#view-apps"),
   users: $("#view-users"),
-  orders: $("#view-orders"), // VIP Orders
-  "cert-orders": $("#view-cert-orders") // Cert Orders <-- NEW
+  orders: $("#view-orders"), 
+  "cert-orders": $("#view-cert-orders") 
 };
 
 // Dashboard stats
@@ -83,15 +88,14 @@ const statVip = $("#stat-vip");
 const statOrders = $("#stat-orders");
 const statSigners = $("#stat-signers");
 
-// Apps view
+// Apps view (Classic)
 const appsGrid = $("#apps-grid");
 const appsSkeleton = $("#apps-skeleton");
 const appSearch = $("#app-search");
-const appFilter = $("#app-filter");
 const addAppBtn = $("#add-app-btn");
 
 // Users view
-const usersTableBody = $("#users-table tbody");
+const usersTableBody = $("#user-list"); // Updated to match user-list in HTML
 const usersSkeleton = $("#users-skeleton");
 const userSearch = $("#user-search");
 
@@ -101,26 +105,26 @@ const ordersSkeleton = $("#orders-skeleton");
 const ordersStatus = $("#orders-status");
 const orderSearch = $("#order-search");
 
-// Cert Orders view <-- NEW
+// Cert Orders view
 const certOrdersList = $("#cert-orders-list");
 const certOrdersSkeleton = $("#cert-orders-skeleton");
 const certOrdersStatus = $("#cert-orders-status");
 const certOrderSearch = $("#cert-order-search");
 
-// Modals (App)
+// Modals (App - Classic Form)
 const appModal = $("#app-modal");
-const appForm = $("#app-edit-form");
+const appForm = $("#ipa-form");
+const modalTitle = $("#modal-title");
 const appDeleteBtn = $("#app-delete-btn");
 
-// App form fields
+// App form fields (for reference in functions)
 const fAppId = $("#app-id");
-const fAppName = $("#app-name");
-const fAppVersion = $("#app-version");
-const fAppUrl = $("#app-url");
-const fAppIcon = $("#app-icon");
-const fAppTags = $("#app-tags");
-const fAppVipOnly = $("#app-vip-only");
-const fAppDesc = $("#app-desc");
+const fIconInput = $("#iconUrl");
+const fIconPreview = $("#icon-preview");
+
+// User Modal fields
+const userModal = $("#user-modal");
+const userSearchInput = $("#user-search");
 
 // Chat panel
 const chatPanel = $("#chat-panel");
@@ -165,8 +169,8 @@ onAuthStateChanged(auth, async (user) => {
   state.user = user;
   showApp();
   initNavigation();
-  // Default view: orders
-  activateView("orders");
+  // Default view: apps (as per old admin)
+  activateView("apps");
 });
 
 function showAuth() {
@@ -199,13 +203,13 @@ function initNavigation() {
       if (activeView === "apps") appSearch?.focus();
       else if (activeView === "users") userSearch?.focus();
       else if (activeView === "orders") orderSearch?.focus();
-      else if (activeView === "cert-orders") certOrderSearch?.focus(); // <-- NEW
+      else if (activeView === "cert-orders") certOrderSearch?.focus();
     }
   });
 }
 
 function getActiveView() {
-  return Object.entries(views).find(([k, el]) => el.classList.contains("active"))?.[0] || "orders";
+  return Object.entries(views).find(([k, el]) => el.classList.contains("active"))?.[0] || "apps";
 }
 
 async function activateView(view) {
@@ -217,15 +221,15 @@ async function activateView(view) {
     apps: "📱 Каталог приложений",
     users: "👥 Пользователи",
     orders: "💸 VIP Заявки",
-    "cert-orders": "🔐 Cert Заявки" // <-- NEW
+    "cert-orders": "🔐 Cert Заявки"
   };
   topbarTitle.textContent = titles[view] || "URSA Admin";
 
   if (view === "dashboard") loadDashboard();
   else if (view === "apps") initApps();
   else if (view === "users") initUsers();
-  else if (view === "orders") initOrders("vip"); // Pass type
-  else if (view === "cert-orders") initOrders("cert"); // Pass type
+  else if (view === "orders") initOrders("vip");
+  else if (view === "cert-orders") initOrders("cert");
 }
 
 // ===============================
@@ -254,149 +258,208 @@ async function loadDashboard() {
   }
 }
 
-// (Остальные функции APPS и USERS без изменений)
+// ===============================
+// APPS (CLASSIC LIST)
+// ===============================
 
-// ===============================
-// APPS (GRID)
-// ===============================
+function formatSize(bytes) {
+  if (!bytes) return "-";
+  const megabytes = bytes / 1000000;
+  return `${megabytes.toFixed(0)} MB`;
+}
+
 function initApps() {
-  appsSkeleton.style.display = "grid";
+  appsSkeleton.style.display = "block";
   appsGrid.setAttribute("aria-busy", "true");
   loadApps().then(() => {
     appsSkeleton.style.display = "none";
     appsGrid.removeAttribute("aria-busy");
   });
 
-  appSearch?.addEventListener("input", renderApps);
-  appFilter?.addEventListener("change", renderApps);
+  appSearch?.addEventListener("input", () => loadApps(appSearch.value));
   addAppBtn?.addEventListener("click", () => openAppModal(null));
-}
 
-async function loadApps() {
-  const snap = await getDocs(collection(db, "ursa_ipas"));
-  state.apps = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  renderApps();
-}
-
-function renderApps() {
-  const q = (appSearch?.value || "").toLowerCase();
-  const tag = appFilter?.value || "all";
-
-  appsGrid.innerHTML = "";
-  const apps = state.apps.filter((a) => {
-    const byName = (a.NAME || "").toLowerCase().includes(q);
-    const byTag =
-      tag === "all"
-        ? true
-        : tag === "vip"
-        ? a.vipOnly === true
-        : Array.isArray(a.tags)
-        ? a.tags.includes(tag)
-        : (a.tags || "").split(",").map((t) => t.trim()).includes(tag);
-    return byName && byTag;
+  fIconInput.addEventListener("input", () => {
+    fIconPreview.src = fIconInput.value;
+    fIconPreview.style.display = fIconInput.value ? "block" : "none";
   });
 
+  document.querySelectorAll(".tag-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      appForm.tag.value = btn.dataset.tag;
+    });
+  });
+}
+
+async function loadApps(query = "") {
+  const snap = await getDocs(collection(db, "ursa_ipas"));
+  let apps = snap.docs.map(d => ({ __docId: d.id, ...d.data() }));
+
+  if (query) {
+    const q = query.toLowerCase();
+    apps = apps.filter(app =>
+      (app["NAME"] || "").toLowerCase().includes(q) ||
+      (app["Bundle ID"] || "").toLowerCase().includes(q) ||
+      (app["tags"] || []).join(",").toLowerCase().includes(q)
+    );
+  }
+
+  state.apps = apps;
+  renderApps(apps);
+}
+
+function renderApps(apps) {
+  appsGrid.innerHTML = "";
   if (!apps.length) {
     appsGrid.innerHTML = `<div class="empty">Нет приложений по фильтру</div>`;
     return;
   }
 
-  apps.forEach((app) => {
+  apps.forEach(app => {
     const card = document.createElement("div");
     card.className = "app-card";
+
+    const vipTag = app.vipOnly ? '<span class="badge vip">VIP</span>' : '';
+    const tags = Array.isArray(app.tags) ? app.tags.join(', ') : app.tags || '';
+
     card.innerHTML = `
-      <img class="icon" src="${app.iconUrl || "https://placehold.co/120x120"}" alt="${app.NAME || "App"}"/>
-      <div class="ttl" title="${app.NAME || "N/A"}">${app.NAME || "N/A"}</div>
-      <div class="meta">
-        <span class="pill ${app.vipOnly ? "vip" : "free"}">${app.vipOnly ? "VIP" : "FREE"}</span>
-        <span class="cnt" title="Скачивания">${app.downloadCount || 0}</span>
+      <div class="app-info">
+        <img src="${app.iconUrl || "https://placehold.co/44x44/1e2633/9aa7bd?text=?"}" alt="" class="app-icon" onerror="this.src='https://placehold.co/44x44/1e2633/9aa7bd?text=?'">
+        <div>
+          <div class="app-title">${app["NAME"] || "Без названия"}</div>
+          <div class="app-meta">${vipTag} ${tags} • v${app.Version || '—'}</div>
+        </div>
       </div>
-      <div class="row-actions">
-        <button class="btn btn-ghost small" data-edit="${app.id}">✏️ Редактировать</button>
-      </div>`;
+      <div class="app-actions">
+        <button class="btn small blue" data-action="edit" data-id="${app.__docId}">✏️</button>
+        <button class="btn small red" data-action="delete" data-id="${app.__docId}">🗑</button>
+      </div>
+    `;
     appsGrid.appendChild(card);
   });
-
-  // Bind edit buttons
-  appsGrid.addEventListener(
-    "click",
-    (e) => {
-      const btn = e.target.closest("[data-edit]");
-      if (!btn) return;
-      const id = btn.getAttribute("data-edit");
-      openAppModal(id);
-    },
-    { once: true }
-  );
 }
 
 function openAppModal(appId) {
-  const app = state.apps.find((a) => a.id === appId);
+  const app = state.apps.find((a) => a.__docId === appId);
 
-  $("#app-modal-title").textContent = appId ? "Редактировать приложение" : "Добавить новое приложение";
+  modalTitle.textContent = appId ? "Редактировать IPA" : "Добавить IPA";
+  appForm.reset();
   fAppId.value = appId || "";
-  fAppName.value = app?.NAME || "";
-  fAppVersion.value = app?.Version || "";
-  fAppUrl.value = app?.DownloadUrl || "";
-  fAppIcon.value = app?.iconUrl || "";
-  fAppTags.value = Array.isArray(app?.tags) ? app.tags.join(", ") : app?.tags || "";
-  fAppVipOnly.checked = app?.vipOnly === true;
-  fAppDesc.value = app?.description_ru || app?.description_en || app?.desc || "";
+
+  // Populate form if editing
+  if (app) {
+    appForm.name.value = app["NAME"] || "";
+    appForm.bundleId.value = app["Bundle ID"] || "";
+    appForm.version.value = app["Version"] || "";
+    appForm.minIOS.value = app["minimal iOS"] || "";
+    appForm.sizeMB.value = app["sizeBytes"] ? (app["sizeBytes"] / 1000000).toFixed(0) : "";
+    appForm.iconUrl.value = app.iconUrl || "";
+    appForm.downloadUrl.value = app.DownloadUrl || "";
+    appForm.features_ru.value = app.features_ru || "";
+    appForm.features_en.value = app.features_en || "";
+    appForm.vipOnly.checked = !!app.vipOnly;
+
+    fIconPreview.src = app.iconUrl || "";
+    fIconPreview.style.display = app.iconUrl ? "block" : "none";
+
+    // Tags
+    document.querySelectorAll(".tag-btn").forEach(btn => btn.classList.remove("active"));
+    if (Array.isArray(app.tags) && app.tags.length > 0) {
+      const tag = app.tags[0];
+      const btn = document.querySelector(`.tag-btn[data-tag="${tag}"]`);
+      if (btn) {
+        btn.classList.add("active");
+        appForm.tag.value = tag;
+      }
+    }
+  } else {
+    document.querySelectorAll(".tag-btn").forEach(btn => btn.classList.remove("active"));
+    appForm.tag.value = '';
+  }
 
   appDeleteBtn.style.display = appId ? "inline-block" : "none";
-  appModal.classList.add("visible");
+  appModal.classList.add("open");
+  document.body.style.overflow = "hidden";
 }
 
-appModal?.addEventListener("click", (e) => {
-  if (e.target === appModal || e.target.closest("[data-action='close']")) {
-    appModal.classList.remove("visible");
+function closeAppModal() {
+  appModal.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+appModal.addEventListener("click", (e) => {
+  if (e.target.hasAttribute("data-close") || e.target.closest(".close") || e.target.classList.contains('backdrop')) {
+    closeAppModal();
   }
 });
 
-appForm?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const id = fAppId.value.trim();
-  const data = {
-    NAME: fAppName.value.trim(),
-    Version: fAppVersion.value.trim(),
-    DownloadUrl: fAppUrl.value.trim(),
-    iconUrl: fAppIcon.value.trim(),
-    tags: fAppTags.value
-      .split(",")
-      .map((t) => t.trim().toLowerCase())
-      .filter(Boolean),
-    vipOnly: !!fAppVipOnly.checked,
-    description_ru: fAppDesc.value.trim(),
-    updatedAt: new Date().toISOString()
-  };
+appsGrid.addEventListener("click", (e) => {
+  const btn = e.target.closest(".app-actions button");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
 
-  try {
-    if (id) {
-      await updateDoc(doc(db, "ursa_ipas", id), data);
-      alert("Приложение обновлено");
-    } else {
-      const newRef = doc(collection(db, "ursa_ipas"));
-      await setDoc(newRef, { ...data, createdAt: new Date().toISOString(), downloadCount: 0 });
-      alert("Приложение добавлено");
+  if (action === "edit") openAppModal(id);
+  else if (action === "delete") deleteAppItem(id);
+});
+
+async function deleteAppItem(id) {
+  if (confirm("Удалить запись?")) {
+    try {
+      await deleteDoc(doc(db, "ursa_ipas", id));
+      loadApps();
+    } catch (e) {
+      console.error("Error deleting document: ", e);
+      alert("Ошибка удаления.");
     }
-    appModal.classList.remove("visible");
-    await loadApps();
-  } catch (e) {
-    alert("Ошибка сохранения: " + e.message);
   }
-});
+}
 
 appDeleteBtn?.addEventListener("click", async () => {
   const id = fAppId.value.trim();
   if (!id) return;
-  if (!confirm("Удалить приложение?")) return;
+  closeAppModal();
+  deleteAppItem(id);
+});
+
+
+appForm?.addEventListener("submit", async e => {
+  e.preventDefault();
+  const id = fAppId.value.trim();
+  const values = Object.fromEntries(new FormData(appForm));
+
+  const ipa = {
+    ID: values.bundleId && values.version ? `${values.bundleId}_${values.version}` : values.bundleId,
+    NAME: values.name,
+    "Bundle ID": values.bundleId,
+    Version: values.version,
+    "minimal iOS": values.minIOS,
+    sizeBytes: Number(values.sizeMB || 0) * 1000000,
+    iconUrl: values.iconUrl,
+    DownloadUrl: values.downloadUrl,
+    // description_ru: "Функции мода", // Эти поля не нужны, если есть features
+    // description_en: "Hack Features", 
+    features_ru: values.features_ru || "",
+    features_en: values.features_en || "",
+    tags: values.tag ? [values.tag] : [],
+    updatedAt: new Date().toISOString(),
+    vipOnly: values.vipOnly === "on" ? true : false,
+  };
+
   try {
-    await deleteDoc(doc(db, "ursa_ipas", id));
-    alert("Удалено");
-    appModal.classList.remove("visible");
-    await loadApps();
+    if (id) {
+      await updateDoc(doc(db, "ursa_ipas", id), ipa);
+      alert("Приложение обновлено");
+    } else {
+      await addDoc(collection(db, "ursa_ipas"), { ...ipa, createdAt: new Date().toISOString(), downloadCount: 0 });
+      alert("Приложение добавлено");
+    }
+    closeAppModal();
+    loadApps();
   } catch (e) {
-    alert("Ошибка удаления: " + e.message);
+    alert("Ошибка сохранения: " + e.message);
   }
 });
 
@@ -406,79 +469,123 @@ appDeleteBtn?.addEventListener("click", async () => {
 function initUsers() {
   usersSkeleton.style.display = "block";
   loadUsers().then(() => (usersSkeleton.style.display = "none"));
-  userSearch?.addEventListener("input", renderUsers);
+  userSearchInput?.addEventListener("input", e => loadUsers(e.target.value));
+
+  document.getElementById("save-user-status").onclick = async () => {
+    const id = userModal.dataset.id;
+    const newStatus = document.getElementById("edit-user-status").value;
+    try {
+      await updateDoc(doc(db, "ursa_users", id), {
+        status: newStatus,
+        statusExpiry: deleteField()
+      });
+      console.log(`✅ User ${id} status changed to ${newStatus} (Permanent)`);
+    } catch (err) {
+      console.error("❌ Ошибка при обновлении статуса:", err);
+    }
+    userModal.classList.remove("open");
+    document.body.style.overflow = "";
+    loadUsers();
+  };
+
+  document.getElementById("save-user-vip-31").onclick = async () => {
+    const id = userModal.dataset.id;
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 31);
+    const expiryISO = expiryDate.toISOString();
+    try {
+      await updateDoc(doc(db, "ursa_users", id), {
+        status: "vip",
+        statusExpiry: expiryISO
+      });
+      console.log(`✅ User ${id} status changed to VIP until ${expiryISO}`);
+    } catch (err) {
+      console.error("❌ Ошибка при обновлении статуса:", err);
+    }
+    userModal.classList.remove("open");
+    document.body.style.overflow = "";
+    loadUsers();
+  };
+
+  userModal.addEventListener("click", e => {
+    if (e.target.hasAttribute("data-close") || e.target.closest(".close") || e.target.classList.contains('backdrop')) {
+      userModal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+  });
 }
 
-async function loadUsers() {
+async function loadUsers(query = "") {
+  usersTableBody.innerHTML = "<tr><td colspan='5' style='color:#888'>Загрузка...</td></tr>";
+
   const usersSnap = await getDocs(collection(db, "ursa_users"));
   const signersSnap = await getDocs(collection(db, "ursa_signers"));
-
   const signersMap = Object.create(null);
   signersSnap.docs.forEach((d) => (signersMap[d.id] = d.data()));
 
-  state.users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data(), signer: signersMap[d.id] }));
-  renderUsers();
+  let users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data(), signer: signersMap[d.id] }));
+  
+  if (query) {
+    const q = query.toLowerCase();
+    users = users.filter(u =>
+      (u.email || "").toLowerCase().includes(q) ||
+      (u.name || "").toLowerCase().includes(q)
+    );
+  }
+
+  state.users = users;
+  renderUsers(users);
 }
 
-function renderUsers() {
-  const q = (userSearch?.value || "").toLowerCase();
+function renderUsers(users) {
   usersTableBody.innerHTML = "";
-  const filtered = state.users.filter((u) =>
-    !q || u.email?.toLowerCase().includes(q) || u.id.toLowerCase().includes(q)
-  );
-
-  filtered.forEach((u) => {
-    const cert = u.signer
-      ? new Date(u.signer.expires) > new Date()
-        ? "✅ Активен"
-        : "❌ Истек"
-      : "Нет";
-    const vip = u.status === "vip" ? "⭐ VIP" : "FREE";
-
+  if (!users.length) {
+    usersTableBody.innerHTML = "<tr><td colspan='5' class='empty-row'>Нет пользователей</td></tr>";
+    return;
+  }
+  users.forEach(u => {
     const tr = document.createElement("tr");
+    let expiryText = "";
+    if (u.status === "vip" && u.statusExpiry) {
+      const expiryDate = new Date(u.statusExpiry);
+      const isExpired = expiryDate < new Date();
+      const dateString = expiryDate.toLocaleDateString('ru-RU');
+      expiryText = isExpired
+        ? `<span class="expiry-date" style="color:var(--red)">Истёк ${dateString}</span>`
+        : `<span class="expiry-date">до ${dateString}</span>`;
+    }
     tr.innerHTML = `
-      <td>${u.email || "N/A"}</td>
-      <td>${u.id.substring(0, 8)}...</td>
-      <td>${vip}</td>
-      <td>${cert}</td>
-      <td><button class="btn btn-ghost small" data-toggle-vip="${u.id}" data-status="${u.status}">${
-        u.status === "vip" ? "↓ FREE" : "↑ VIP"
-      }</button></td>`;
+      <td>${u.email || "—"}</td>
+      <td>${u.name || "—"}</td>
+      <td class="muted">${u.id.substring(0, 8)}...</td>
+      <td>
+        <span class="badge ${u.status === "vip" ? "vip" : "free"}">${u.status || "free"}</span>
+        ${expiryText}
+      </td>
+      <td><button class="btn small" data-action="edit-user" data-id="${u.id}" data-email="${u.email || ''}" data-name="${u.name || ''}" data-status="${u.status || 'free'}">✏️</button></td>
+    `;
     usersTableBody.appendChild(tr);
   });
 
   usersTableBody.addEventListener(
     "click",
-    async (e) => {
-      const btn = e.target.closest("[data-toggle-vip]");
+    (e) => {
+      const btn = e.target.closest("[data-action='edit-user']");
       if (!btn) return;
-      const uid = btn.getAttribute("data-toggle-vip");
-      const cur = btn.getAttribute("data-status");
-      await toggleUserVipStatus(uid, cur);
-      await loadUsers();
+      userModal.dataset.id = btn.dataset.id;
+      document.getElementById("edit-user-email").textContent = btn.dataset.email;
+      document.getElementById("edit-user-name").textContent = btn.dataset.name;
+      document.getElementById("edit-user-status").value = btn.dataset.status;
+      userModal.classList.add("open");
+      document.body.style.overflow = "hidden";
     },
     { once: true }
   );
 }
 
-async function toggleUserVipStatus(uid, currentStatus) {
-  const next = currentStatus === "vip" ? "free" : "vip";
-  if (!confirm(`Изменить статус на ${next.toUpperCase()}?`)) return;
-  await updateDoc(doc(db, "ursa_users", uid), {
-    status: next,
-    vip_activated_at: next === "vip" ? new Date().toISOString() : null
-  });
-}
-
 // ===============================
 // ORDERS + REALTIME CHAT (Универсальная реализация)
 // ===============================
-
-// Названия коллекций
-const COLLECTIONS = {
-  vip: "vip_orders",
-  cert: "cert_orders"
-};
 
 function initOrders(type) {
   const ordersListEl = type === 'vip' ? ordersList : certOrdersList;
@@ -588,7 +695,7 @@ function openChat(orderId, orderType) {
 
   // Обновляем UI чата
   chatOrderIdEl.textContent = orderId.substring(0, 8) + "…";
-  chatOrderMeta.textContent = `Тип: ${orderType.toUpperCase()} • Метод: ${order.method || order.plan || "—"} • UID: ${
+  chatOrderMeta.textContent = `Тип: ${orderType.toUpperCase()} • Метод/План: ${order.method || order.plan || "—"} • UID: ${
     order.uid?.substring(0, 8) || "—"
   }…`;
   chatStatusSelect.value = order.status || "pending";
@@ -712,15 +819,3 @@ setVipBtn?.addEventListener("click", async () => {
     alert("Ошибка выдачи VIP: " + e.message);
   }
 });
-
-// ===============================
-// UTIL
-// ===============================
-function srAlert(text) {
-  const el = document.createElement("div");
-  el.className = "sr-only";
-  el.setAttribute("role", "status");
-  el.textContent = text;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1000);
-}
