@@ -1,10 +1,6 @@
+// assets/js/menu.js
 // ===============================
-// Меню + Авторизация + Email Login + Импорт Сертификата + Статус free/vip
-// + Переход в VIP страницу
-// + Переход на покупку сертификата
-// + Переход в "О нас"
-// + Переход в "Чат поддержки"
-// + Автоматическое восстановление сертификата при входе
+// Меню + Авторизация + Сертификат + VIP статус + i18n
 // ===============================
 
 import {
@@ -31,25 +27,26 @@ import {
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
+import { t, currentLang, switchLang } from "./i18n.js";
+
 const storage = getStorage();
 
-// ===============================
-// 🔍 Парсим UDID + Expiration из .mobileprovision
-// ===============================
+/* ============================================================
+   🔧 Парсинг mobileprovision → UDID + Expiration
+   ============================================================ */
 async function parseMobileProvision(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = function (event) {
+    reader.onload = (event) => {
       try {
         const text = event.target.result;
-        const xmlStart = text.indexOf("<?xml");
-        const xmlEnd = text.indexOf("</plist>") + "</plist>".length;
-        const xml = text.substring(xmlStart, xmlEnd);
+        const xml = text.substring(text.indexOf("<?xml"), text.indexOf("</plist>") + 8);
+
+        let udid = null;
 
         const udidBlock = xml.match(
           /<key>ProvisionedDevices<\/key>[\s\S]*?<array>([\s\S]*?)<\/array>/
         );
-        let udid = null;
 
         if (udidBlock) {
           const list = [...udidBlock[1].matchAll(/<string>([^<]+)<\/string>/g)];
@@ -57,14 +54,11 @@ async function parseMobileProvision(file) {
         }
 
         if (!udid)
-          udid =
-            xml.match(/<key>UUID<\/key>\s*<string>([^<]+)<\/string>/)?.[1] ||
-            null;
+          udid = xml.match(/<key>UUID<\/key>\s*<string>([^<]+)<\/string>/)?.[1] || null;
 
         const expiryDate =
-          xml
-            .match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]
-            ?.split("T")[0] || null;
+          xml.match(/<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/)?.[1]?.split("T")[0] ||
+          null;
 
         resolve({ udid, expiryDate });
       } catch (err) {
@@ -75,71 +69,74 @@ async function parseMobileProvision(file) {
   });
 }
 
-// ===============================
-// 📌 Отображение сертификата (компактная версия)
-// ===============================
+/* ============================================================
+   🧩 Отображение сертификата (переводы + компактно)
+   ============================================================ */
 function renderCertificateBlock() {
   const card = document.querySelector(".certificate-card");
   const udid = localStorage.getItem("ursa_cert_udid");
   const expiry = localStorage.getItem("ursa_cert_exp");
   const isLoggedIn = !!auth.currentUser;
 
-  const showAddButton = isLoggedIn
-    ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
-    : `<p class="cert-info-placeholder">Для управления сертификатом необходимо войти.</p>`;
-
   if (!udid) {
-    card.innerHTML = `${showAddButton}`;
+    card.innerHTML = isLoggedIn
+      ? `<button class="btn add-cert-btn">${t("addCert")}</button>`
+      : `<p class="cert-info-placeholder">${currentLang === "ru"
+          ? "Для управления сертификатом необходимо войти."
+          : "You must log in to manage the certificate."
+        }</p>`;
     return;
   }
 
   const isExpired = new Date(expiry) < new Date();
-  const status = isExpired ? "❌ Отозван" : "✅ Активен";
-  const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
 
   card.innerHTML = `
     <div class="cert-info">
       <div class="cert-row">
-        <span class="cert-label">UDID:</span>
+        <span class="cert-label">${t("certId")}:</span>
         <span class="cert-value mono">${udid}</span>
       </div>
       <div class="cert-row">
-        <span class="cert-label">Действует до:</span>
+        <span class="cert-label">${t("certExpires")}:</span>
         <span class="cert-value">${expiry}</span>
       </div>
       <div class="cert-row">
-        <span class="cert-label">Статус:</span>
-        <span class="cert-value" style="color:${statusColor};font-weight:600;">${status}</span>
+        <span class="cert-label">${t("certStatus")}:</span>
+        <span class="cert-value" style="color:${isExpired ? "#ff6b6b" : "#00ff9d"};font-weight:600;">
+          ${isExpired ? t("certRevoked") : t("certActive")}
+        </span>
       </div>
     </div>
-    <button class="btn delete-cert-btn">Удалить сертификат</button>
+
+    <button class="btn delete-cert-btn">${t("deleteCert")}</button>
   `;
 }
 
-// ===============================
-// 📥 Импорт сертификата
-// ===============================
+/* ============================================================
+   📥 Импорт сертификата
+   ============================================================ */
 async function importCertificate() {
   const p12 = document.getElementById("cert-p12").files[0];
   const mp = document.getElementById("cert-mobileprovision").files[0];
   const password = document.getElementById("cert-password").value.trim() || "";
 
-  if (!p12 || !mp) return alert("Выберите .p12 и .mobileprovision");
+  if (!p12 || !mp)
+    return alert(currentLang === "ru" ? "Выберите .p12 и .mobileprovision" : "Select .p12 and .mobileprovision");
 
   const user = auth.currentUser;
-  if (!user) return alert("Сначала выполните вход.");
+  if (!user) return alert(currentLang === "ru" ? "Сначала войдите." : "Please log in first.");
 
   const parsed = await parseMobileProvision(mp);
   if (!parsed.udid || !parsed.expiryDate)
-    return alert("Не удалось извлечь данные профиля.");
+    return alert(currentLang === "ru" ? "Ошибка: нет UDID." : "Failed to extract UDID.");
 
   const uid = user.uid;
   const folder = `signers/${uid}/`;
 
-  const p12Ref = ref(storage, folder + p12.name);
-  const mpRef = ref(storage, folder + mp.name);
-
   try {
+    const p12Ref = ref(storage, folder + p12.name);
+    const mpRef = ref(storage, folder + mp.name);
+
     await uploadBytes(p12Ref, p12);
     await uploadBytes(mpRef, mp);
 
@@ -167,16 +164,15 @@ async function importCertificate() {
     renderCertificateBlock();
     openMenu();
   } catch {
-    alert("❌ Ошибка при загрузке.");
+    alert(currentLang === "ru" ? "Ошибка загрузки" : "Upload error");
   }
 }
 
-// ===============================
-// Меню
-// ===============================
+/* ============================================================
+   📂 Открыть / закрыть меню
+   ============================================================ */
 function openMenu() {
-  const overlay = document.getElementById("menu-modal");
-  overlay.classList.add("visible");
+  document.getElementById("menu-modal").classList.add("visible");
   document.body.classList.add("modal-open");
 }
 function closeMenu() {
@@ -184,116 +180,111 @@ function closeMenu() {
   document.body.classList.remove("modal-open");
 }
 
-// ===============================
-// Инициализация
-// ===============================
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    await handleRedirectResult();
-  } catch {}
+/* ============================================================
+   🧠 Перерисовка текстов меню при смене языка
+   ============================================================ */
+function refreshMenuTexts() {
+  document.querySelector(".change-lang-btn").textContent = t("changeLang");
+  document.querySelector(".buy-cert-btn").textContent = t("buyCert");
+  document.querySelector(".select-plan-btn").textContent = t("selectPlan");
+  document.querySelector(".about-us-btn").textContent = t("aboutUs");
+  document.querySelector(".support-chat-btn").textContent = t("supportChat");
+  document.querySelector(".login-prompt").textContent = t("loginVia");
 
+  renderCertificateBlock();
+}
+
+/* ============================================================
+   🚀 Инициализация
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", async () => {
+  try { await handleRedirectResult(); } catch {}
+
+  // Кнопка открытия меню
   document.getElementById("menu-btn")?.addEventListener("click", () => {
+    refreshMenuTexts();
     renderCertificateBlock();
     openMenu();
   });
 
-  document
-    .getElementById("menu-modal")
-    ?.addEventListener("click", (e) => {
-      if (
-        e.target === e.currentTarget ||
-        e.target.closest("[data-action='close-menu']")
-      )
-        closeMenu();
-    });
+  // Закрыть меню
+  document.getElementById("menu-modal").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget || e.target.closest("[data-action='close-menu']"))
+      closeMenu();
+  });
 
-  document.getElementById("cert-import-btn")?.addEventListener("click", importCertificate);
+  // Импорт сертификата
+  document.getElementById("cert-import-btn").addEventListener("click", importCertificate);
 
-  document.body.addEventListener("click", async (e) => {
+  // Добавить сертификат
+  document.body.addEventListener("click", (e) => {
     if (e.target.classList.contains("add-cert-btn"))
       document.getElementById("cert-modal").classList.add("visible");
+  });
 
+  // Удалить сертификат
+  document.body.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-cert-btn")) {
-      if (!confirm("Удалить сертификат?")) return;
+      if (!confirm(t("deleteCert"))) return;
 
       const user = auth.currentUser;
       if (user) {
-        try {
-          await deleteDoc(doc(db, "ursa_signers", user.uid));
-          console.log(`✅ Сертификат удалён из Firestore`);
-        } catch (error) {
-          console.error("❌ Ошибка удаления:", error);
-        }
+        try { await deleteDoc(doc(db, "ursa_signers", user.uid)); }
+        catch (err) { console.error("Удаление сертификата:", err); }
       }
 
       localStorage.removeItem("ursa_cert_udid");
       localStorage.removeItem("ursa_cert_exp");
       localStorage.removeItem("ursa_signer_id");
+
       renderCertificateBlock();
     }
   });
 
-  document.body.addEventListener("click", (e) => {
-    if (e.target.classList.contains("buy-cert-btn")) {
-      closeMenu();
-      window.location.href = "./cert.html";
-    }
+  // Переходы
+  document.querySelector(".buy-cert-btn").addEventListener("click", () => {
+    closeMenu();
+    window.location.href = "./cert.html";
   });
 
-  document.querySelector(".select-plan-btn")?.addEventListener("click", () => {
+  document.querySelector(".select-plan-btn").addEventListener("click", () => {
     closeMenu();
     window.location.href = "./vip.html";
   });
 
-  document.querySelector(".about-us-btn")?.addEventListener("click", () => {
+  document.querySelector(".about-us-btn").addEventListener("click", () => {
     closeMenu();
     window.location.href = "./about.html";
   });
 
-  // ===============================
-  // 💬 Чат поддержки
-  // ===============================
-  const supportBtn = document.querySelector(".support-chat-btn");
-  if (supportBtn) {
-    supportBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      closeMenu();
+  // Чат поддержки
+  document.querySelector(".support-chat-btn").addEventListener("click", async () => {
+    closeMenu();
 
-      const user = auth.currentUser;
-      if (!user) {
-        alert("⚠️ Чтобы открыть чат поддержки, войдите в аккаунт.");
-        openMenu();
-        return;
-      }
+    const user = auth.currentUser;
+    if (!user) {
+      alert(currentLang === "ru" ? "Сначала войдите." : "Please log in first.");
+      openMenu();
+      return;
+    }
 
-      try {
-        const chatRef = doc(db, "support_orders", `support_${user.uid}`);
-        const chatSnap = await getDoc(chatRef);
+    const chatRef = doc(db, "support_orders", `support_${user.uid}`);
+    const chatSnap = await getDoc(chatRef);
 
-        if (!chatSnap.exists()) {
-          await setDoc(chatRef, {
-            uid: user.uid,
-            email: user.email || null,
-            status: "open",
-            type: "support",
-            createdAt: new Date().toISOString(),
-          });
-          console.log("✅ Новый чат поддержки создан:", `support_${user.uid}`);
-        } else {
-          console.log("ℹ️ Чат поддержки уже существует:", `support_${user.uid}`);
-        }
+    if (!chatSnap.exists()) {
+      await setDoc(chatRef, {
+        uid: user.uid,
+        email: user.email || null,
+        status: "open",
+        type: "support",
+        createdAt: new Date().toISOString(),
+      });
+    }
 
-        window.location.assign(`./support.html?uid=${user.uid}`);
-      } catch (err) {
-        console.error("Ошибка перехода в чат поддержки:", err);
-        alert("⚠️ Не удалось открыть чат поддержки.");
-      }
-    });
-  }
+    window.location.href = `./support.html?uid=${user.uid}`;
+  });
 
-  // ===============================
-  // Авторизация Email
-  // ===============================
+  // Email Login
   const emailModal = document.getElementById("email-modal");
   const emailInput = document.getElementById("email-input");
   const passwordInput = document.getElementById("password-input");
@@ -304,54 +295,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   emailModal.addEventListener("click", (e) => {
-    if (
-      e.target === emailModal ||
-      e.target.closest("[data-action='close-email']")
-    )
+    if (e.target === emailModal || e.target.closest("[data-action='close-email']"))
       emailModal.classList.remove("visible");
   });
 
-  document.getElementById("email-login-btn")?.addEventListener("click", async () => {
+  document.getElementById("email-login-btn").addEventListener("click", async () => {
     await loginWithEmail(emailInput.value.trim(), passwordInput.value.trim());
     emailModal.classList.remove("visible");
     openMenu();
   });
 
-  document.getElementById("email-register-btn")?.addEventListener("click", async () => {
+  document.getElementById("email-register-btn").addEventListener("click", async () => {
     await registerWithEmail(emailInput.value.trim(), passwordInput.value.trim());
     emailModal.classList.remove("visible");
     openMenu();
   });
 
-  document.getElementById("email-reset-btn")?.addEventListener("click", () =>
+  document.getElementById("email-reset-btn").addEventListener("click", () =>
     resetPassword(emailInput.value.trim())
   );
 
-  document.querySelector(".google-auth")?.addEventListener("click", async () => {
+  // Google / Facebook
+  document.querySelector(".google-auth").addEventListener("click", async () => {
     closeMenu();
     await loginWithGoogle();
   });
 
-  document.querySelector(".facebook-auth")?.addEventListener("click", async () => {
+  document.querySelector(".facebook-auth").addEventListener("click", async () => {
     closeMenu();
     await loginWithFacebook();
   });
 
-  // ===============================
-  // FREE / VIP статус + восстановление сертификата
-  // ===============================
+  // FREE / VIP STATUS
   onUserChanged(async (user) => {
-    const statusElement = document.getElementById("user-status");
+    const statusEl = document.getElementById("user-status");
 
     if (!user) {
       localStorage.setItem("ursa_user_status", "free");
-      document.getElementById("user-nickname").textContent = "Гость";
-      document.getElementById("user-avatar").src =
-        "https://placehold.co/100x100/121722/00b3ff?text=User";
-      if (statusElement) {
-        statusElement.textContent = "Free";
-        statusElement.classList.remove("vip");
-      }
+      document.getElementById("user-nickname").textContent = t("guest");
+
+      statusEl.textContent = "Free";
+      statusEl.classList.remove("vip");
+
       renderCertificateBlock();
       return;
     }
@@ -362,7 +347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!snap.exists()) {
       await setDoc(userRef, {
         uid: user.uid,
-        email: user.email || null,
+        email: user.email,
         name: user.displayName || null,
         photo: user.photoURL || null,
         status: "free",
@@ -370,46 +355,44 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       localStorage.setItem("ursa_user_status", "free");
     } else {
-      localStorage.setItem("ursa_user_status", snap.data().status || "free");
+      localStorage.setItem("ursa_user_status", snap.data().status);
     }
 
-    const status = snap.data()?.status || "free";
-    if (statusElement) {
-      if (status.toLowerCase() === "vip") {
-        statusElement.textContent = "VIP";
-        statusElement.classList.add("vip");
-      } else {
-        statusElement.textContent = "Free";
-        statusElement.classList.remove("vip");
-      }
-    }
+    statusEl.textContent = snap.data().status === "vip" ? "VIP" : "Free";
 
     document.getElementById("user-nickname").textContent =
-      snap.data()?.name || user.email || "Пользователь";
+      snap.data().name || user.email || t("guest");
+
     document.getElementById("user-avatar").src =
-      snap.data()?.photo ||
+      snap.data().photo ||
       user.photoURL ||
       "https://placehold.co/100x100/121722/00b3ff?text=User";
 
+    // восстановление сертификата
     try {
       const signerRef = doc(db, "ursa_signers", user.uid);
       const signerSnap = await getDoc(signerRef);
+
       if (signerSnap.exists()) {
         const data = signerSnap.data();
-        if (data.udid && data.expires) {
-          localStorage.setItem("ursa_cert_udid", data.udid);
-          localStorage.setItem("ursa_cert_exp", data.expires);
-          localStorage.setItem("ursa_signer_id", user.uid);
-        }
+        localStorage.setItem("ursa_cert_udid", data.udid);
+        localStorage.setItem("ursa_cert_exp", data.expires);
+        localStorage.setItem("ursa_signer_id", user.uid);
       } else {
         localStorage.removeItem("ursa_cert_udid");
         localStorage.removeItem("ursa_cert_exp");
         localStorage.removeItem("ursa_signer_id");
       }
-    } catch (err) {
-      console.warn("⚠️ Не удалось восстановить сертификат:", err);
-    }
+    } catch {}
 
     renderCertificateBlock();
   });
+});
+
+/* ============================================================
+   🌐 Реакция на смену языка
+   ============================================================ */
+document.querySelector(".change-lang-btn").addEventListener("click", () => {
+  switchLang();
+  refreshMenuTexts();
 });
