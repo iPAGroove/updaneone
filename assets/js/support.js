@@ -40,7 +40,6 @@ onAuthStateChanged(auth, async (user) => {
   const chatId = `support_${user.uid}`;
   const chatRef = doc(db, "support_orders", chatId);
 
-  // Проверяем существование чата
   try {
     const chatSnap = await getDoc(chatRef);
     if (!chatSnap.exists()) {
@@ -55,6 +54,9 @@ onAuthStateChanged(auth, async (user) => {
     } else {
       console.log("ℹ️ Чат уже существует:", chatId);
     }
+
+    // Добавляем приветственное системное сообщение
+    renderSystemMessage();
     listenToMessages(chatId);
   } catch (err) {
     console.error("❌ Ошибка инициализации чата поддержки:", err);
@@ -63,45 +65,70 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ===============================
+// 💬 Системное сообщение (инфо блока)
+// ===============================
+function renderSystemMessage() {
+  messagesBox.innerHTML = "";
+
+  const sysDiv = document.createElement("div");
+  sysDiv.className = "msg msg-system";
+  sysDiv.innerHTML = `
+    <div class="msg-bubble system-message">
+      <h4>Поддержка URSA IPA</h4>
+      <p>Задайте свой вопрос, и наш специалист ответит в ближайшее время.</p>
+      <p class="muted">⏰ Ответ обычно приходит в течение 5–10 минут.</p>
+    </div>
+  `;
+
+  messagesBox.appendChild(sysDiv);
+}
+
+// ===============================
 // 📨 Подписка на сообщения
 // ===============================
 function listenToMessages(chatId) {
   const messagesRef = collection(db, "support_orders", chatId, "messages");
   const q = query(messagesRef, orderBy("createdAt"));
+
   if (messagesUnsub) messagesUnsub(); // очистка старых слушателей
 
-  messagesUnsub = onSnapshot(q, (snapshot) => {
-    messagesBox.innerHTML = "";
+  messagesUnsub = onSnapshot(
+    q,
+    (snapshot) => {
+      // ⚡ если системное сообщение уже есть — не очищаем его
+      const hasSystem = messagesBox.querySelector(".system-message");
+      if (!hasSystem) messagesBox.innerHTML = "";
 
-    snapshot.forEach((docSnap) => {
-      const msg = docSnap.data();
-      const isUser = msg.sender === currentUser.uid;
+      snapshot.forEach((docSnap) => {
+        const msg = docSnap.data();
+        const isUser = msg.sender === currentUser.uid;
 
-      const div = document.createElement("div");
-      div.className = isUser ? "msg msg-user" : "msg msg-support";
+        const div = document.createElement("div");
+        div.className = isUser ? "msg msg-user" : "msg msg-support";
 
-      // текст сообщения
-      const bubble = document.createElement("div");
-      bubble.className = "msg-bubble";
+        const bubble = document.createElement("div");
+        bubble.className = "msg-bubble";
 
-      const textEl = document.createElement("p");
-      textEl.textContent = msg.text || "";
+        const textEl = document.createElement("p");
+        textEl.textContent = msg.text || "";
 
-      const timeEl = document.createElement("span");
-      timeEl.className = "msg-time";
-      timeEl.textContent = formatTime(msg.createdAt?.seconds);
+        const timeEl = document.createElement("span");
+        timeEl.className = "msg-time";
+        timeEl.textContent = formatTime(msg.createdAt?.seconds);
 
-      bubble.appendChild(textEl);
-      bubble.appendChild(timeEl);
-      div.appendChild(bubble);
-      messagesBox.appendChild(div);
-    });
+        bubble.appendChild(textEl);
+        bubble.appendChild(timeEl);
+        div.appendChild(bubble);
+        messagesBox.appendChild(div);
+      });
 
-    messagesBox.scrollTop = messagesBox.scrollHeight;
-  }, (err) => {
-    console.error("Ошибка при чтении сообщений:", err);
-    alert("⚠️ Нет доступа к чату поддержки.");
-  });
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+    },
+    (err) => {
+      console.error("Ошибка при чтении сообщений:", err);
+      alert("⚠️ Нет доступа к чату поддержки.");
+    }
+  );
 }
 
 // ===============================
