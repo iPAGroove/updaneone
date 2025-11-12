@@ -1,22 +1,22 @@
 :root {
-  --bg: #0c0f14;
-  --bg2: #11151c;
-  --bg3: #171c23;
-  --stroke: rgba(255,255,255,0.08);
-  --stroke-2: rgba(255,255,255,0.12);
-  --text: #ffffff;
-  --text-soft: rgba(255,255,255,0.65);
-  --muted: rgba(255,255,255,0.45);
-  --accent: #00d9ff;
-  --accent-soft: rgba(0,217,255,0.25);
-  --green: #20d977;
-  --yellow: #ffd24d;
-  --orange: #ff9e3d;
-  --red: #ff5d5d;
-  --radius: 8px;
-  --radius-lg: 12px;
-  --shadow: 0 6px 28px rgba(0,0,0,.45);
-  --transition: .22s ease;
+  --bg: #0c0f14;
+  --bg2: #11151c;
+  --bg3: #171c23;
+  --stroke: rgba(255,255,255,0.08);
+  --stroke-2: rgba(255,255,255,0.12);
+  --text: #ffffff;
+  --text-soft: rgba(255,255,255,0.65);
+  --muted: rgba(255,255,255,0.45);
+  --accent: #00d9ff;
+  --accent-soft: rgba(0,217,255,0.25);
+  --green: #20d977;
+  --yellow: #ffd24d;
+  --orange: #ff9e3d;
+  --red: #ff5d5d;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 6px 28px rgba(0,0,0,.45);
+  --transition: .22s ease;
 }
 
 * { box-sizing: border-box; }
@@ -29,14 +29,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .muted { color: var(--muted); }
 .empty { padding: 18px; text-align: center; color: var(--muted); border: 1px dashed var(--stroke); border-radius: var(--radius); background: transparent; }
 
-/**************** AUTH ****************/ 
+/**************** AUTH ****************/ 
 .auth-screen { min-height: 100vh; display:flex; align-items:center; justify-content:center; padding: 24px; }
 .auth-card { background: var(--bg2); border:1px solid var(--stroke); border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 420px; box-shadow: var(--shadow); text-align:center; }
 .brand-xl { font-weight: 800; letter-spacing:.5px; margin-bottom: 10px; }
 .brand-xl span { color: var(--accent); }
 .error-text { color: var(--red); margin-top: 10px; min-height: 20px; }
 
-/**************** LAYOUT ****************/ 
+/**************** LAYOUT ****************/ 
 .admin-root { height: 100vh; }
 .app-shell { display: grid; grid-template-columns: 260px 1fr; grid-template-rows: auto; height: 100vh; }
 
@@ -55,7 +55,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .side-link.danger { color: #e2e8f0; background:#15202b; }
 .side-link.danger:hover { background:#1a2633; }
 
-.pill { margin-left:auto; background:#1a2330; color:#cde8ff; border:1px solid var(--stroke); border-radius: 999px; padding: 2px 8px; font-size:12px; font-weight:700; }
+/* Стили для счетчиков в сайдбаре (VIP и CERT) */
+.pill { 
+    margin-left:auto; 
+    background:#1a2330; 
+    color:#cde8ff; 
+    border:1px solid var(--stroke); 
+    border-radius: 999px; 
+    padding: 2px 8px; 
+    font-size:12px; 
+    font-weight:700; 
+}
 
 .side-bottom { margin-top:auto; padding: 10px; }
 
@@ -119,19 +129,32 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .list-skeleton .row-skel { height: 44px; border-radius: 8px; background: linear-gradient(90deg, #0f141b, #141a23, #0f141b); background-size: 200% 100%; animation: shimmer 2.2s infinite; margin: 8px 0; }
 
-/* ========== ORDERS LIST ========== */
+/* ========== ORDERS LIST (VIP and CERT) ========== */
 .orders-list { display:flex; flex-direction:column; gap:8px; }
-.order-row { border:1px solid var(--stroke); background: var(--bg2); border-radius: var(--radius); display:grid; grid-template-columns: 1fr auto auto; gap: 12px; padding: 10px 12px; align-items:center; transition: var(--transition); }
+/* Общие стили для строк заявок */
+.order-row { 
+    border:1px solid var(--stroke); 
+    background: var(--bg2); 
+    border-radius: var(--radius); 
+    display:grid; 
+    grid-template-columns: 1fr auto auto; 
+    gap: 12px; 
+    padding: 10px 12px; 
+    align-items:center; 
+    transition: var(--transition); 
+}
 .order-row:hover { border-color: var(--stroke-2); background:#141a22; }
 .order-row .col.main .id { font-weight:800; letter-spacing:.3px; }
 .order-row .col.main .meta { color: var(--muted); font-size: 13px; margin-top: 2px; }
 .order-row .col.mid { display:flex; flex-direction:column; gap:4px; align-items:flex-start; }
 .order-row .time { color: var(--muted); font-size: 12px; }
+/* Общие стили для статусов */
 .status { font-weight: 800; font-size: 12px; letter-spacing:.2px; border-radius: 999px; padding: 3px 8px; border:1px solid var(--stroke); }
-.status.pending { background:#2a2416; color:#ffe7a3; border-color:#3b331b; }
-.status.processing { background:#2a1f14; color:#ffd0a6; border-color:#3a2a1b; }
-.status.completed { background:#18261f; color:#bff7d9; border-color:#21392b; }
-.status.canceled { background:#2a1818; color:#ffc6c6; border-color:#3a2020; }
+.status.pending { background:#2a2416; color:#ffe7a3; border-color:#3b331b; } /* Желтый/Ожидает */
+.status.processing { background:#2a1f14; color:#ffd0a6; border-color:#3a2a1b; } /* Оранжевый/В работе */
+.status.completed { background:#18261f; color:#bff7d9; border-color:#21392b; } /* Зеленый/Завершено */
+.status.canceled { background:#2a1818; color:#ffc6c6; border-color:#3a2020; } /* Серый/Отменено */
+
 
 /* ========== CHAT PANEL (RIGHT SLIDE) ========== */
 .chat-panel { position: fixed; inset: 0 0 0 auto; width: 420px; max-width: 100%; background: var(--bg2); border-left:1px solid var(--stroke); transform: translateX(100%); transition: transform .28s ease; display:flex; flex-direction:column; z-index: 50; box-shadow: -12px 0 40px rgba(0,0,0,.45); }
@@ -172,15 +195,23 @@ textarea { resize: vertical; min-height: 96px; }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1100px) {
-  .app-shell { grid-template-columns: 220px 1fr; }
+  .app-shell { grid-template-columns: 220px 1fr; }
 }
 @media (max-width: 860px) {
-  .app-shell { grid-template-columns: 1fr; }
-  .sidebar { position: sticky; top:0; z-index: 15; border-right: none; border-bottom:1px solid var(--stroke); }
-  .side-bottom { display:none; }
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { position: sticky; top:0; z-index: 15; border-right: none; border-bottom:1px solid var(--stroke); }
+  .side-bottom { display:none; }
 }
 @media (max-width: 520px) {
-  .apps-grid, .grid-skeleton { grid-template-columns: repeat(2, 1fr); }
-  .order-row { grid-template-columns: 1fr; gap: 8px; }
-  .chat-panel { width: 100%; }
+  .apps-grid, .grid-skeleton { grid-template-columns: repeat(2, 1fr); }
+  .order-row { 
+      /* Stack columns on small screens */
+      grid-template-columns: 1fr; 
+      gap: 8px; 
+      /* Стили для выравнивания элементов внутри строки при стеке */
+      .col { display:flex; justify-content: space-between; align-items:center; }
+      .col.mid { flex-direction: row; }
+      .col.actions { justify-content: flex-end; }
+  }
+  .chat-panel { width: 100%; }
 }
