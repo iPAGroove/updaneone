@@ -1,27 +1,36 @@
 // assets/js/search.js
+// ===============================
+// Search + i18n
+// ===============================
+
 import { appsData } from "./app.js";
 import { openModal } from "./modal.js";
+import { t } from "./i18n.js";
 
+// DOM
 const searchBtn = document.getElementById("search-btn");
 const overlay = document.getElementById("search-modal");
 const input = document.getElementById("search-input");
 const results = document.getElementById("search-results");
 const hint = document.querySelector(".search-hint");
 
-// ===============================
-// Открытие
-// ===============================
-searchBtn.addEventListener("click", () => {
+/* ============================================================
+   📌 Функции
+   ============================================================ */
+
+// Открыть поиск
+function openSearch() {
     overlay.classList.add("visible");
     document.body.classList.add("modal-open");
     input.focus();
-    hint.style.display = "block";
-});
 
-// ===============================
-// Закрытие
-// ===============================
-function close() {
+    input.placeholder = t("searchPlaceholder");
+    hint.textContent = t("searchHint");
+    hint.style.display = "block";
+}
+
+// Закрыть поиск
+function closeSearch() {
     overlay.classList.remove("visible");
     document.body.classList.remove("modal-open");
     input.value = "";
@@ -29,29 +38,33 @@ function close() {
     hint.style.display = "block";
 }
 
+/* ============================================================
+   🔥 Открытие окна
+   ============================================================ */
+searchBtn.addEventListener("click", openSearch);
+
+/* ============================================================
+   🔥 Закрытие окна
+   ============================================================ */
 overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) close();
+    if (e.target === overlay) closeSearch();
 });
 
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") closeSearch();
 });
 
-// ✅ ИСПРАВЛЕНО: Закрытие при нажатии на нижние вкладки (навигация)
-// Закрываем поиск только при нажатии на табы "apps" или "games",
-// чтобы нажатие на ☰ или 🔍 не блокировалось.
+// Закрытие при переключении вкладок
 document.getElementById("tabbar")?.addEventListener("click", (e) => {
-    const button = e.target.closest('.nav-btn');
-    const dataTab = button?.getAttribute('data-tab');
+    const button = e.target.closest(".nav-btn");
+    const tab = button?.getAttribute("data-tab");
 
-    if (dataTab === 'apps' || dataTab === 'games') {
-        close();
-    }
+    if (tab === "apps" || tab === "games") closeSearch();
 });
 
-// ===============================
-// Поиск
-// ===============================
+/* ============================================================
+   🔍 Поиск
+   ============================================================ */
 input.addEventListener("input", () => {
     const q = input.value.toLowerCase().trim();
     results.innerHTML = "";
@@ -60,6 +73,7 @@ input.addEventListener("input", () => {
         hint.style.display = "block";
         return;
     }
+
     hint.style.display = "none";
 
     const filtered = appsData.filter(app =>
@@ -69,16 +83,27 @@ input.addEventListener("input", () => {
     );
 
     filtered.forEach(app => {
-        const div = document.createElement("div");
-        div.className = "result-item";
-        div.innerHTML = `
+        const item = document.createElement("div");
+        item.className = "result-item";
+
+        item.innerHTML = `
             <img src="${app.img}">
             <span class="title">${app.title}</span>
         `;
-        div.addEventListener("click", () => {
-            close();      // закрываем поиск ✅
-            openModal(app); // открываем карточку ✅
+
+        item.addEventListener("click", () => {
+            closeSearch();
+            openModal(app);
         });
-        results.appendChild(div);
+
+        results.appendChild(item);
     });
+});
+
+/* ============================================================
+   🔄 Перерисовка при смене языка
+   ============================================================ */
+document.addEventListener("ursa_lang_changed", () => {
+    input.placeholder = t("searchPlaceholder");
+    hint.textContent = t("searchHint");
 });
