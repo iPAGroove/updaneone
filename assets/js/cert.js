@@ -127,13 +127,29 @@ function initCertFlow() {
       const method = btn.dataset.method;
       localStorage.setItem("ursa_cert_method", method);
 
-      const orderId = await createCertOrder(method);
+      let orderId = null;
+      try {
+        orderId = await createCertOrder(method);
+      } catch (e) {
+        console.error("❌ Ошибка createCertOrder:", e);
+        alert("Не удалось создать заявку. Перезайдите в аккаунт и попробуйте снова.");
+        return;
+      }
+
+      if (!orderId) {
+        alert("Не удалось инициализировать заявку. Попробуйте снова.");
+        return;
+      }
+
       localStorage.setItem("ursa_cert_order_id", orderId);
 
-      renderSystemMessage(method);
-      close(modal1); close(modal2);
-      open(modalChat);
-      bindChat();
+      // задержка, чтобы база успела зафиксировать запись
+      setTimeout(() => {
+        renderSystemMessage(method);
+        close(modal1); close(modal2);
+        open(modalChat);
+        bindChat();
+      }, 250);
     });
   });
 
@@ -141,8 +157,13 @@ function initCertFlow() {
   // 🧾 Создание заявки
   // ------------------------------------------------
   async function createCertOrder(method) {
-    const uid = localStorage.getItem("ursa_signer_uid");
+    const uid = auth.currentUser?.uid;
     const plan = localStorage.getItem("ursa_cert_plan");
+
+    if (!uid) {
+      alert("Сессия не восстановилась. Авторизуйтесь снова.");
+      throw new Error("Auth user missing");
+    }
 
     const docRef = await addDoc(collection(db, "cert_orders"), {
       uid,
@@ -151,6 +172,7 @@ function initCertFlow() {
       status: "pending",
       createdAt: serverTimestamp()
     });
+
     return docRef.id;
   }
 
@@ -201,6 +223,11 @@ function initCertFlow() {
     chatBound = true;
 
     const orderId = localStorage.getItem("ursa_cert_order_id");
+    if (!orderId) {
+      alert("Чат не инициализирован. Повторите выбор способа оплаты.");
+      return;
+    }
+
     const q = query(collection(db, "cert_orders", orderId, "messages"), orderBy("timestamp"));
 
     onSnapshot(q, (snap) => {
@@ -251,13 +278,24 @@ function initCertFlow() {
     async function sendText() {
       const txt = input.value.trim();
       if (!txt) return;
+
       const orderId = localStorage.getItem("ursa_cert_order_id");
-      await addDoc(collection(db, "cert_orders", orderId, "messages"), {
-        sender: "user",
-        text: txt,
-        timestamp: serverTimestamp()
-      });
-      input.value = "";
+      if (!orderId) {
+        alert("Чат ещё не инициализирован. Повторите выбор способа оплаты.");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "cert_orders", orderId, "messages"), {
+          sender: "user",
+          text: txt,
+          timestamp: serverTimestamp()
+        });
+        input.value = "";
+      } catch (e) {
+        console.error("Ошибка отправки сообщения:", e);
+        alert("Не удалось отправить сообщение. Проверьте вход в аккаунт и повторите.");
+      }
     }
 
     const hiddenFile = Object.assign(document.createElement("input"), {
@@ -270,17 +308,28 @@ function initCertFlow() {
     hiddenFile.addEventListener("change", async () => {
       const file = hiddenFile.files[0];
       if (!file) return;
+
       const orderId = localStorage.getItem("ursa_cert_order_id");
-      const refPath = ref(storage, `cert_chats/${orderId}/${Date.now()}_${file.name}`);
-      await uploadBytes(refPath, file);
-      const url = await getDownloadURL(refPath);
-      await addDoc(collection(db, "cert_orders", orderId, "messages"), {
-        sender: "user",
-        fileUrl: url,
-        fileName: file.name,
-        mime: file.type,
-        timestamp: serverTimestamp()
-      });
+      if (!orderId) {
+        alert("Чат ещё не инициализирован. Повторите выбор способа оплаты.");
+        return;
+      }
+
+      try {
+        const refPath = ref(storage, `cert_chats/${orderId}/${Date.now()}_${file.name}`);
+        await uploadBytes(refPath, file);
+        const url = await getDownloadURL(refPath);
+        await addDoc(collection(db, "cert_orders", orderId, "messages"), {
+          sender: "user",
+          fileUrl: url,
+          fileName: file.name,
+          mime: file.type,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Ошибка загрузки файла:", e);
+        alert("Не удалось отправить файл. Повторите попытку.");
+      }
     });
   }
 }
