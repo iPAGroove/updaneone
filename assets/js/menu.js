@@ -334,11 +334,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // FREE / VIP статус + восстановление сертификата
   // ===============================
   onUserChanged(async (user) => {
+    const statusElement = document.getElementById("user-status");
+
     if (!user) {
       localStorage.setItem("ursa_user_status", "free");
       document.getElementById("user-nickname").textContent = "Гость";
       document.getElementById("user-avatar").src =
         "https://placehold.co/100x100/121722/00b3ff?text=User";
+      if (statusElement) {
+        statusElement.textContent = "Free";
+        statusElement.classList.remove("vip");
+      }
       renderCertificateBlock();
       return;
     }
@@ -358,6 +364,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       localStorage.setItem("ursa_user_status", "free");
     } else {
       localStorage.setItem("ursa_user_status", snap.data().status || "free");
+    }
+
+    const status = snap.data()?.status || "free";
+    if (statusElement) {
+      if (status.toLowerCase() === "vip") {
+        statusElement.textContent = "VIP";
+        statusElement.classList.add("vip");
+      } else {
+        statusElement.textContent = "Free";
+        statusElement.classList.remove("vip");
+      }
     }
 
     document.getElementById("user-nickname").textContent =
