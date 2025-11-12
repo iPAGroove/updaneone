@@ -10,7 +10,8 @@ import {
   serverTimestamp,
   onSnapshot,
   query,
-  orderBy
+  orderBy,
+  doc
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import {
   getStorage,
@@ -20,12 +21,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
 const storage = getStorage();
-
-// ------------------------------------------------
-// ⚡ Авторизация (если не вошёл — редирект)
-// ------------------------------------------------
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
+// ------------------------------------------------
+// ⚡ Авторизация
+// ------------------------------------------------
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     alert("⚠️ Чтобы оформить сертификат, войдите в аккаунт через меню URSA IPA.");
@@ -41,9 +41,9 @@ onAuthStateChanged(auth, (user) => {
 // ------------------------------------------------
 function initCertFlow() {
   const buyButtons = document.querySelectorAll(".plan-card .buy");
-  const modal1 = document.getElementById("modal-step-1"); // Получение UDID
-  const modal2 = document.getElementById("modal-step-2"); // Оплата
-  const modalChat = document.getElementById("modal-chat"); // Чат
+  const modal1 = document.getElementById("modal-step-1");
+  const modal2 = document.getElementById("modal-step-2");
+  const modalChat = document.getElementById("modal-chat");
   const btnNext = document.getElementById("btn-next-step-2");
   const btnBack1 = document.getElementById("btn-back-step-1");
   const btnCloseAll = document.querySelectorAll("[data-close]");
@@ -52,12 +52,10 @@ function initCertFlow() {
   const open = (m) => { m.style.display = "flex"; document.body.style.overflow = "hidden"; };
   const close = (m) => { m.style.display = "none"; document.body.style.overflow = ""; };
 
-  // Закрытие всех окон
   btnCloseAll.forEach(btn => btn.addEventListener("click", () => {
     close(modal1); close(modal2); close(modalChat);
   }));
 
-  // Открыть первое окно (получение UDID)
   buyButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       const plan = btn.dataset.plan;
@@ -66,90 +64,42 @@ function initCertFlow() {
     });
   });
 
-  // Переход: "У меня уже есть UDID"
-  btnNext?.addEventListener("click", () => {
-    close(modal1);
-    open(modal2);
-  });
-
-  // Назад из оплаты к UDID
-  btnBack1?.addEventListener("click", () => {
-    close(modal2);
-    open(modal1);
-  });
-
-  // Назад из чата к оплате
-  btnBackToOptions?.addEventListener("click", () => {
-    close(modalChat);
-    open(modal2);
-  });
+  btnNext?.addEventListener("click", () => { close(modal1); open(modal2); });
+  btnBack1?.addEventListener("click", () => { close(modal2); open(modal1); });
+  btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
   // ------------------------------------------------
   // 💸 Методы оплаты
   // ------------------------------------------------
   const methods = document.querySelectorAll(".option-btn");
-
   const PAYMENT = {
-    crypto: {
-      name: "USDT (TRC20)",
-      show: "Адрес:\nTJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS\nСеть: TRC20",
-      copy: "TJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS"
-    },
-    binance_pay: {
-      name: "Binance Pay ID",
-      show: "ID: 583984119",
-      copy: "583984119"
-    },
-    gift_card: {
-      name: "Binance Gift Card",
-      show: "Отправьте код подарочной карты в чат.",
-      noCopy: true
-    },
-    paypal: {
-      name: "PayPal",
-      show: "Email: swvts6@gmail.com",
-      copy: "swvts6@gmail.com"
-    },
-    ua_card: {
-      name: "UA Card (Privat / Monobank)",
-      show: "Ссылка на оплату: https://www.privat24.ua/send/373a0",
-      copy: "https://www.privat24.ua/send/373a0"
-    },
-    ru_card: {
-      name: "RU Card (Т-Банк / СПБ)",
-      show: "Т-Банк: 2200702048905611\nСПБ: 89933303390\nКомментарий: @viibbee_17",
-      copy: "2200702048905611"
-    }
+    crypto: { name: "USDT (TRC20)", show: "Адрес:\nTJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS\nСеть: TRC20", copy: "TJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS" },
+    binance_pay: { name: "Binance Pay ID", show: "ID: 583984119", copy: "583984119" },
+    gift_card: { name: "Binance Gift Card", show: "Отправьте код подарочной карты в чат.", noCopy: true },
+    paypal: { name: "PayPal", show: "Email: swvts6@gmail.com", copy: "swvts6@gmail.com" },
+    ua_card: { name: "UA Card (Privat / Monobank)", show: "Ссылка: https://www.privat24.ua/send/373a0", copy: "https://www.privat24.ua/send/373a0" },
+    ru_card: { name: "RU Card (Т-Банк / СПБ)", show: "Т-Банк: 2200702048905611\nСПБ: 89933303390\nКомментарий: @viibbee_17", copy: "2200702048905611" }
   };
 
   methods.forEach(btn => {
     btn.addEventListener("click", async () => {
       const method = btn.dataset.method;
       localStorage.setItem("ursa_cert_method", method);
-
-      let orderId = null;
       try {
-        orderId = await createCertOrder(method);
+        const orderId = await createCertOrder(method);
+        if (!orderId) throw new Error("orderId missing");
+
+        localStorage.setItem("ursa_cert_order_id", orderId);
+        setTimeout(() => {
+          renderSystemMessage(method);
+          close(modal1); close(modal2);
+          open(modalChat);
+          bindChat();
+        }, 300);
       } catch (e) {
-        console.error("❌ Ошибка createCertOrder:", e);
-        alert("Не удалось создать заявку. Перезайдите в аккаунт и попробуйте снова.");
-        return;
+        console.error("❌ Ошибка создания заявки:", e);
+        alert("Не удалось создать заявку. Попробуйте снова.");
       }
-
-      if (!orderId) {
-        alert("Не удалось инициализировать заявку. Попробуйте снова.");
-        return;
-      }
-
-      localStorage.setItem("ursa_cert_order_id", orderId);
-
-      // задержка, чтобы база успела зафиксировать запись
-      setTimeout(() => {
-        renderSystemMessage(method);
-        close(modal1); close(modal2);
-        open(modalChat);
-        bindChat();
-      }, 250);
     });
   });
 
@@ -157,27 +107,26 @@ function initCertFlow() {
   // 🧾 Создание заявки
   // ------------------------------------------------
   async function createCertOrder(method) {
-    const uid = auth.currentUser?.uid;
+    // ждем восстановления auth
+    while (!auth.currentUser) await new Promise(r => setTimeout(r, 100));
+
+    const uid = auth.currentUser.uid;
     const plan = localStorage.getItem("ursa_cert_plan");
 
-    if (!uid) {
-      alert("Сессия не восстановилась. Авторизуйтесь снова.");
-      throw new Error("Auth user missing");
-    }
-
     const docRef = await addDoc(collection(db, "cert_orders"), {
-      uid,
-      plan,
+      uid: String(uid),
+      plan: plan || "standard",
       method,
       status: "pending",
       createdAt: serverTimestamp()
     });
 
+    console.log("✅ cert_order создан:", docRef.id);
     return docRef.id;
   }
 
   // ------------------------------------------------
-  // 💬 Отображение реквизитов в чате
+  // 💬 Системное сообщение (реквизиты)
   // ------------------------------------------------
   const chatArea = document.getElementById("chat-area");
   const msgTpl = document.getElementById("system-message-template");
@@ -185,6 +134,8 @@ function initCertFlow() {
   function renderSystemMessage(methodKey) {
     chatArea.innerHTML = "";
     const data = PAYMENT[methodKey];
+    if (!data) return;
+
     const node = msgTpl.cloneNode(true);
     node.style.display = "block";
     node.querySelector(".chat-method-name").textContent = data.name;
@@ -211,7 +162,6 @@ function initCertFlow() {
 
     node.appendChild(details);
     chatArea.appendChild(node);
-    chatArea.scrollTop = chatArea.scrollHeight;
   }
 
   // ------------------------------------------------
@@ -223,45 +173,43 @@ function initCertFlow() {
     chatBound = true;
 
     const orderId = localStorage.getItem("ursa_cert_order_id");
-    if (!orderId) {
-      alert("Чат не инициализирован. Повторите выбор способа оплаты.");
-      return;
-    }
+    if (!orderId) return alert("Чат не инициализирован. Повторите выбор способа оплаты.");
 
     const q = query(collection(db, "cert_orders", orderId, "messages"), orderBy("timestamp"));
 
-    onSnapshot(q, (snap) => {
-      const systemMsg = chatArea.querySelector(".system-message")?.cloneNode(true);
-      chatArea.innerHTML = "";
-      if (systemMsg) chatArea.appendChild(systemMsg);
+    try {
+      onSnapshot(q, (snap) => {
+        chatArea.innerHTML = "";
+        snap.forEach((doc) => {
+          const m = doc.data();
+          const el = document.createElement("div");
+          el.className = m.sender === "admin" ? "msg admin" : "msg user";
+          if (m.text) el.textContent = m.text;
 
-      snap.forEach((doc) => {
-        const m = doc.data();
-        const el = document.createElement("div");
-        el.className = m.sender === "admin" ? "msg admin" : "msg user";
-        if (m.text) el.textContent = m.text;
-
-        if (m.fileUrl) {
-          if (m.mime?.startsWith("image/")) {
-            const img = document.createElement("img");
-            img.src = m.fileUrl;
-            img.style.maxWidth = "220px";
-            img.style.borderRadius = "10px";
-            img.style.marginTop = "6px";
-            el.appendChild(img);
-          } else {
-            const a = document.createElement("a");
-            a.href = m.fileUrl;
-            a.target = "_blank";
-            a.textContent = m.fileName || "Файл";
-            a.style.color = "#9fdfff";
-            el.appendChild(a);
+          if (m.fileUrl) {
+            if (m.mime?.startsWith("image/")) {
+              const img = document.createElement("img");
+              img.src = m.fileUrl;
+              img.style.maxWidth = "220px";
+              img.style.borderRadius = "10px";
+              el.appendChild(img);
+            } else {
+              const a = document.createElement("a");
+              a.href = m.fileUrl;
+              a.target = "_blank";
+              a.textContent = m.fileName || "Файл";
+              a.style.color = "#9fdfff";
+              el.appendChild(a);
+            }
           }
-        }
-        chatArea.appendChild(el);
+          chatArea.appendChild(el);
+        });
+        chatArea.scrollTop = chatArea.scrollHeight;
       });
-      chatArea.scrollTop = chatArea.scrollHeight;
-    });
+    } catch (e) {
+      console.error("Ошибка snapshot:", e);
+      alert("Нет доступа к чату. Повторите вход.");
+    }
 
     const input = document.querySelector(".chat-input");
     const sendBtn = document.querySelector(".chat-send-btn");
@@ -269,22 +217,12 @@ function initCertFlow() {
 
     sendBtn.addEventListener("click", sendText);
     input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        sendText();
-      }
+      if (e.key === "Enter") { e.preventDefault(); sendText(); }
     });
 
     async function sendText() {
       const txt = input.value.trim();
       if (!txt) return;
-
-      const orderId = localStorage.getItem("ursa_cert_order_id");
-      if (!orderId) {
-        alert("Чат ещё не инициализирован. Повторите выбор способа оплаты.");
-        return;
-      }
-
       try {
         await addDoc(collection(db, "cert_orders", orderId, "messages"), {
           sender: "user",
@@ -293,28 +231,18 @@ function initCertFlow() {
         });
         input.value = "";
       } catch (e) {
-        console.error("Ошибка отправки сообщения:", e);
-        alert("Не удалось отправить сообщение. Проверьте вход в аккаунт и повторите.");
+        console.error("Ошибка отправки:", e);
+        alert("Не удалось отправить сообщение.");
       }
     }
 
-    const hiddenFile = Object.assign(document.createElement("input"), {
-      type: "file",
-      style: "display:none"
-    });
+    const hiddenFile = Object.assign(document.createElement("input"), { type: "file", style: "display:none" });
     document.body.appendChild(hiddenFile);
 
     attachBtn.addEventListener("click", () => hiddenFile.click());
     hiddenFile.addEventListener("change", async () => {
       const file = hiddenFile.files[0];
       if (!file) return;
-
-      const orderId = localStorage.getItem("ursa_cert_order_id");
-      if (!orderId) {
-        alert("Чат ещё не инициализирован. Повторите выбор способа оплаты.");
-        return;
-      }
-
       try {
         const refPath = ref(storage, `cert_chats/${orderId}/${Date.now()}_${file.name}`);
         await uploadBytes(refPath, file);
@@ -327,8 +255,8 @@ function initCertFlow() {
           timestamp: serverTimestamp()
         });
       } catch (e) {
-        console.error("Ошибка загрузки файла:", e);
-        alert("Не удалось отправить файл. Повторите попытку.");
+        console.error("Ошибка отправки файла:", e);
+        alert("Не удалось загрузить файл.");
       }
     });
   }
