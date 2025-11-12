@@ -1,11 +1,13 @@
 // assets/js/app.js
 // ===============================
-// Firebase + Catalog Loader + Sorting + User Status Export
+// Firebase + Catalog Loader + Sorting + Lang + User Status
 // ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
 import { openModal } from "./modal.js";
+import { currentLang } from "./i18n.js";
 
 // ===============================
 // Firebase Config
@@ -61,7 +63,7 @@ function createCardHtml(data) {
             </div>
 
             <button class="card-cta open-modal-btn" data-id="${data.id}">
-                <span>Открыть</span>
+                <span>${currentLang === "ru" ? "Открыть" : "Open"}</span>
             </button>
         </article>
     `;
@@ -86,16 +88,18 @@ export function displayCatalog() {
 
     rows.forEach(row => {
         const carousel = row.querySelector(".card-carousel");
-        const section = row.querySelector(".collection-title").textContent.trim();
+        const section = row.querySelector(".collection-title").dataset.i18n;
         carousel.innerHTML = "";
 
         let filtered = appsData.filter(app => app.tags.includes(currentCategory));
 
-        if (section === "Popular") {
+        if (section === "popular") {
             filtered = filtered.sort((a, b) => b.downloadCount - a.downloadCount);
-        } else if (section === "Update") {
+        } 
+        else if (section === "update") {
             filtered = filtered.sort((a, b) => b.updatedTime - a.updatedTime);
-        } else if (section === "VIP") {
+        } 
+        else if (section === "vip") {
             filtered = filtered
                 .filter(app => app.vip)
                 .sort((a, b) => b.downloadCount - a.downloadCount);
@@ -108,41 +112,62 @@ export function displayCatalog() {
         attachModalOpenListeners(carousel);
 
         for (let i = filtered.length; i < LIMIT; i++) {
-            carousel.insertAdjacentHTML("beforeend", `<article class="card placeholder"></article>`);
+            carousel.insertAdjacentHTML(
+                "beforeend",
+                `<article class="card placeholder"></article>`
+            );
         }
     });
 }
 
 // ===============================
-// Загрузка из Firestore
+// ЗАГРУЗКА ДАННЫХ FIRESTORE + ПОДДЕРЖКА ЯЗЫКА
 // ===============================
 async function loadDataFromFirestore() {
     try {
         const snapshot = await getDocs(collection(db, "ursa_ipas"));
+
         appsData = snapshot.docs.map(doc => {
             const item = doc.data();
+
+            // Выбор описания по языку
+            const desc =
+                currentLang === "ru"
+                    ? (item.description_ru || item.description_en || "")
+                    : (item.description_en || item.description_ru || "");
+
+            // Выбор features по языку
+            const features =
+                currentLang === "ru"
+                    ? (item.features_ru || item.features_en || "")
+                    : (item.features_en || item.features_ru || "");
+
             return {
                 id: doc.id,
                 title: item.NAME || "Без названия",
                 version: item.Version || "N/A",
-                desc: item.description_ru || item.description_en || "",
+                desc,
+
                 img: item.iconUrl || "https://placehold.co/200x200",
 
-                // ✅ МЕГА-НАДЕЖНАЯ обработка tags
                 tags: (Array.isArray(item.tags) ? item.tags : [item.tags])
                     .filter(Boolean)
                     .map(t => String(t).toLowerCase().trim()),
 
                 link: item.DownloadUrl || "#",
-                size: item.sizeBytes ? `${(item.sizeBytes / 1048576).toFixed(1)} MB` : "N/A",
-                features: item.features_ru || item.features_en || "",
+                size: item.sizeBytes
+                    ? `${(item.sizeBytes / 1048576).toFixed(1)} MB`
+                    : "N/A",
+
+                features,
                 vip: item.vipOnly === true,
                 downloadCount: item.downloadCount ?? 0,
+
                 updatedTime: item.updatedAt
                     ? new Date(item.updatedAt).getTime()
                     : item.createdAt
-                    ? new Date(item.createdAt).getTime()
-                    : Date.now()
+                        ? new Date(item.createdAt).getTime()
+                        : Date.now()
             };
         });
 
@@ -153,4 +178,13 @@ async function loadDataFromFirestore() {
     }
 }
 
+// Первый запуск
 loadDataFromFirestore();
+
+// ===============================
+// 🔄 ПЕРЕЗАГРУЗКА ДАННЫХ ПРИ СМЕНЕ ЯЗЫКА
+// ===============================
+document.addEventListener("ursa_lang_changed", () => {
+    console.log("🌐 Язык изменён, перезагружаем данные…");
+    loadDataFromFirestore();
+});
