@@ -6,6 +6,7 @@
 // + Переход в "О нас"
 // + Переход в "Чат поддержки"
 // ===============================
+
 import {
   loginWithGoogle,
   loginWithFacebook,
@@ -17,13 +18,11 @@ import {
 
 import { onUserChanged } from "./firebase/user.js";
 import { auth, db } from "./app.js";
-
 import {
   doc,
   setDoc,
   getDoc,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
 import {
   getStorage,
   ref,
@@ -76,13 +75,12 @@ async function parseMobileProvision(file) {
 }
 
 // ===============================
-// 📌 UI сертификата
+// 📌 Отображение сертификата
 // ===============================
 function renderCertificateBlock() {
   const card = document.querySelector(".certificate-card");
   const udid = localStorage.getItem("ursa_cert_udid");
   const expiry = localStorage.getItem("ursa_cert_exp");
-
   const isLoggedIn = !!auth.currentUser;
 
   const showAddButton = isLoggedIn
@@ -130,15 +128,15 @@ async function importCertificate() {
   const uid = user.uid;
   const folder = `signers/${uid}/`;
 
-  const p12StorageRef = ref(storage, folder + p12.name);
-  const provStorageRef = ref(storage, folder + mp.name);
+  const p12Ref = ref(storage, folder + p12.name);
+  const mpRef = ref(storage, folder + mp.name);
 
   try {
-    await uploadBytes(p12StorageRef, p12);
-    await uploadBytes(provStorageRef, mp);
+    await uploadBytes(p12Ref, p12);
+    await uploadBytes(mpRef, mp);
 
-    const p12DownloadUrl = await getDownloadURL(p12StorageRef);
-    const provDownloadUrl = await getDownloadURL(provStorageRef);
+    const p12Url = await getDownloadURL(p12Ref);
+    const mpUrl = await getDownloadURL(mpRef);
 
     await setDoc(
       doc(db, "ursa_signers", uid),
@@ -147,8 +145,8 @@ async function importCertificate() {
         expires: parsed.expiryDate,
         pass: password,
         createdAt: new Date().toISOString(),
-        p12Url: p12DownloadUrl,
-        provUrl: provDownloadUrl,
+        p12Url,
+        provUrl: mpUrl,
       },
       { merge: true }
     );
@@ -160,17 +158,20 @@ async function importCertificate() {
     document.getElementById("cert-modal").classList.remove("visible");
     renderCertificateBlock();
     openMenu();
-  } catch (err) {
+  } catch {
     alert("❌ Ошибка при загрузке.");
   }
 }
 
 // ===============================
-// Меню UI
+// Открытие / закрытие меню
 // ===============================
 function openMenu() {
-  document.getElementById("menu-modal").classList.add("visible");
+  const overlay = document.getElementById("menu-modal");
+  overlay.classList.add("visible");
   document.body.classList.add("modal-open");
+  overlay.style.transform = "translateZ(0)";
+  requestAnimationFrame(() => (overlay.style.transform = ""));
 }
 function closeMenu() {
   document.getElementById("menu-modal").classList.remove("visible");
@@ -178,7 +179,7 @@ function closeMenu() {
 }
 
 // ===============================
-// ИНИЦИАЛИЗАЦИЯ
+// Основная инициализация
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -200,7 +201,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         closeMenu();
     });
 
-  document.getElementById("cert-import-btn").onclick = importCertificate;
+  document.getElementById("cert-import-btn")?.addEventListener("click", importCertificate);
 
   document.body.addEventListener("click", (e) => {
     if (e.target.classList.contains("add-cert-btn"))
@@ -214,7 +215,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // ✅ Переход на cert.html
+  // === Переходы ===
   document.body.addEventListener("click", (e) => {
     if (e.target.classList.contains("buy-cert-btn")) {
       closeMenu();
@@ -222,62 +223,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // ✅ Переход в VIP
-  document
-    .querySelector(".select-plan-btn")
-    ?.addEventListener("click", () => {
-      closeMenu();
-      window.location.href = "./vip.html";
-    });
+  document.querySelector(".select-plan-btn")?.addEventListener("click", () => {
+    closeMenu();
+    window.location.href = "./vip.html";
+  });
 
-  // ✅ Переход в About
   document.querySelector(".about-us-btn")?.addEventListener("click", () => {
     closeMenu();
     window.location.href = "./about.html";
   });
 
-  // ✅ Переход в Чат поддержки (исправлено для iOS)
-document.addEventListener("DOMContentLoaded", () => {
+  // ✅ Чат поддержки
   const supportBtn = document.querySelector(".support-chat-btn");
-  if (!supportBtn) return;
+  if (supportBtn) {
+    supportBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      closeMenu();
 
-  supportBtn.addEventListener("click", async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    closeMenu();
-
-    const user = auth.currentUser;
-    if (!user) {
-      alert("⚠️ Чтобы открыть чат поддержки, войдите в аккаунт.");
-      openMenu();
-      return;
-    }
-
-    try {
-      const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
-      const orderSnap = await getDoc(orderRef);
-
-      if (!orderSnap.exists()) {
-        await setDoc(orderRef, {
-          uid: user.uid,
-          email: user.email || null,
-          status: "open",
-          type: "support",
-          createdAt: new Date().toISOString(),
-        });
+      const user = auth.currentUser;
+      if (!user) {
+        alert("⚠️ Чтобы открыть чат поддержки, войдите в аккаунт.");
+        openMenu();
+        return;
       }
 
-      // На iOS лучше использовать window.open
-      window.location.assign(`./support.html?uid=${user.uid}`);
-    } catch (err) {
-      console.error("Ошибка перехода в чат:", err);
-    }
-  });
-});
+      try {
+        const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
+        const snap = await getDoc(orderRef);
+        if (!snap.exists()) {
+          await setDoc(orderRef, {
+            uid: user.uid,
+            email: user.email || null,
+            status: "open",
+            type: "support",
+            createdAt: new Date().toISOString(),
+          });
+        }
+        window.location.assign(`./support.html?uid=${user.uid}`);
+      } catch (err) {
+        console.error("Ошибка перехода в чат:", err);
+      }
+    });
+  }
 
   // ===============================
-  // EMAIL LOGIN
+  // Авторизация Email
   // ===============================
   const emailModal = document.getElementById("email-modal");
   const emailInput = document.getElementById("email-input");
@@ -322,7 +312,9 @@ document.addEventListener("DOMContentLoaded", () => {
     await loginWithFacebook();
   });
 
-  // ✅ FREE/VIP статус
+  // ===============================
+  // FREE / VIP статус пользователя
+  // ===============================
   onUserChanged(async (user) => {
     if (!user) {
       localStorage.setItem("ursa_user_status", "free");
