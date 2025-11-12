@@ -1,6 +1,6 @@
 // assets/js/support.js
 // ===============================
-// URSA Support Chat (общий real-time чат с поддержкой через vip_orders)
+// URSA Support Chat (реальный чат с поддержкой через support_orders)
 // ===============================
 import { auth, db } from "./app.js";
 import {
@@ -10,11 +10,15 @@ import {
   onSnapshot,
   serverTimestamp,
   setDoc,
-  getDoc
+  getDoc,
+  orderBy,
+  query,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
+// ------------------------------
+// 🔧 DOM-элементы
+// ------------------------------
 const messagesBox = document.getElementById("messages");
 const input = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
@@ -23,59 +27,80 @@ let currentUser = null;
 let messagesUnsub = null;
 
 // ===============================
-// 🔑 Авторизация / Проверка пользователя
+// 🔑 Авторизация / Инициализация
 // ===============================
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    alert("⚠️ Чтобы общаться с поддержкой, войдите в аккаунт.");
+    alert("⚠️ Чтобы открыть чат поддержки, войдите в аккаунт.");
     window.location.href = "./index.html";
     return;
   }
 
   currentUser = user;
   const chatId = `support_${user.uid}`;
+  const chatRef = doc(db, "support_orders", chatId);
 
-  // Проверяем, существует ли заказ (чат)
-  const chatRef = doc(db, "vip_orders", chatId);
-  const chatSnap = await getDoc(chatRef);
-  if (!chatSnap.exists()) {
-    await setDoc(chatRef, {
-      uid: user.uid,
-      email: user.email || null,
-      type: "support",
-      status: "open",
-      createdAt: new Date().toISOString(),
-    });
+  // Проверяем существование чата
+  try {
+    const chatSnap = await getDoc(chatRef);
+    if (!chatSnap.exists()) {
+      await setDoc(chatRef, {
+        uid: user.uid,
+        email: user.email || null,
+        status: "open",
+        type: "support",
+        createdAt: new Date().toISOString(),
+      });
+      console.log("✅ Новый чат поддержки создан:", chatId);
+    } else {
+      console.log("ℹ️ Чат уже существует:", chatId);
+    }
+    listenToMessages(chatId);
+  } catch (err) {
+    console.error("❌ Ошибка инициализации чата поддержки:", err);
+    alert("Не удалось подключиться к чату поддержки.");
   }
-
-  listenToMessages(chatId);
 });
 
 // ===============================
 // 📨 Подписка на сообщения
 // ===============================
 function listenToMessages(chatId) {
-  const messagesRef = collection(db, "vip_orders", chatId, "messages");
-  messagesUnsub = onSnapshot(messagesRef, (snapshot) => {
+  const messagesRef = collection(db, "support_orders", chatId, "messages");
+  const q = query(messagesRef, orderBy("createdAt"));
+  if (messagesUnsub) messagesUnsub(); // очистка старых слушателей
+
+  messagesUnsub = onSnapshot(q, (snapshot) => {
     messagesBox.innerHTML = "";
 
-    snapshot.docChanges().forEach((change) => {
-      if (change.type === "added") {
-        const msg = change.doc.data();
-        const isUser = msg.sender === currentUser.uid;
+    snapshot.forEach((docSnap) => {
+      const msg = docSnap.data();
+      const isUser = msg.sender === currentUser.uid;
 
-        const div = document.createElement("div");
-        div.className = isUser ? "msg msg-user" : "msg msg-support";
-        div.innerHTML = `
-          <div class="msg-bubble">
-            <p>${msg.text}</p>
-            <span class="msg-time">${formatTime(msg.createdAt?.seconds)}</span>
-          </div>`;
-        messagesBox.appendChild(div);
-      }
+      const div = document.createElement("div");
+      div.className = isUser ? "msg msg-user" : "msg msg-support";
+
+      // текст сообщения
+      const bubble = document.createElement("div");
+      bubble.className = "msg-bubble";
+
+      const textEl = document.createElement("p");
+      textEl.textContent = msg.text || "";
+
+      const timeEl = document.createElement("span");
+      timeEl.className = "msg-time";
+      timeEl.textContent = formatTime(msg.createdAt?.seconds);
+
+      bubble.appendChild(textEl);
+      bubble.appendChild(timeEl);
+      div.appendChild(bubble);
+      messagesBox.appendChild(div);
     });
 
     messagesBox.scrollTop = messagesBox.scrollHeight;
+  }, (err) => {
+    console.error("Ошибка при чтении сообщений:", err);
+    alert("⚠️ Нет доступа к чату поддержки.");
   });
 }
 
@@ -87,16 +112,21 @@ async function sendMessage() {
   if (!text || !currentUser) return;
 
   const chatId = `support_${currentUser.uid}`;
-  const messagesRef = collection(db, "vip_orders", chatId, "messages");
+  const messagesRef = collection(db, "support_orders", chatId, "messages");
 
-  await addDoc(messagesRef, {
-    text,
-    sender: currentUser.uid,
-    createdAt: serverTimestamp(),
-  });
+  try {
+    await addDoc(messagesRef, {
+      text,
+      sender: currentUser.uid,
+      createdAt: serverTimestamp(),
+    });
 
-  input.value = "";
-  messagesBox.scrollTop = messagesBox.scrollHeight;
+    input.value = "";
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+  } catch (err) {
+    console.error("❌ Ошибка отправки:", err);
+    alert("Не удалось отправить сообщение.");
+  }
 }
 
 // ===============================
@@ -111,6 +141,9 @@ function formatTime(sec) {
   });
 }
 
+// ===============================
+// 🧩 События
+// ===============================
 sendBtn.addEventListener("click", sendMessage);
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
