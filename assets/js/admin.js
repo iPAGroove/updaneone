@@ -1,7 +1,6 @@
-// assets/js/admin.js — v3 (sidebar + grid + slide chat)
-// ======================================================
-// Requirements: Firebase v9 (modular), app.js exports { auth, db }
-// Focus: VIP orders + realtime chat in right slide panel
+// assets/js/admin.js — v4 (sidebar + grid + slide chat + full IPA modal)
+// ======================================================================
+// Требования: Firebase v9 (modular), app.js экспортирует { auth, db }
 
 import { auth, db } from "./app.js";
 
@@ -102,15 +101,21 @@ const appModal = $("#app-modal");
 const appForm = $("#app-edit-form");
 const appDeleteBtn = $("#app-delete-btn");
 
-// App form fields
+// App form fields (как в старой админке)
 const fAppId = $("#app-id");
 const fAppName = $("#app-name");
+const fAppBundle = $("#app-bundle");
 const fAppVersion = $("#app-version");
+const fAppMinIOS = $("#app-min-ios");
+const fAppSizeMb = $("#app-size-mb");
 const fAppUrl = $("#app-url");
 const fAppIcon = $("#app-icon");
-const fAppTags = $("#app-tags");
+const fAppIconPreview = $("#app-icon-preview");
+const fAppFeaturesRu = $("#app-features-ru");
+const fAppFeaturesEn = $("#app-features-en");
+const fAppTag = $("#app-tag");          // hidden (games/apps)
+const tagButtons = $$(".tag-btn");
 const fAppVipOnly = $("#app-vip-only");
-const fAppDesc = $("#app-desc");
 
 // Chat panel
 const chatPanel = $("#chat-panel");
@@ -194,7 +199,10 @@ function initNavigation() {
 }
 
 function getActiveView() {
-  return Object.entries(views).find(([k, el]) => el.classList.contains("active"))?.[0] || "orders";
+  return (
+    Object.entries(views).find(([k, el]) => el.classList.contains("active"))?.[0] ||
+    "orders"
+  );
 }
 
 async function activateView(view) {
@@ -254,6 +262,25 @@ function initApps() {
   appSearch?.addEventListener("input", renderApps);
   appFilter?.addEventListener("change", renderApps);
   addAppBtn?.addEventListener("click", () => openAppModal(null));
+
+  // preview иконки при вводе URL
+  if (fAppIcon && fAppIconPreview) {
+    fAppIcon.addEventListener("input", () => {
+      const url = fAppIcon.value.trim();
+      fAppIconPreview.src = url || "https://placehold.co/120x120";
+      fAppIconPreview.style.opacity = url ? "1" : ".4";
+    });
+  }
+
+  // выбор категории (Games / Apps)
+  tagButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag || "";
+      tagButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (fAppTag) fAppTag.value = tag;
+    });
+  });
 }
 
 async function loadApps() {
@@ -289,10 +316,14 @@ function renderApps() {
     const card = document.createElement("div");
     card.className = "app-card";
     card.innerHTML = `
-      <img class="icon" src="${app.iconUrl || "https://placehold.co/120x120"}" alt="${app.NAME || "App"}"/>
+      <img class="icon" src="${app.iconUrl || "https://placehold.co/120x120"}" alt="${
+      app.NAME || "App"
+    }"/>
       <div class="ttl" title="${app.NAME || "N/A"}">${app.NAME || "N/A"}</div>
       <div class="meta">
-        <span class="pill ${app.vipOnly ? "vip" : "free"}">${app.vipOnly ? "VIP" : "FREE"}</span>
+        <span class="pill ${app.vipOnly ? "vip" : "free"}">${
+      app.vipOnly ? "VIP" : "FREE"
+    }</span>
         <span class="cnt" title="Скачивания">${app.downloadCount || 0}</span>
       </div>
       <div class="row-actions">
@@ -301,7 +332,7 @@ function renderApps() {
     appsGrid.appendChild(card);
   });
 
-  // Bind edit buttons
+  // Bind edit buttons (на один рендер — один слушатель)
   appsGrid.addEventListener(
     "click",
     (e) => {
@@ -315,17 +346,46 @@ function renderApps() {
 }
 
 function openAppModal(appId) {
-  const app = state.apps.find((a) => a.id === appId);
+  const app = state.apps.find((a) => a.id === appId) || null;
 
-  $("#app-modal-title").textContent = appId ? "Редактировать приложение" : "Добавить новое приложение";
+  $("#app-modal-title").textContent = appId
+    ? "Редактировать IPA"
+    : "Добавить IPA";
+
+  appForm.reset();
+
   fAppId.value = appId || "";
   fAppName.value = app?.NAME || "";
+  fAppBundle.value = app?.["Bundle ID"] || "";
   fAppVersion.value = app?.Version || "";
+  fAppMinIOS.value = app?.["minimal iOS"] || "";
+  fAppSizeMb.value = app?.sizeBytes ? Math.round(app.sizeBytes / 1000000) : "";
+
   fAppUrl.value = app?.DownloadUrl || "";
   fAppIcon.value = app?.iconUrl || "";
-  fAppTags.value = Array.isArray(app?.tags) ? app.tags.join(", ") : app?.tags || "";
+
+  fAppFeaturesRu.value = app?.features_ru || "";
+  fAppFeaturesEn.value = app?.features_en || "";
+
+  // Категория
+  let currentTag = "";
+  if (Array.isArray(app?.tags) && app.tags.length) {
+    currentTag = app.tags[0];
+  }
+  fAppTag.value = currentTag;
+  tagButtons.forEach((btn) => {
+    if (btn.dataset.tag === currentTag) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+
   fAppVipOnly.checked = app?.vipOnly === true;
-  fAppDesc.value = app?.description_ru || app?.description_en || app?.desc || "";
+
+  // Превью иконки
+  if (fAppIconPreview) {
+    const url = fAppIcon.value.trim();
+    fAppIconPreview.src = url || "https://placehold.co/120x120";
+    fAppIconPreview.style.opacity = url ? "1" : ".4";
+  }
 
   appDeleteBtn.style.display = appId ? "inline-block" : "none";
   appModal.classList.add("visible");
@@ -339,28 +399,55 @@ appModal?.addEventListener("click", (e) => {
 
 appForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const id = fAppId.value.trim();
-  const data = {
-    NAME: fAppName.value.trim(),
-    Version: fAppVersion.value.trim(),
-    DownloadUrl: fAppUrl.value.trim(),
-    iconUrl: fAppIcon.value.trim(),
-    tags: fAppTags.value
-      .split(",")
-      .map((t) => t.trim().toLowerCase())
-      .filter(Boolean),
-    vipOnly: !!fAppVipOnly.checked,
-    description_ru: fAppDesc.value.trim(),
-    updatedAt: new Date().toISOString()
+  const name = fAppName.value.trim();
+  const bundleId = fAppBundle.value.trim();
+  const version = fAppVersion.value.trim();
+  const minIOS = fAppMinIOS.value.trim();
+  const sizeMb = parseFloat((fAppSizeMb.value || "0").replace(",", ".")) || 0;
+  const iconUrl = fAppIcon.value.trim();
+  const downloadUrl = fAppUrl.value.trim();
+  const featuresRu = fAppFeaturesRu.value.trim();
+  const featuresEn = fAppFeaturesEn.value.trim();
+  const tag = fAppTag?.value || "";
+  const vipOnly = !!fAppVipOnly.checked;
+
+  if (!name || !bundleId || !version || !downloadUrl) {
+    alert("Name, Bundle ID, Version и Download URL обязательны.");
+    return;
+  }
+
+  const nowIso = new Date().toISOString();
+  const docData = {
+    ID: bundleId && version ? `${bundleId}_${version}` : bundleId, // авто-ID
+    NAME: name,
+    "Bundle ID": bundleId,
+    Version: version,
+    "minimal iOS": minIOS,
+    sizeBytes: Math.round(sizeMb * 1000000), // MB -> bytes
+    iconUrl,
+    DownloadUrl: downloadUrl,
+    description_ru: "Функции мода",
+    description_en: "Hack Features",
+    features_ru: featuresRu,
+    features_en: featuresEn,
+    tags: tag ? [tag] : [],
+    vipOnly,
+    updatedAt: nowIso
   };
 
   try {
     if (id) {
-      await updateDoc(doc(db, "ursa_ipas", id), data);
+      await updateDoc(doc(db, "ursa_ipas", id), docData);
       alert("Приложение обновлено");
     } else {
       const newRef = doc(collection(db, "ursa_ipas"));
-      await setDoc(newRef, { ...data, createdAt: new Date().toISOString(), downloadCount: 0 });
+      await setDoc(newRef, {
+        ...docData,
+        createdAt: nowIso,
+        downloadCount: 0
+      });
       alert("Приложение добавлено");
     }
     appModal.classList.remove("visible");
@@ -400,15 +487,22 @@ async function loadUsers() {
   const signersMap = Object.create(null);
   signersSnap.docs.forEach((d) => (signersMap[d.id] = d.data()));
 
-  state.users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data(), signer: signersMap[d.id] }));
+  state.users = usersSnap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+    signer: signersMap[d.id]
+  }));
   renderUsers();
 }
 
 function renderUsers() {
   const q = (userSearch?.value || "").toLowerCase();
   usersTableBody.innerHTML = "";
-  const filtered = state.users.filter((u) =>
-    !q || u.email?.toLowerCase().includes(q) || u.id.toLowerCase().includes(q)
+  const filtered = state.users.filter(
+    (u) =>
+      !q ||
+      u.email?.toLowerCase().includes(q) ||
+      u.id.toLowerCase().includes(q)
   );
 
   filtered.forEach((u) => {
@@ -425,9 +519,13 @@ function renderUsers() {
       <td>${u.id.substring(0, 8)}...</td>
       <td>${vip}</td>
       <td>${cert}</td>
-      <td><button class="btn btn-ghost small" data-toggle-vip="${u.id}" data-status="${u.status}">${
-        u.status === "vip" ? "↓ FREE" : "↑ VIP"
-      }</button></td>`;
+      <td>
+        <button class="btn btn-ghost small"
+          data-toggle-vip="${u.id}"
+          data-status="${u.status}">
+          ${u.status === "vip" ? "↓ FREE" : "↑ VIP"}
+        </button>
+      </td>`;
     usersTableBody.appendChild(tr);
   });
 
@@ -459,7 +557,6 @@ async function toggleUserVipStatus(uid, currentStatus) {
 // ===============================
 function initOrders() {
   ordersSkeleton.style.display = "block";
-  // one-time load (list). Chat is realtime per order selection
   loadOrders().then(() => (ordersSkeleton.style.display = "none"));
 
   ordersStatus?.addEventListener("change", renderOrders);
@@ -494,13 +591,16 @@ function renderOrders() {
   }
 
   orders.forEach((o) => {
-    const date = o.createdAt?.toDate?.()?.toLocaleString?.() || o.createdAt || "—";
+    const date =
+      o.createdAt?.toDate?.()?.toLocaleString?.() || o.createdAt || "—";
     const li = document.createElement("li");
     li.className = "order-row";
     li.innerHTML = `
       <div class="col main">
         <div class="id">#${o.id.substring(0, 8)}…</div>
-        <div class="meta">UID: ${o.uid?.substring(0, 8) || "—"}… • Метод: ${o.method || "—"}</div>
+        <div class="meta">UID: ${o.uid?.substring(0, 8) || "—"}… • Метод: ${
+      o.method || "—"
+    }</div>
       </div>
       <div class="col mid">
         <span class="status ${o.status}">${statusText(o.status)}</span>
@@ -549,7 +649,6 @@ function openChat(orderId) {
   chatPanel.setAttribute("aria-hidden", "false");
   chatPanel.classList.add("open");
 
-  // Cleanup previous
   if (state.chat.unsub) state.chat.unsub();
   state.chat.orderId = orderId;
 
@@ -609,11 +708,14 @@ chatForm?.addEventListener("submit", async (e) => {
   const text = chatInput.value.trim();
   if (!text) return;
   try {
-    await addDoc(collection(db, "vip_orders", state.chat.orderId, "messages"), {
-      sender: "admin",
-      text,
-      timestamp: serverTimestamp()
-    });
+    await addDoc(
+      collection(db, "vip_orders", state.chat.orderId, "messages"),
+      {
+        sender: "admin",
+        text,
+        timestamp: serverTimestamp()
+      }
+    );
     chatInput.value = "";
   } catch (e) {
     alert("Не удалось отправить сообщение: " + e.message);
@@ -623,8 +725,9 @@ chatForm?.addEventListener("submit", async (e) => {
 chatStatusSelect?.addEventListener("change", async (e) => {
   if (!state.chat.orderId) return;
   try {
-    await updateDoc(doc(db, "vip_orders", state.chat.orderId), { status: e.target.value });
-    // refresh orders list to reflect new status/pill & counter
+    await updateDoc(doc(db, "vip_orders", state.chat.orderId), {
+      status: e.target.value
+    });
     await loadOrders();
   } catch (e) {
     alert("Не удалось обновить статус: " + e.message);
@@ -633,7 +736,6 @@ chatStatusSelect?.addEventListener("change", async (e) => {
 
 setVipBtn?.addEventListener("click", async () => {
   if (!state.chat.orderId) return;
-  // get order to know uid
   const order = state.orders.find((o) => o.id === state.chat.orderId);
   if (!order?.uid) return alert("У заказа нет UID");
   if (!confirm(`Выдать VIP пользователю ${order.uid.substring(0, 8)}…?`)) return;
@@ -642,7 +744,9 @@ setVipBtn?.addEventListener("click", async () => {
       status: "vip",
       vip_activated_at: new Date().toISOString()
     });
-    await updateDoc(doc(db, "vip_orders", state.chat.orderId), { status: "completed" });
+    await updateDoc(doc(db, "vip_orders", state.chat.orderId), {
+      status: "completed"
+    });
     await loadUsers();
     await loadOrders();
     closeChat();
