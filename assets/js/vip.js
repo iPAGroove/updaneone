@@ -117,6 +117,16 @@ function initVIP() {
   document.getElementById("btn-back-to-options")?.addEventListener("click", () => { close(modalChat); open(modal2); });
 
   // ------------------------------------------------
+  // ✕ Универсальное закрытие модалок
+  // ------------------------------------------------
+  document.addEventListener("click", (e) => {
+    const closeBtn = e.target.closest("[data-close]");
+    if (!closeBtn) return;
+    const modal = closeBtn.closest(".payment-modal");
+    if (modal) close(modal);
+  });
+
+  // ------------------------------------------------
   // ЕДИНЫЙ ЛОВЕЦ 🍪 (решает проблему кликов)
   // ------------------------------------------------
   document.addEventListener("click", async (e) => {
@@ -145,15 +155,12 @@ function initVIP() {
     const node = msgTpl.cloneNode(true);
     node.style.display = "block";
 
-    // Заголовок
     node.querySelector(".chat-method-name").textContent = d.name;
 
-    // Контейнер с реквизитом
     const details = document.createElement("div");
     details.className = "chat-details";
     details.textContent = d.show;
 
-    // Кнопка копирования
     if (d.copy) {
       const copyBtn = document.createElement("button");
       copyBtn.className = "copy-btn";
