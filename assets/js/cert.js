@@ -1,8 +1,9 @@
 // ===============================
-// URSA SIGNER — покупка сертификатов (4 шага + чат)
+// URSA SIGNER — покупка сертификата
+// Шаги: выбор сертификата → получение UDID → способ оплаты → чат поддержки
 // ===============================
+
 import { auth, db } from "./app.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import {
   collection,
   addDoc,
@@ -21,39 +22,43 @@ import {
 const storage = getStorage();
 
 // ------------------------------------------------
-// 0) Проверка пользователя и UDID
+// ⚡ Авторизация (если не вошёл — редирект)
 // ------------------------------------------------
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    alert("⚠️ Чтобы купить сертификат, войдите в аккаунт.");
+    alert("⚠️ Чтобы оформить сертификат, войдите в аккаунт через меню URSA IPA.");
     window.location.href = "./";
     return;
   }
-
-  const udid = localStorage.getItem("ursa_cert_udid");
-  if (!udid) {
-    alert("⚠️ Добавьте сертификат в меню URSA IPA, чтобы получить UDID.");
-    window.location.href = "./#menu";
-    return;
-  }
-
-  localStorage.setItem("ursa_cert_uid", user.uid);
+  localStorage.setItem("ursa_signer_uid", user.uid);
   initCertFlow();
 });
 
 // ------------------------------------------------
-// 1) Логика шагов
+// 💰 Основная логика
 // ------------------------------------------------
 function initCertFlow() {
-  const modal1 = document.getElementById("modal-step-1");
-  const modal2 = document.getElementById("modal-step-2");
-  const modalChat = document.getElementById("modal-chat");
+  const buyButtons = document.querySelectorAll(".plan-card .buy");
+  const modal1 = document.getElementById("modal-step-1"); // Получение UDID
+  const modal2 = document.getElementById("modal-step-2"); // Оплата
+  const modalChat = document.getElementById("modal-chat"); // Чат
+  const btnNext = document.getElementById("btn-next-step-2");
+  const btnBack1 = document.getElementById("btn-back-step-1");
+  const btnCloseAll = document.querySelectorAll("[data-close]");
+  const btnBackToOptions = document.getElementById("btn-back-to-options");
 
   const open = (m) => { m.style.display = "flex"; document.body.style.overflow = "hidden"; };
   const close = (m) => { m.style.display = "none"; document.body.style.overflow = ""; };
 
-  // Открытие по кнопке “Оформить”
-  document.querySelectorAll(".plan-card .buy").forEach(btn => {
+  // Закрытие всех окон
+  btnCloseAll.forEach(btn => btn.addEventListener("click", () => {
+    close(modal1); close(modal2); close(modalChat);
+  }));
+
+  // Открыть первое окно (получение UDID)
+  buyButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       const plan = btn.dataset.plan;
       localStorage.setItem("ursa_cert_plan", plan);
@@ -61,41 +66,69 @@ function initCertFlow() {
     });
   });
 
-  // Кнопки переходов
-  document.getElementById("btn-next-step-2")?.addEventListener("click", () => { close(modal1); open(modal2); });
-  document.getElementById("btn-back-step-1")?.addEventListener("click", () => { close(modal2); open(modal1); });
-
-  // Универсальные крестики ✕
-  document.querySelectorAll("[data-close]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const parentModal = btn.closest(".payment-modal");
-      if (parentModal) close(parentModal);
-    });
+  // Переход: "У меня уже есть UDID"
+  btnNext?.addEventListener("click", () => {
+    close(modal1);
+    open(modal2);
   });
 
-  // Назад из чата
-  document.getElementById("btn-back-to-options")?.addEventListener("click", () => { close(modalChat); open(modal2); });
+  // Назад из оплаты к UDID
+  btnBack1?.addEventListener("click", () => {
+    close(modal2);
+    open(modal1);
+  });
+
+  // Назад из чата к оплате
+  btnBackToOptions?.addEventListener("click", () => {
+    close(modalChat);
+    open(modal2);
+  });
 
   // ------------------------------------------------
-  // Методы оплаты → создаём заказ
+  // 💸 Методы оплаты
   // ------------------------------------------------
-  document.querySelectorAll(".option-btn").forEach(btn => {
+  const methods = document.querySelectorAll(".option-btn");
+
+  const PAYMENT = {
+    crypto: {
+      name: "USDT (TRC20)",
+      show: "Адрес:\nTJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS\nСеть: TRC20",
+      copy: "TJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS"
+    },
+    binance_pay: {
+      name: "Binance Pay ID",
+      show: "ID: 583984119",
+      copy: "583984119"
+    },
+    gift_card: {
+      name: "Binance Gift Card",
+      show: "Отправьте код подарочной карты в чат.",
+      noCopy: true
+    },
+    paypal: {
+      name: "PayPal",
+      show: "Email: swvts6@gmail.com",
+      copy: "swvts6@gmail.com"
+    },
+    ua_card: {
+      name: "UA Card (Privat / Monobank)",
+      show: "Ссылка на оплату: https://www.privat24.ua/send/373a0",
+      copy: "https://www.privat24.ua/send/373a0"
+    },
+    ru_card: {
+      name: "RU Card (Т-Банк / СПБ)",
+      show: "Т-Банк: 2200702048905611\nСПБ: 89933303390\nКомментарий: @viibbee_17",
+      copy: "2200702048905611"
+    }
+  };
+
+  methods.forEach(btn => {
     btn.addEventListener("click", async () => {
       const method = btn.dataset.method;
-      const plan = localStorage.getItem("ursa_cert_plan");
-      const uid = localStorage.getItem("ursa_cert_uid");
-      const udid = localStorage.getItem("ursa_cert_udid");
+      localStorage.setItem("ursa_cert_method", method);
 
-      const orderRef = await addDoc(collection(db, "ursa_cert_orders"), {
-        uid,
-        udid,
-        plan,
-        method,
-        status: "pending",
-        createdAt: serverTimestamp(),
-      });
-
-      localStorage.setItem("ursa_cert_order_id", orderRef.id);
+      const orderId = await createCertOrder(method);
+      localStorage.setItem("ursa_cert_order_id", orderId);
 
       renderSystemMessage(method);
       close(modal1); close(modal2);
@@ -105,85 +138,62 @@ function initCertFlow() {
   });
 
   // ------------------------------------------------
-  // Данные об оплате
+  // 🧾 Создание заявки
   // ------------------------------------------------
-  const PAYMENT = {
-    crypto: {
-      name: "USDT (TRC20)",
-      show: "Адрес:\nTJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS\nСеть: TRC20",
-      copy: "TJCQQHMhKExEuyMXA78mXBAbj1YkMNL3NS",
-    },
-    binance_pay: {
-      name: "Binance Pay",
-      show: "ID:\n583984119",
-      copy: "583984119",
-    },
-    ua_card: {
-      name: "Карта (UA)",
-      show: "https://www.privat24.ua/send/373a0",
-      copy: "https://www.privat24.ua/send/373a0",
-    },
-    ru_card: {
-      name: "Карта (RU)",
-      show: "Т-банк: 2200702048905611\nСПБ: 89933303390\nКомментарий: @viibbee_17",
-      copy: "2200702048905611",
-    },
-  };
+  async function createCertOrder(method) {
+    const uid = localStorage.getItem("ursa_signer_uid");
+    const plan = localStorage.getItem("ursa_cert_plan");
 
+    const docRef = await addDoc(collection(db, "cert_orders"), {
+      uid,
+      plan,
+      method,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  }
+
+  // ------------------------------------------------
+  // 💬 Отображение реквизитов в чате
+  // ------------------------------------------------
   const chatArea = document.getElementById("chat-area");
   const msgTpl = document.getElementById("system-message-template");
 
-  // ------------------------------------------------
-  // Стартовое сообщение в чате
-  // ------------------------------------------------
   function renderSystemMessage(methodKey) {
     chatArea.innerHTML = "";
-    const d = PAYMENT[methodKey];
+    const data = PAYMENT[methodKey];
     const node = msgTpl.cloneNode(true);
     node.style.display = "block";
-
-    node.querySelector(".chat-method-name").textContent = d.name;
+    node.querySelector(".chat-method-name").textContent = data.name;
 
     const details = document.createElement("div");
     details.className = "chat-details";
-    details.textContent = d.show;
+    details.textContent = data.show;
 
-    if (d.copy) {
+    if (data.copy && !data.noCopy) {
       const copyBtn = document.createElement("button");
-      copyBtn.className = "copy-btn";
       copyBtn.textContent = "📋 Скопировать";
+      copyBtn.className = "copy-btn";
       copyBtn.addEventListener("click", async () => {
         try {
-          await navigator.clipboard.writeText(d.copy);
+          await navigator.clipboard.writeText(data.copy);
           copyBtn.textContent = "✅ Скопировано";
           setTimeout(() => (copyBtn.textContent = "📋 Скопировать"), 2000);
         } catch {
           copyBtn.textContent = "❌ Ошибка";
-          setTimeout(() => (copyBtn.textContent = "📋 Скопировать"), 2000);
         }
       });
       details.appendChild(copyBtn);
     }
 
     node.appendChild(details);
-
-    const uid = localStorage.getItem("ursa_cert_uid");
-    const udid = localStorage.getItem("ursa_cert_udid");
-    const plan = localStorage.getItem("ursa_cert_plan");
-
-    const idBlock = document.createElement("div");
-    idBlock.style.marginTop = "14px";
-    idBlock.style.fontSize = "13px";
-    idBlock.style.opacity = "0.82";
-    idBlock.innerHTML = `🧾 План: <b>${plan}</b><br>👤 UID: <b>${uid}</b><br>🔗 UDID: <b>${udid}</b>`;
-    node.appendChild(idBlock);
-
     chatArea.appendChild(node);
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 
   // ------------------------------------------------
-  // ЧАТ Firestore
+  // 📡 Чат
   // ------------------------------------------------
   let chatBound = false;
   function bindChat() {
@@ -191,17 +201,17 @@ function initCertFlow() {
     chatBound = true;
 
     const orderId = localStorage.getItem("ursa_cert_order_id");
-    const q = query(collection(db, "ursa_cert_orders", orderId, "messages"), orderBy("timestamp"));
+    const q = query(collection(db, "cert_orders", orderId, "messages"), orderBy("timestamp"));
 
     onSnapshot(q, (snap) => {
-      const system = chatArea.querySelector(".system-message")?.cloneNode(true);
+      const systemMsg = chatArea.querySelector(".system-message")?.cloneNode(true);
       chatArea.innerHTML = "";
-      if (system) chatArea.appendChild(system);
+      if (systemMsg) chatArea.appendChild(systemMsg);
 
       snap.forEach((doc) => {
         const m = doc.data();
         const el = document.createElement("div");
-        el.className = (m.sender === "admin") ? "msg admin" : "msg user";
+        el.className = m.sender === "admin" ? "msg admin" : "msg user";
         if (m.text) el.textContent = m.text;
 
         if (m.fileUrl) {
@@ -223,7 +233,6 @@ function initCertFlow() {
         }
         chatArea.appendChild(el);
       });
-
       chatArea.scrollTop = chatArea.scrollHeight;
     });
 
@@ -232,49 +241,46 @@ function initCertFlow() {
     const attachBtn = document.querySelector(".chat-attach-btn");
 
     sendBtn.addEventListener("click", sendText);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); sendText(); } });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendText();
+      }
+    });
 
     async function sendText() {
       const txt = input.value.trim();
       if (!txt) return;
       const orderId = localStorage.getItem("ursa_cert_order_id");
-      await addDoc(collection(db, "ursa_cert_orders", orderId, "messages"), {
+      await addDoc(collection(db, "cert_orders", orderId, "messages"), {
         sender: "user",
         text: txt,
-        timestamp: serverTimestamp(),
+        timestamp: serverTimestamp()
       });
       input.value = "";
     }
 
-    const hiddenFile = Object.assign(document.createElement("input"), { type: "file", style: "display:none" });
+    const hiddenFile = Object.assign(document.createElement("input"), {
+      type: "file",
+      style: "display:none"
+    });
     document.body.appendChild(hiddenFile);
 
     attachBtn.addEventListener("click", () => hiddenFile.click());
     hiddenFile.addEventListener("change", async () => {
       const file = hiddenFile.files[0];
       if (!file) return;
-
       const orderId = localStorage.getItem("ursa_cert_order_id");
       const refPath = ref(storage, `cert_chats/${orderId}/${Date.now()}_${file.name}`);
       await uploadBytes(refPath, file);
       const url = await getDownloadURL(refPath);
-
-      await addDoc(collection(db, "ursa_cert_orders", orderId, "messages"), {
+      await addDoc(collection(db, "cert_orders", orderId, "messages"), {
         sender: "user",
         fileUrl: url,
         fileName: file.name,
         mime: file.type,
-        timestamp: serverTimestamp(),
+        timestamp: serverTimestamp()
       });
     });
   }
-
-  // ------------------------------------------------
-  // FIX клавиатуры на iOS
-  // ------------------------------------------------
-  const chatModal = modalChat;
-  let baseHeight = window.innerHeight;
-  window.addEventListener("resize", () => {
-    chatModal.style.height = (window.innerHeight < baseHeight - 100) ? window.innerHeight + "px" : "";
-  });
 }
