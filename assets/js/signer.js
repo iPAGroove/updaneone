@@ -5,6 +5,7 @@
 
 import { auth, db } from "./app.js";
 import { doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getTranslation } from "./i18n.js"; // 🚀 ИМПОРТ
 
 const SIGNER_API_START_JOB = "https://ursa-signer-239982196215.europe-west1.run.app/start_sign_job";
 let currentInstallListener = null;
@@ -24,7 +25,7 @@ async function incrementDownloadCount(appId) {
 
 
 // ===============================
-// 🚀 Установка / Подпись IPA (НОВЫЙ UI)
+// 🚀 Установка / Подпись IPA (НОВЫЙ UI) - Обновлено для i18n
 // ===============================
 export async function installIPA(app) {
     
@@ -35,6 +36,10 @@ export async function installIPA(app) {
     const title = document.getElementById("install-title");
     const sub = document.getElementById("install-subtext");
 
+    // 🚀 Устанавливаем базовые переведённые тексты
+    title.textContent = getTranslation('installPrepare');
+    sub.textContent = getTranslation('installWaitServer');
+
     function updateProgress(text, p) {
         sub.textContent = text;
         percent.textContent = p + "%";
@@ -42,14 +47,14 @@ export async function installIPA(app) {
     }
 
     installModal.classList.add("visible");
-    updateProgress("Подготовка…", 5);
+    updateProgress(getTranslation('installWaitServer'), 5); // 🚀 Перевод
 
     // 1️⃣ Проверяем вход
     const user = auth.currentUser;
     if (!user) {
-        title.textContent = "⚠️ Требуется вход";
-        sub.textContent = "Авторизуйтесь через меню.";
-        updateProgress("Ошибка", 0);
+        title.textContent = getTranslation('installLoginRequired'); // 🚀 Перевод
+        sub.textContent = getTranslation('installLoginPrompt');     // 🚀 Перевод
+        updateProgress("0", 0);
         return;
     }
 
@@ -58,18 +63,18 @@ export async function installIPA(app) {
     const exp = localStorage.getItem("ursa_cert_exp");
 
     if (!udid || !exp) {
-        title.textContent = "⚠️ Нет сертификата";
-        sub.textContent = "Добавьте сертификат в меню.";
-        updateProgress("Ошибка", 0);
+        title.textContent = getTranslation('installCertRequired'); // 🚀 Перевод
+        sub.textContent = getTranslation('installCertPrompt');     // 🚀 Перевод
+        updateProgress("0", 0);
         return;
     }
 
     // 3️⃣ Проверяем ссылку IPA
     const ipa_url = app.link || app.DownloadUrl || app.downloadUrl;
     if (!ipa_url) {
-        title.textContent = "❌ Ошибка";
-        sub.textContent = "Ссылка на IPA не найдена.";
-        updateProgress("Ошибка", 0);
+        title.textContent = getTranslation('installErrorTitle'); // 🚀 Перевод
+        sub.textContent = getTranslation('ipaLinkNotFound');     // 🚀 Перевод
+        updateProgress("0", 0);
         return;
     }
 
@@ -77,7 +82,7 @@ export async function installIPA(app) {
     if (app.id) incrementDownloadCount(app.id);
 
     try {
-        updateProgress("Отправляем задачу на сервер…", 25);
+        updateProgress(getTranslation('sendJobText'), 25); // 🚀 Перевод
 
         const form = new FormData();
         form.append("ipa_url", ipa_url);
@@ -90,7 +95,7 @@ export async function installIPA(app) {
         if (!json.job_id) throw new Error("Сервер не вернул job_id");
 
         const job_id = json.job_id;
-        updateProgress("Ожидаем выполнение…", 45);
+        updateProgress(getTranslation('waitExecutionText'), 45); // 🚀 Перевод
 
         // 🔥 Живой мониторинг статуса
         const jobRef = doc(db, "ursa_sign_jobs", job_id);
@@ -101,14 +106,14 @@ export async function installIPA(app) {
             const data = snap.data();
 
             if (data.status === "running") {
-                updateProgress("Подписываем IPA…", 75);
+                updateProgress(getTranslation('signingText'), 75); // 🚀 Перевод
             }
 
             if (data.status === "complete") {
                 currentInstallListener && currentInstallListener();
                 currentInstallListener = null;
 
-                updateProgress("Готово! Установка начинается…", 100);
+                updateProgress(getTranslation('completeInstallText'), 100); // 🚀 Перевод
 
                 setTimeout(() => {
                     installModal.classList.remove("visible");
@@ -120,19 +125,28 @@ export async function installIPA(app) {
                 currentInstallListener && currentInstallListener();
                 currentInstallListener = null;
 
-                title.textContent = "❌ Ошибка";
+                title.textContent = getTranslation('installErrorTitle'); // 🚀 Перевод
                 sub.textContent = data.error;
-                updateProgress("Ошибка", 0);
+                updateProgress("0", 0);
             }
         });
 
     } catch (err) {
-        let msg = err.message || "Неизвестная ошибка";
+        let msg = err.message || getTranslation('unknownErrorText'); // 🚀 Перевод
         if (msg.includes("Signer not found"))
-            msg = "Сертификат повреждён или не активирован. Импортируй заново.";
+            msg = getTranslation('signerNotFoundText'); // 🚀 Перевод
 
-        title.textContent = "❌ Ошибка";
+        title.textContent = getTranslation('installErrorTitle'); // 🚀 Перевод
         sub.textContent = msg;
-        updateProgress("Ошибка", 0);
+        updateProgress("0", 0);
     }
 }
+
+// 🚀 Слушатель на смену языка для обновления статических текстов модалки
+window.addEventListener('langChange', () => {
+    // Обновляем статические заголовки, если модалка не активна
+    if (!document.getElementById("install-modal").classList.contains('visible')) {
+        document.getElementById("install-title").textContent = getTranslation('installPrepare');
+        document.getElementById("install-subtext").textContent = getTranslation('installWaitServer');
+    }
+});
