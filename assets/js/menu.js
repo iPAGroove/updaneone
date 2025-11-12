@@ -23,6 +23,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  // ✅ Добавлен deleteDoc для удаления из Firestore
   deleteDoc, 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import {
@@ -100,19 +101,14 @@ function renderCertificateBlock() {
   const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
 
   card.innerHTML = `
-      <!-- ✅ UDID в одну строку с прокруткой (стили в menu.css) -->
-      <p style="margin-bottom: 2px;"><strong>UDID:</strong></p>
-      <div class="udid-display">
+            <p><strong>UDID:</strong></p>
+      <div style="overflow-x: scroll; white-space: nowrap; font-size: 13px; opacity: 0.85; margin-bottom: 8px;">
         ${udid}
       </div>
-      
-      <p style="margin: 0;"><strong>Действует до:</strong> ${expiry}</p>
-      
-      <p style="font-weight:600;color:${statusColor}; margin-top: 4px; margin-bottom: 8px;">Статус: ${status}</p>
-      
+      <p style="margin-top: 0;"><strong>Действует до:</strong> ${expiry}</p>
+      <p style="font-weight:600;color:${statusColor}; margin-bottom: 12px;">Статус: ${status}</p>
       <button class="btn delete-cert-btn">Удалить сертификат</button>
-      <!-- ✅ Кнопка "Купить новый сертификат" удалена -->
-  `;
+        `;
 }
 
 // ===============================
@@ -236,6 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // === Переходы ===
+  // ✅ Кнопка "Купить новый сертификат" была удалена из UI, но логика перехода оставлена
   document.body.addEventListener("click", (e) => {
     if (e.target.classList.contains("buy-cert-btn")) {
       closeMenu();
@@ -380,11 +377,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (data.udid && data.expires) {
           localStorage.setItem("ursa_cert_udid", data.udid);
           localStorage.setItem("ursa_cert_exp", data.expires);
-          localStorage.setItem("ursa_signer_id", user.uid);
+          localStorage.setItem("ursa_signer_id", user.uid); // Также восстанавливаем signer_id
           console.log("✅ Сертификат восстановлен из Firestore");
         }
       } else {
-        // Если записи в DB нет, удаляем локальные данные (чистка)
+        // Если записи в DB нет, удаляем локальные данные (чистка, как в предыдущем шаге)
         localStorage.removeItem("ursa_cert_udid");
         localStorage.removeItem("ursa_cert_exp");
         localStorage.removeItem("ursa_signer_id");
