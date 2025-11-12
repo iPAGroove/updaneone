@@ -137,67 +137,68 @@
 }
 
 /* =====================================================
-   3. CERTIFICATE CARD — компактная версия
+   3. CERTIFICATE CARD — компактная и чуть шире версия
    ===================================================== */
 .certificate-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 16px;
+  padding: 18px 22px; /* чуть больше отступов */
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 0 16px rgba(0, 179, 255, 0.25);
+  gap: 10px;
+  box-shadow: 0 0 18px rgba(0, 179, 255, 0.25);
   transition: 0.25s;
-  max-width: 360px;
+  max-width: 440px; /* ✅ было 360px, теперь шире и визуально балансней */
   margin: 0 auto;
 }
+
 .certificate-card:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 24px rgba(0, 179, 255, 0.45);
+  box-shadow: 0 0 26px rgba(0, 179, 255, 0.45);
 }
-.cert-info-placeholder {
-  color: var(--muted);
-  font-size: 13px;
-  text-align: center;
-  margin-bottom: 4px;
-}
+
+/* Внутренние данные */
 .cert-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: 12px;
+  padding: 10px 14px;
 }
+
 .cert-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text);
-  line-height: 1.4;
+  line-height: 1.45;
 }
+
 .cert-label {
   color: var(--text-dim);
+  font-weight: 500;
 }
+
 .cert-value.mono {
   font-family: monospace;
-  font-size: 13px;
-  opacity: 0.85;
+  font-size: 14px;
+  opacity: 0.9;
   overflow-x: auto;
   white-space: nowrap;
 }
 
-/* Удаление */
+/* Кнопки */
 .delete-cert-btn {
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: rgba(255, 50, 50, 0.1);
   border: 1px solid #ff5e5e;
   color: #ff8a8a;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 600;
   transition: 0.25s;
 }
@@ -206,15 +207,14 @@
   border-color: #ff9f9f;
 }
 
-/* Добавить */
 .add-cert-btn {
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
   background: linear-gradient(90deg, var(--accent), #00e0ff);
   color: #001018;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 0 14px rgba(0, 179, 255, 0.45);
+  box-shadow: 0 0 16px rgba(0, 179, 255, 0.45);
   transition: 0.25s;
 }
 .add-cert-btn:hover {
