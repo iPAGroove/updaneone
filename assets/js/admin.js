@@ -1,5 +1,5 @@
 // ======================================================================
-// PART 0 — DOM ELEMENTS + GLOBAL STATE + HELPERS
+// URSA ADMIN — v5 (full)
 // ======================================================================
 
 import { auth, db } from "./app.js";
@@ -14,7 +14,6 @@ import {
   deleteDoc,
   addDoc,
   query,
-  where,
   orderBy,
   onSnapshot,
   serverTimestamp
@@ -27,7 +26,10 @@ import {
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// ========== STATE ==========
+// ======================================================================
+// STATE + DOM
+// ======================================================================
+
 const state = {
   user: null,
   apps: [],
@@ -37,10 +39,14 @@ const state = {
     orderId: null,
     type: null,
     unsub: null
+  },
+  inited: {
+    apps: false,
+    users: false,
+    orders: false
   }
 };
 
-// ========== DOM SELECTORS ==========
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
@@ -51,7 +57,7 @@ const loginBtn = $("#auth-login-btn");
 const logoutBtn = $("#admin-logout-btn");
 const authError = $("#auth-error");
 
-// Sidebar + views
+// Sidebar / views
 const sideLinks = $$(".side-link");
 const topbarTitle = $("#topbar-title");
 
@@ -59,12 +65,12 @@ const views = {
   dashboard: $("#view-dashboard"),
   apps: $("#view-apps"),
   users: $("#view-users"),
-  orders: $("#view-orders"),
+  orders: $("#view-orders")
 };
 
 const ordersCounter = $("#orders-counter");
 
-// Dashboard cards
+// Dashboard
 const statApps = $("#stat-apps");
 const statVip = $("#stat-vip");
 const statOrders = $("#stat-orders");
@@ -77,11 +83,11 @@ const appSearch = $("#app-search");
 const appFilter = $("#app-filter");
 const addAppBtn = $("#add-app-btn");
 
-// Modal
+// IPA modal
 const appModal = $("#app-modal");
 const appForm = $("#app-edit-form");
 
-const fAppId = $("#app-id");
+const fAppIdEl = $("#app-id"); // может быть null (в v4 html его нет)
 const fAppName = $("#app-name");
 const fAppBundle = $("#app-bundle");
 const fAppVersion = $("#app-version");
@@ -98,6 +104,7 @@ const fAppVipOnly = $("#app-vip-only");
 const appDeleteBtn = $("#app-delete-btn");
 
 // Users
+// в admin.html у тебя <tbody id="users-table">, поэтому берём по id
 const usersTableBody = $("#users-table");
 const usersSkeleton = $("#users-skeleton");
 const userSearch = $("#user-search");
@@ -108,7 +115,7 @@ const ordersSkeleton = $("#orders-skeleton");
 const ordersStatus = $("#orders-status");
 const orderSearch = $("#order-search");
 
-// Chat panel
+// Chat
 const chatPanel = $("#chat-panel");
 const chatClose = $("#chat-close");
 const chatOrderIdEl = $("#chat-order-id");
@@ -123,13 +130,116 @@ const chatInput = $("#admin-chat-input");
 const provider = new GoogleAuthProvider();
 
 // ======================================================================
-// PART 1 — APPS VIEW + IPA MODAL (full old-style editor)
+// AUTH
 // ======================================================================
 
-// ===============================
-// APPS (GRID)
-// ===============================
+loginBtn?.addEventListener("click", async () => {
+  authError.textContent = "";
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    console.error(e);
+    authError.textContent = "Ошибка входа: " + e.message;
+  }
+});
+
+logoutBtn?.addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return showAuth();
+
+  const allowed = [
+    "vibemusic1712@gmail.com",
+    "kotvlad400@gmail.com",
+    "olesyazardina@gmail.com",
+    "admin@ursaipa.live",
+    "support@ursaipa.live"
+  ];
+
+  if (!allowed.includes(user.email)) {
+    await signOut(auth);
+    authError.textContent = "Нет прав администратора.";
+    return showAuth();
+  }
+
+  state.user = user;
+  showApp();
+  initNavigation();
+  activateView("orders");
+});
+
+function showAuth() {
+  authScreen.style.display = "flex";
+  appShell.style.display = "none";
+}
+
+function showApp() {
+  authScreen.style.display = "none";
+  appShell.style.display = "grid";
+}
+
+// ======================================================================
+// NAVIGATION
+// ======================================================================
+
+function initNavigation() {
+  sideLinks.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.dataset.view;
+      sideLinks.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      activateView(view);
+    });
+  });
+
+  // Фокус на поиск по /
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+      e.preventDefault();
+      const v = getActiveView();
+      if (v === "apps") appSearch?.focus();
+      if (v === "users") userSearch?.focus();
+      if (v === "orders") orderSearch?.focus();
+    }
+  });
+}
+
+function getActiveView() {
+  return (
+    Object.entries(views).find(([_, el]) => el?.classList.contains("active"))?.[0] ||
+    "orders"
+  );
+}
+
+async function activateView(view) {
+  Object.values(views).forEach((v) => v?.classList.remove("active"));
+  views[view]?.classList.add("active");
+
+  const titles = {
+    dashboard: "📊 Дашборд",
+    apps: "📱 Каталог приложений",
+    users: "👥 Пользователи",
+    orders: "💸 Все заявки"
+  };
+  topbarTitle.textContent = titles[view] || "URSA Admin";
+
+  if (view === "dashboard") loadDashboard();
+  if (view === "apps") initApps();
+  if (view === "users") initUsers();
+  if (view === "orders") initOrders();
+}
+
+// ======================================================================
+// APPS (GRID + MODAL)
+// ======================================================================
+
 function initApps() {
+  if (state.inited.apps) {
+    renderApps();
+    return;
+  }
+  state.inited.apps = true;
+
   appsSkeleton.style.display = "grid";
   appsGrid.setAttribute("aria-busy", "true");
 
@@ -142,7 +252,7 @@ function initApps() {
   appFilter?.addEventListener("change", renderApps);
   addAppBtn?.addEventListener("click", () => openAppModal(null));
 
-  // Live icon preview
+  // Live preview иконки
   if (fAppIcon && fAppIconPreview) {
     fAppIcon.addEventListener("input", () => {
       const url = fAppIcon.value.trim();
@@ -151,7 +261,7 @@ function initApps() {
     });
   }
 
-  // Category selection (Apps/Games)
+  // Категория — Games/Apps
   tagButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const tag = btn.dataset.tag || "";
@@ -160,6 +270,17 @@ function initApps() {
       if (fAppTag) fAppTag.value = tag;
     });
   });
+
+  // Закрытие модалки по клику на фон / X
+  appModal?.addEventListener("click", (e) => {
+    if (e.target === appModal || e.target.closest("[data-action='close']")) {
+      appModal.classList.remove("visible");
+    }
+  });
+
+  // Сохранение IPA
+  appForm?.addEventListener("submit", onSaveIPA);
+  appDeleteBtn?.addEventListener("click", onDeleteIPA);
 }
 
 async function loadApps() {
@@ -187,7 +308,6 @@ function renderApps() {
             .split(",")
             .map((t) => t.trim())
             .includes(tag);
-
     return byName && byTag;
   });
 
@@ -203,115 +323,91 @@ function renderApps() {
       <img class="icon" src="${app.iconUrl || "https://placehold.co/160"}" alt="${
       app.NAME || "App"
     }"/>
-      <div class="ttl">${app.NAME || "N/A"}</div>
+      <div class="ttl" title="${app.NAME || "N/A"}">${app.NAME || "N/A"}</div>
       <div class="meta">
-        <span class="pill ${app.vipOnly ? "vip" : "free"}">${
-      app.vipOnly ? "VIP" : "FREE"
-    }</span>
-        <span class="cnt">${app.downloadCount || 0}</span>
+        <span class="pill ${app.vipOnly ? "vip" : "free"}">${app.vipOnly ? "VIP" : "FREE"}</span>
+        <span class="cnt" title="Скачивания">${app.downloadCount || 0}</span>
       </div>
       <div class="row-actions">
         <button class="btn btn-ghost small" data-edit="${app.id}">✏️ Редактировать</button>
       </div>`;
-
     appsGrid.appendChild(card);
   });
 
-  // One-time listener per render
-  appsGrid.addEventListener(
-    "click",
-    (e) => {
-      const btn = e.target.closest("[data-edit]");
-      if (!btn) return;
-      const id = btn.getAttribute("data-edit");
-      openAppModal(id);
-    },
-    { once: true }
-  );
+  // Один обработчик на грид
+  appsGrid.onclick = (e) => {
+    const btn = e.target.closest("[data-edit]");
+    if (!btn) return;
+    openAppModal(btn.getAttribute("data-edit"));
+  };
 }
 
-// ===============================
-// OPEN IPA MODAL
-// ===============================
 function openAppModal(appId) {
   const app = state.apps.find((a) => a.id === appId) || null;
 
-  $("#app-modal-title").textContent = appId
-    ? "Редактировать IPA"
-    : "Добавить IPA";
+  const titleEl = $("#app-modal-title");
+  if (titleEl) {
+    titleEl.textContent = appId ? "Редактировать IPA" : "Добавить IPA";
+  }
 
-  appForm.reset();
+  appForm?.reset();
 
-  // Basic fields
-  fAppId.value = appId || "";
-  fAppName.value = app?.NAME || "";
-  fAppBundle.value = app?.["Bundle ID"] || "";
-  fAppVersion.value = app?.Version || "";
-  fAppMinIOS.value = app?.["minimal iOS"] || "";
+  if (fAppIdEl) fAppIdEl.value = appId || "";
+  if (fAppName) fAppName.value = app?.NAME || "";
+  if (fAppBundle) fAppBundle.value = app?.["Bundle ID"] || "";
+  if (fAppVersion) fAppVersion.value = app?.Version || "";
+  if (fAppMinIOS) fAppMinIOS.value = app?.["minimal iOS"] || "";
 
-  // Size MB → bytes
-  fAppSizeMb.value = app?.sizeBytes ? Math.round(app.sizeBytes / 1000000) : "";
+  if (fAppSizeMb)
+    fAppSizeMb.value = app?.sizeBytes ? Math.round(app.sizeBytes / 1000000) : "";
 
-  // Media
-  fAppUrl.value = app?.DownloadUrl || "";
-  fAppIcon.value = app?.iconUrl || "";
+  if (fAppUrl) fAppUrl.value = app?.DownloadUrl || "";
+  if (fAppIcon) fAppIcon.value = app?.iconUrl || "";
 
-  // Preview
-  fAppIconPreview.src = fAppIcon.value || "https://placehold.co/120x120";
-  fAppIconPreview.style.opacity = fAppIcon.value ? "1" : ".35";
+  if (fAppFeaturesRu) fAppFeaturesRu.value = app?.features_ru || "";
+  if (fAppFeaturesEn) fAppFeaturesEn.value = app?.features_en || "";
 
-  // Features
-  fAppFeaturesRu.value = app?.features_ru || "";
-  fAppFeaturesEn.value = app?.features_en || "";
-
-  // Category
-  let currentTag = Array.isArray(app?.tags) ? app.tags[0] : "";
-  fAppTag.value = currentTag;
+  let currentTag = "";
+  if (Array.isArray(app?.tags) && app.tags.length) {
+    currentTag = app.tags[0];
+  }
+  if (fAppTag) fAppTag.value = currentTag;
 
   tagButtons.forEach((btn) => {
     if (btn.dataset.tag === currentTag) btn.classList.add("active");
     else btn.classList.remove("active");
   });
 
-  // VIP only
-  fAppVipOnly.checked = app?.vipOnly === true;
+  if (fAppVipOnly) fAppVipOnly.checked = app?.vipOnly === true;
 
-  // Delete button
-  appDeleteBtn.style.display = appId ? "inline-block" : "none";
+  if (fAppIconPreview) {
+    const url = fAppIcon?.value.trim() || "";
+    fAppIconPreview.src = url || "https://placehold.co/120x120";
+    fAppIconPreview.style.opacity = url ? "1" : ".35";
+  }
 
-  // Show modal
-  appModal.classList.add("visible");
+  if (appDeleteBtn) appDeleteBtn.style.display = appId ? "inline-block" : "none";
+
+  appModal?.classList.add("visible");
 }
 
-// Close modal
-appModal?.addEventListener("click", (e) => {
-  if (e.target === appModal || e.target.closest("[data-action='close']")) {
-    appModal.classList.remove("visible");
-  }
-});
-
-// ===============================
-// SAVE IPA
-// ===============================
-appForm?.addEventListener("submit", async (e) => {
+async function onSaveIPA(e) {
   e.preventDefault();
 
-  const id = fAppId.value.trim();
+  const id = fAppIdEl?.value.trim() || "";
 
-  const name = fAppName.value.trim();
-  const bundleId = fAppBundle.value.trim();
-  const version = fAppVersion.value.trim();
-  const minIOS = fAppMinIOS.value.trim();
-
-  const sizeMb = parseFloat((fAppSizeMb.value || "0").replace(",", ".")) || 0;
-  const iconUrl = fAppIcon.value.trim();
-  const downloadUrl = fAppUrl.value.trim();
-
-  const featuresRu = fAppFeaturesRu.value.trim();
-  const featuresEn = fAppFeaturesEn.value.trim();
-
+  const name = fAppName?.value.trim() || "";
+  const bundleId = fAppBundle?.value.trim() || "";
+  const version = fAppVersion?.value.trim() || "";
+  const minIOS = fAppMinIOS?.value.trim() || "";
+  const sizeMb =
+    parseFloat((fAppSizeMb?.value || "0").replace(",", ".")) || 0;
+  const iconUrl = fAppIcon?.value.trim() || "";
+  const downloadUrl = fAppUrl?.value.trim() || "";
+  const featuresRu = fAppFeaturesRu?.value.trim() || "";
+  const featuresEn = fAppFeaturesEn?.value.trim() || "";
   const tag = fAppTag?.value || "";
-  const vipOnly = !!fAppVipOnly.checked;
+  const vipOnly = !!fAppVipOnly?.checked;
 
   if (!name || !bundleId || !version || !downloadUrl) {
     alert("Name, Bundle ID, Version и Download URL обязательны.");
@@ -351,36 +447,39 @@ appForm?.addEventListener("submit", async (e) => {
       });
       alert("Приложение добавлено");
     }
-
-    appModal.classList.remove("visible");
+    appModal?.classList.remove("visible");
     await loadApps();
-  } catch (e) {
-    alert("Ошибка сохранения: " + e.message);
+  } catch (err) {
+    alert("Ошибка сохранения: " + err.message);
   }
-});
+}
 
-// ===============================
-// DELETE IPA
-// ===============================
-appDeleteBtn?.addEventListener("click", async () => {
-  const id = fAppId.value.trim();
+async function onDeleteIPA() {
+  const id = fAppIdEl?.value.trim();
   if (!id) return;
   if (!confirm("Удалить приложение?")) return;
 
   try {
     await deleteDoc(doc(db, "ursa_ipas", id));
     alert("Удалено");
-    appModal.classList.remove("visible");
+    appModal?.classList.remove("visible");
     await loadApps();
-  } catch (e) {
-    alert("Ошибка удаления: " + e.message);
+  } catch (err) {
+    alert("Ошибка удаления: " + err.message);
   }
-});
+}
+
 // ======================================================================
-// PART 2 — USERS VIEW (full support: signers + VIP toggle)
+// USERS
 // ======================================================================
 
 function initUsers() {
+  if (state.inited.users) {
+    renderUsers();
+    return;
+  }
+  state.inited.users = true;
+
   usersSkeleton.style.display = "block";
   loadUsers().then(() => {
     usersSkeleton.style.display = "none";
@@ -389,12 +488,10 @@ function initUsers() {
   userSearch?.addEventListener("input", renderUsers);
 }
 
-// Загрузка всех пользователей + их сертификатов
 async function loadUsers() {
   const usersSnap = await getDocs(collection(db, "ursa_users"));
   const signersSnap = await getDocs(collection(db, "ursa_signers"));
 
-  // Создаём map: uid → сертификат
   const signersMap = Object.create(null);
   signersSnap.docs.forEach((d) => (signersMap[d.id] = d.data()));
 
@@ -405,6 +502,16 @@ async function loadUsers() {
   }));
 
   renderUsers();
+}
+
+function getCertStatus(cert) {
+  if (!cert) return "Нет";
+  try {
+    const expires = new Date(cert.expires);
+    return expires > new Date() ? "✅ Активен" : "❌ Истек";
+  } catch {
+    return "Нет";
+  }
 }
 
 function renderUsers() {
@@ -438,53 +545,29 @@ function renderUsers() {
     usersTableBody.appendChild(tr);
   });
 
-  // Toggle VIP (один раз на рендер)
-  usersTableBody.addEventListener(
-    "click",
-    async (e) => {
-      const btn = e.target.closest("[data-toggle-vip]");
-      if (!btn) return;
-
-      const uid = btn.getAttribute("data-toggle-vip");
-      const cur = btn.getAttribute("data-status");
-
-      await toggleUserVip(uid, cur);
-      await loadUsers();
-    },
-    { once: true }
-  );
+  usersTableBody.onclick = async (e) => {
+    const btn = e.target.closest("[data-toggle-vip]");
+    if (!btn) return;
+    const uid = btn.getAttribute("data-toggle-vip");
+    const cur = btn.getAttribute("data-status");
+    await toggleUserVip(uid, cur);
+    await loadUsers();
+  };
 }
 
-// Проверка сертификата
-function getCertStatus(cert) {
-  if (!cert) return "Нет";
-
-  try {
-    const expires = new Date(cert.expires);
-    return expires > new Date() ? "✅ Активен" : "❌ Истек";
-  } catch {
-    return "Нет";
-  }
-}
-
-// Смена статуса VIP ↔ FREE
 async function toggleUserVip(uid, currentStatus) {
   const next = currentStatus === "vip" ? "free" : "vip";
-
   if (!confirm(`Изменить статус на ${next.toUpperCase()}?`)) return;
-
   await updateDoc(doc(db, "ursa_users", uid), {
     status: next,
     vip_activated_at: next === "vip" ? new Date().toISOString() : null
   });
 }
+
 // ======================================================================
-// PART 3 — DASHBOARD + ORDERS (vip_orders + cert_orders + support_orders) + CHAT
+// DASHBOARD
 // ======================================================================
 
-// ===============================
-// DASHBOARD (обновлённый, учитывает все типы заявок)
-// ===============================
 async function loadDashboard() {
   try {
     const appsSnap = await getDocs(collection(db, "ursa_ipas"));
@@ -511,27 +594,39 @@ async function loadDashboard() {
     await countActive("cert_orders");
     await countActive("support_orders");
 
-    statApps.textContent = appsSnap.size;
-    statVip.textContent = vipCount;
-    statOrders.textContent = activeOrders;
-    statSigners.textContent = signersSnap.size;
+    if (statApps) statApps.textContent = appsSnap.size;
+    if (statVip) statVip.textContent = vipCount;
+    if (statOrders) statOrders.textContent = activeOrders;
+    if (statSigners) statSigners.textContent = signersSnap.size;
   } catch (e) {
     console.error("Dashboard error:", e);
   }
 }
 
-// ===============================
-// ORDERS + REALTIME CHAT
-// ===============================
+// ======================================================================
+// ORDERS + CHAT (vip + cert + support)
+// ======================================================================
+
 function initOrders() {
+  if (state.inited.orders) {
+    renderOrders();
+    return;
+  }
+  state.inited.orders = true;
+
   ordersSkeleton.style.display = "block";
   loadOrders().then(() => (ordersSkeleton.style.display = "none"));
 
   ordersStatus?.addEventListener("change", renderOrders);
   orderSearch?.addEventListener("input", renderOrders);
+
+  chatClose?.addEventListener("click", closeChat);
+
+  chatForm?.addEventListener("submit", onChatSend);
+  chatStatusSelect?.addEventListener("change", onChatStatusChange);
+  setVipBtn?.addEventListener("click", onSetVipFromChat);
 }
 
-// Helper: конвертация createdAt → миллисекунды
 function toMs(v) {
   if (!v) return 0;
   if (typeof v.toDate === "function") return v.toDate().getTime();
@@ -539,7 +634,6 @@ function toMs(v) {
   return isNaN(t) ? 0 : t;
 }
 
-// Helper: label для type
 function typeText(t) {
   return (
     {
@@ -550,14 +644,12 @@ function typeText(t) {
   );
 }
 
-// Коллекция по типу
 function collectionNameByType(type) {
   if (type === "vip") return "vip_orders";
   if (type === "cert") return "cert_orders";
   return "support_orders";
 }
 
-// Загрузка всех заявок из трёх коллекций
 async function loadOrders() {
   const allOrders = [];
 
@@ -573,7 +665,7 @@ async function loadOrders() {
         });
       });
     } catch (e) {
-      console.warn(`Orders: не удалось прочитать ${colName}:`, e.message);
+      console.warn(`Orders: ${colName} →`, e.message);
     }
   };
 
@@ -581,7 +673,6 @@ async function loadOrders() {
   await loadCol("cert_orders", "cert");
   await loadCol("support_orders", "support");
 
-  // Глобальная сортировка по дате (desc)
   allOrders.sort((a, b) => toMs(b.createdAt) - toMs(a.createdAt));
 
   state.orders = allOrders;
@@ -623,7 +714,7 @@ function renderOrders() {
     const s = o.status || "pending";
     return s === "pending" || s === "processing";
   }).length;
-  ordersCounter.textContent = String(activeCount);
+  if (ordersCounter) ordersCounter.textContent = String(activeCount);
 
   if (!orders.length) {
     ordersList.innerHTML = `<li class="empty">Заявок не найдено</li>`;
@@ -657,19 +748,15 @@ function renderOrders() {
     ordersList.appendChild(li);
   });
 
-  ordersList.addEventListener(
-    "click",
-    (e) => {
-      const btn = e.target.closest("[data-chat]");
-      if (!btn) return;
-      const orderId = btn.getAttribute("data-chat");
-      openChat(orderId);
-    },
-    { once: true }
-  );
+  ordersList.onclick = (e) => {
+    const btn = e.target.closest("[data-chat]");
+    if (!btn) return;
+    openChat(btn.getAttribute("data-chat"));
+  };
 }
 
-// ---- Chat panel
+// ---- CHAT ----
+
 function openChat(orderId) {
   const order = state.orders.find((o) => o.id === orderId);
   if (!order) return;
@@ -682,7 +769,6 @@ function openChat(orderId) {
   } • UID: ${order.uid?.substring(0, 8) || "—"}…`;
   chatStatusSelect.value = order.status || "pending";
 
-  // Кнопка VIP только для vip_orders с uid
   if (order.type === "vip" && order.uid) {
     setVipBtn.disabled = false;
   } else {
@@ -702,8 +788,6 @@ function openChat(orderId) {
     renderChatMessages(snap, order);
   });
 }
-
-chatClose?.addEventListener("click", closeChat);
 
 function closeChat() {
   chatPanel.classList.remove("open");
@@ -748,8 +832,7 @@ function renderChatMessages(snap, order) {
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// Отправка сообщения админом
-chatForm?.addEventListener("submit", async (e) => {
+async function onChatSend(e) {
   e.preventDefault();
   if (!state.chat.orderId || !state.chat.type) return;
 
@@ -759,22 +842,18 @@ chatForm?.addEventListener("submit", async (e) => {
   const colName = collectionNameByType(state.chat.type);
 
   try {
-    await addDoc(
-      collection(db, colName, state.chat.orderId, "messages"),
-      {
-        sender: "admin",
-        text,
-        timestamp: serverTimestamp()
-      }
-    );
+    await addDoc(collection(db, colName, state.chat.orderId, "messages"), {
+      sender: "admin",
+      text,
+      timestamp: serverTimestamp()
+    });
     chatInput.value = "";
   } catch (e) {
     alert("Не удалось отправить сообщение: " + e.message);
   }
-});
+}
 
-// Изменение статуса заявки из чата
-chatStatusSelect?.addEventListener("change", async (e) => {
+async function onChatStatusChange(e) {
   if (!state.chat.orderId || !state.chat.type) return;
 
   const colName = collectionNameByType(state.chat.type);
@@ -784,13 +863,12 @@ chatStatusSelect?.addEventListener("change", async (e) => {
       status: e.target.value
     });
     await loadOrders();
-  } catch (e) {
-    alert("Не удалось обновить статус: " + e.message);
+  } catch (err) {
+    alert("Не удалось обновить статус: " + err.message);
   }
-});
+}
 
-// Выдать VIP (только для vip_orders)
-setVipBtn?.addEventListener("click", async () => {
+async function onSetVipFromChat() {
   if (!state.chat.orderId || !state.chat.type) return;
   if (state.chat.type !== "vip") return;
 
@@ -813,7 +891,11 @@ setVipBtn?.addEventListener("click", async () => {
     await loadOrders();
     closeChat();
     alert("VIP выдан");
-  } catch (e) {
-    alert("Ошибка выдачи VIP: " + e.message);
+  } catch (err) {
+    alert("Ошибка выдачи VIP: " + err.message);
   }
-});
+}
+
+// ======================================================================
+// END
+// ======================================================================
