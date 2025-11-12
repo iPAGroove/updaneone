@@ -119,29 +119,16 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    /* ✅ ИЗМЕНЕНО: Уменьшил вертикальный padding */
-    padding: 10px 14px; 
+    padding: 12px 14px;
     display: flex;
     flex-direction: column; /* вертикальный стек */
-    /* ✅ ИЗМЕНЕНО: Уменьшил gap */
-    gap: 6px; 
+    gap: 10px; /* чуть комфортнее расстояние */
     box-shadow: 0 0 14px rgba(0,179,255,0.16);
     transition: .25s;
 }
 .certificate-card:hover {
     border-color: var(--accent);
     box-shadow: 0 0 22px rgba(0,179,255,0.38);
-}
-
-/* ✅ ДОБАВЛЕНО: Стиль для UDID (принудительно одна строка с прокруткой) */
-.certificate-card .udid-display {
-    overflow-x: scroll;
-    white-space: nowrap;
-    font-size: 13px;
-    opacity: 0.85;
-    margin-top: -2px; 
-    margin-bottom: 4px;
-    padding: 2px 0;
 }
 
 .cert-info-placeholder {
@@ -173,8 +160,7 @@
 /* ✅ кнопка всегда внизу */
 .delete-cert-btn {
     margin-top: auto; /* прижимает вниз если текста много */
-    /* ✅ ИЗМЕНЕНО: Уменьшил padding */
-    padding: 6px 10px; 
+    padding: 8px 10px;
     background: rgba(255,50,50,0.12);
     border: 1px solid #ff5252;
     color: #ff8a8a;
