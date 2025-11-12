@@ -1,551 +1,666 @@
-// assets/js/admin.js
-// ===============================
-// URSA ADMIN PANEL LOGIC (v3 - Refactored List Rendering)
-// ===============================
+// assets/js/admin.js — v3 (sidebar + grid + slide chat)
+// ======================================================
+// Requirements: Firebase v9 (modular), app.js exports { auth, db }
+// Focus: VIP orders + realtime chat in right slide panel
 
-// Импортируем Firebase Init из app.js
-import { auth, db } from "./app.js"; 
+import { auth, db } from "./app.js";
 
 import {
-    collection,
-    getDocs,
-    doc,
-    setDoc,
-    updateDoc,
-    deleteDoc,
-    query,
-    orderBy,
-    onSnapshot,
-    serverTimestamp,
-    arrayRemove
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-import { 
-    onAuthStateChanged, 
-    signOut,
-    GoogleAuthProvider, 
-    signInWithPopup 
+import {
+  onAuthStateChanged,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-
-// === СПИСОК АДМИНОВ ===
+// ===============================
+// CONFIG
+// ===============================
 const ADMIN_EMAILS = [
-    "vibemusic1712@gmail.com", 
-    "kotvlad400@gmail.com",
-    "olesyazardina@gmail.com"
+  "vibemusic1712@gmail.com",
+  "kotvlad400@gmail.com",
+  "olesyazardina@gmail.com"
 ];
 
-// Глобальные переменные и кэш
-let allApps = [];
-let allUsers = [];
-let allOrders = [];
-let currentChatUnsubscribe = null;
-
-// === Элементы UI Auth/Layout ===
-const authScreen = document.getElementById("admin-auth");
-const dashboard = document.getElementById("admin-dashboard");
-const loginBtn = document.getElementById("auth-login-btn");
-const errorEl = document.getElementById("auth-error");
+// ===============================
+// STATE
+// ===============================
+const state = {
+  user: null,
+  apps: [],
+  users: [],
+  orders: [],
+  chat: {
+    orderId: null,
+    unsub: null
+  }
+};
 
 // ===============================
-// 0. АВТОРИЗАЦИЯ И ИНИЦИАЛИЗАЦИЯ
+// DOM
 // ===============================
-function showAuthScreen() {
-    authScreen.style.display = "block";
-    dashboard.style.display = "none";
-}
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
-function showDashboard() {
-    authScreen.style.display = "none";
-    dashboard.style.display = "block";
-    initAdminPanel();
-}
+const authScreen = $("#admin-auth");
+const appShell = $("#admin-app");
+const topbarTitle = $("#topbar-title");
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // 🔥 Проверка прав администратора
-        if (ADMIN_EMAILS.includes(user.email)) {
-            console.log(`✅ Admin access granted for: ${user.email}`);
-            showDashboard();
-        } else {
-            console.warn(`❌ Access denied for: ${user.email}`);
-            signOut(auth); // Выкидываем не-админа
-            errorEl.textContent = "Нет прав администратора (неверный Google аккаунт).";
-            showAuthScreen();
-        }
-    } else {
-        showAuthScreen();
-    }
+// Sidebar
+const sideLinks = $$(".side-link");
+const ordersCounter = $("#orders-counter");
+
+// Views
+const views = {
+  dashboard: $("#view-dashboard"),
+  apps: $("#view-apps"),
+  users: $("#view-users"),
+  orders: $("#view-orders")
+};
+
+// Dashboard stats
+const statApps = $("#stat-apps");
+const statVip = $("#stat-vip");
+const statOrders = $("#stat-orders");
+const statSigners = $("#stat-signers");
+
+// Apps view
+const appsGrid = $("#apps-grid");
+const appsSkeleton = $("#apps-skeleton");
+const appSearch = $("#app-search");
+const appFilter = $("#app-filter");
+const addAppBtn = $("#add-app-btn");
+
+// Users view
+const usersTableBody = $("#users-table tbody");
+const usersSkeleton = $("#users-skeleton");
+const userSearch = $("#user-search");
+
+// Orders view
+const ordersList = $("#orders-list");
+const ordersSkeleton = $("#orders-skeleton");
+const ordersStatus = $("#orders-status");
+const orderSearch = $("#order-search");
+
+// Modals (App)
+const appModal = $("#app-modal");
+const appForm = $("#app-edit-form");
+const appDeleteBtn = $("#app-delete-btn");
+
+// App form fields
+const fAppId = $("#app-id");
+const fAppName = $("#app-name");
+const fAppVersion = $("#app-version");
+const fAppUrl = $("#app-url");
+const fAppIcon = $("#app-icon");
+const fAppTags = $("#app-tags");
+const fAppVipOnly = $("#app-vip-only");
+const fAppDesc = $("#app-desc");
+
+// Chat panel
+const chatPanel = $("#chat-panel");
+const chatClose = $("#chat-close");
+const chatOrderIdEl = $("#chat-order-id");
+const chatOrderMeta = $("#chat-order-meta");
+const chatStatusSelect = $("#order-status-select");
+const setVipBtn = $("#set-vip-btn");
+const chatArea = $("#admin-chat-area");
+const chatForm = $("#chat-form");
+const chatInput = $("#admin-chat-input");
+
+// Auth buttons
+const loginBtn = $("#auth-login-btn");
+const logoutBtn = $("#admin-logout-btn");
+const authError = $("#auth-error");
+
+// ===============================
+// AUTH
+// ===============================
+const provider = new GoogleAuthProvider();
+
+loginBtn?.addEventListener("click", async () => {
+  authError.textContent = "";
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    console.error(e);
+    authError.textContent = "Ошибка входа: " + e.message;
+  }
 });
 
-// --- GOOGLE SIGN-IN ---
-loginBtn.addEventListener("click", async () => {
-    const provider = new GoogleAuthProvider();
-    errorEl.textContent = "";
-    try {
-        await signInWithPopup(auth, provider);
-    } catch (err) {
-        // Обработка ошибок, например, закрытие окна или network error
-        console.error("Auth Error:", err);
-        errorEl.textContent = "Ошибка входа: " + err.message;
-    }
+logoutBtn?.addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return showAuth();
+  if (!ADMIN_EMAILS.includes(user.email)) {
+    await signOut(auth);
+    authError.textContent = "Нет прав администратора (неверный Google аккаунт).";
+    return showAuth();
+  }
+  state.user = user;
+  showApp();
+  initNavigation();
+  // Default view: orders
+  activateView("orders");
 });
 
-document.getElementById("admin-logout-btn").addEventListener("click", () => {
-    signOut(auth);
-});
-
-// ===============================
-// 1. УПРАВЛЕНИЕ ВИДАМИ / НАВИГАЦИЯ
-// ===============================
-function initAdminPanel() {
-    document.querySelectorAll(".admin-nav .nav-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const view = e.target.dataset.view;
-            document.querySelectorAll(".admin-nav .nav-btn").forEach(b => b.classList.remove("active"));
-            e.target.classList.add("active");
-            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-            document.getElementById(`view-${view}`).classList.add("active");
-            
-            // Обновление данных при смене вкладки
-            if (view === 'apps') loadApps();
-            if (view === 'users') loadUsers();
-            if (view === 'orders') loadVipOrders();
-            if (view === 'dashboard') loadDashboardStats();
-        });
-    });
-    
-    // Загружаем стартовые данные (Dashboard активен по умолчанию)
-    loadDashboardStats();
-    setupAppModalListeners();
-    setupSearchListeners();
+function showAuth() {
+  authScreen.style.display = "flex";
+  appShell.style.display = "none";
+}
+function showApp() {
+  authScreen.style.display = "none";
+  appShell.style.display = "grid";
 }
 
 // ===============================
-// 2. ЗАГРУЗКА ДАННЫХ
+// NAVIGATION
 // ===============================
+function initNavigation() {
+  sideLinks.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.dataset.view;
+      sideLinks.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      activateView(view);
+    });
+  });
 
-async function loadDashboardStats() {
-    // Скрытие скелетонов в Dashboard не требуется, т.к. данные загружаются сразу
-    try {
-        // Apps
-        const appsSnap = await getDocs(collection(db, "ursa_ipas"));
-        document.getElementById("stat-apps").textContent = appsSnap.size;
-
-        // Users & VIP
-        const usersSnap = await getDocs(collection(db, "ursa_users"));
-        const vipCount = usersSnap.docs.filter(d => d.data().status === 'vip').length;
-        document.getElementById("stat-vip").textContent = vipCount;
-        
-        // Orders
-        const ordersSnap = await getDocs(collection(db, "vip_orders"));
-        const pendingOrders = ordersSnap.docs.filter(d => d.data().status === 'pending' || d.data().status === 'processing').length;
-        document.getElementById("stat-orders").textContent = pendingOrders;
-
-        // Signers (Certificates)
-        const signersSnap = await getDocs(collection(db, "ursa_signers"));
-        document.getElementById("stat-signers").textContent = signersSnap.size;
-
-    } catch (err) {
-        console.error("Ошибка загрузки статистики:", err);
-    }
+  // Focus search via '/'
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+      e.preventDefault();
+      const activeView = getActiveView();
+      if (activeView === "apps") appSearch?.focus();
+      else if (activeView === "users") userSearch?.focus();
+      else if (activeView === "orders") orderSearch?.focus();
+    }
+  });
 }
 
-
-// --- Приложения: Рендеринг в список (КАРТОЧКИ) ---
-async function loadApps(query = '') {
-    document.getElementById('apps-skeleton').style.display = 'flex';
-    document.getElementById('apps-list').innerHTML = '';
-
-    const snap = await getDocs(collection(db, "ursa_ipas"));
-    allApps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderAppsList(allApps, query);
-
-    document.getElementById('apps-skeleton').style.display = 'none';
+function getActiveView() {
+  return Object.entries(views).find(([k, el]) => el.classList.contains("active"))?.[0] || "orders";
 }
 
-function renderAppsList(apps, query) {
-    const listContainer = document.getElementById("apps-list");
-    listContainer.innerHTML = "";
-    
-    const filtered = apps.filter(app => 
-        !query || (app.NAME || '').toLowerCase().includes(query.toLowerCase())
-    );
+async function activateView(view) {
+  Object.values(views).forEach((v) => v.classList.remove("active"));
+  views[view].classList.add("active");
 
-    filtered.forEach(app => {
-        const item = document.createElement("div");
-        item.className = "item app-item";
-        item.dataset.id = app.id;
-        
-        const vipStatusTag = app.vipOnly
-            ? '<span class="status-tag vip">⭐ VIP</span>'
-            : '<span class="status-tag free">FREE</span>';
+  const titles = {
+    dashboard: "📊 Дашборд",
+    apps: "📱 Каталог приложений",
+    users: "👥 Пользователи",
+    orders: "💸 VIP Заявки"
+  };
+  topbarTitle.textContent = titles[view] || "URSA Admin";
 
-        item.innerHTML = `
-            <img src="${app.iconUrl || 'https://placehold.co/48x48'}" class="item-icon" alt="${app.NAME || 'Приложение'}">
-            <div class="item-body">
-                <div class="item-title">${app.NAME || 'N/A'}</div>
-                <div class="item-meta">
-                    <span>Версия: ${app.Version || 'N/A'}</span>
-                    <span>Загрузки: ${app.downloadCount || 0}</span>
-                </div>
-            </div>
-            <div class="item-actions">
-                ${vipStatusTag}
-                <button class="btn small-btn edit-app-btn" data-id="${app.id}" aria-label="Редактировать">✏️</button>
-            </div>
-        `;
-        listContainer.appendChild(item);
-    });
-}
-
-// --- Пользователи: Рендеринг в список (КАРТОЧКИ) ---
-async function loadUsers(query = '') {
-    document.getElementById('users-skeleton').style.display = 'flex';
-    document.getElementById('users-list').innerHTML = '';
-
-    const usersSnap = await getDocs(collection(db, "ursa_users"));
-    const signersSnap = await getDocs(collection(db, "ursa_signers"));
-    
-    const signersMap = signersSnap.docs.reduce((map, doc) => {
-        map[doc.id] = doc.data();
-        return map;
-    }, {});
-
-    allUsers = usersSnap.docs.map(d => ({ id: d.id, ...d.data(), signer: signersMap[d.id] }));
-    renderUsersList(allUsers, query);
-
-    document.getElementById('users-skeleton').style.display = 'none';
-}
-
-function renderUsersList(users, query) {
-    const listContainer = document.getElementById("users-list");
-    listContainer.innerHTML = "";
-    
-    const filtered = users.filter(user => 
-        !query || 
-        user.email?.toLowerCase().includes(query.toLowerCase()) || 
-        user.id.toLowerCase().includes(query.toLowerCase())
-    );
-
-    filtered.forEach(user => {
-        const certActive = user.signer && new Date(user.signer.expires) > new Date();
-        const certStatusText = user.signer ? (certActive ? 'Активен' : 'Истек') : 'Нет';
-        const certStatusTagClass = user.signer ? (certActive ? 'completed' : 'canceled') : 'free';
-
-        const vipStatus = user.status === 'vip' ? 'vip' : 'free';
-
-        const item = document.createElement("div");
-        item.className = "item user-item";
-        
-        item.innerHTML = `
-            <div class="item-icon" style="background:#4a5568; display:flex; justify-content:center; align-items:center; color:white; font-size:24px; border-radius: 12px;">👤</div>
-            <div class="item-body">
-                <div class="item-title">${user.email || 'N/A'}</div>
-                <div class="item-sub">UID: ${user.id.substring(0, 8)}...</div>
-                <div class="item-meta">
-                    <span>Сертификат: <span class="status-tag ${certStatusTagClass}">${certStatusText}</span></span>
-                </div>
-            </div>
-            <div class="item-actions">
-                <span class="status-tag ${vipStatus}">${vipStatus.toUpperCase()}</span>
-                <button class="btn small-btn set-vip-status-btn" data-id="${user.id}" data-status="${user.status}">
-                    ${user.status === 'vip' ? '↓ FREE' : '↑ VIP'}
-                </button>
-            </div>
-        `;
-        listContainer.appendChild(item);
-    });
-}
-
-// --- VIP Заявки: Рендеринг в таблицу (с новыми статусами) ---
-async function loadVipOrders() {
-    document.getElementById('orders-skeleton').style.display = 'flex';
-    document.getElementById('orders-table').querySelector("tbody").innerHTML = '';
-
-    const q = query(collection(db, "vip_orders"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderOrdersTable(allOrders);
-
-    document.getElementById('orders-skeleton').style.display = 'none';
-}
-
-function renderOrdersTable(orders) {
-    const tbody = document.getElementById("orders-table").querySelector("tbody");
-    tbody.innerHTML = "";
-    
-    orders.forEach(order => {
-        const date = order.createdAt?.toDate()?.toLocaleString() || 'N/A';
-        const statusMap = {
-            pending: { text: 'Ожидает', tag: 'pending' }, 
-            processing: { text: 'В работе', tag: 'processing' }, 
-            completed: { text: 'Завершено', tag: 'completed' }, 
-            canceled: { text: 'Отменено', tag: 'canceled' }
-        };
-        const status = statusMap[order.status] || { text: order.status, tag: 'free' };
-        
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${order.id.substring(0, 8)}...</td>
-            <td>${order.uid.substring(0, 8)}...</td>
-            <td>${order.method}</td>
-            <td><span class="status-tag ${status.tag}">${status.text}</span></td>
-            <td>${date}</td>
-            <td>
-                <button class="btn small-btn open-chat-btn" data-id="${order.id}">💬 Чат</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
+  if (view === "dashboard") loadDashboard();
+  if (view === "apps") initApps();
+  if (view === "users") initUsers();
+  if (view === "orders") initOrders();
 }
 
 // ===============================
-// 3. ОБРАБОТЧИКИ СОБЫТИЙ
+// DASHBOARD
 // ===============================
+async function loadDashboard() {
+  try {
+    const appsSnap = await getDocs(collection(db, "ursa_ipas"));
+    const usersSnap = await getDocs(collection(db, "ursa_users"));
+    const ordersSnap = await getDocs(collection(db, "vip_orders"));
+    const signersSnap = await getDocs(collection(db, "ursa_signers"));
 
-function setupSearchListeners() {
-    document.getElementById("app-search")?.addEventListener("input", (e) => 
-        renderAppsList(allApps, e.target.value) // ИЗМЕНЕНО ИМЯ ФУНКЦИИ
-    );
-    document.getElementById("user-search")?.addEventListener("input", (e) => 
-        renderUsersList(allUsers, e.target.value) // ИЗМЕНЕНО ИМЯ ФУНКЦИИ
-    );
+    const vipCount = usersSnap.docs.filter((d) => d.data().status === "vip").length;
+    const activeOrders = ordersSnap.docs.filter((d) => {
+      const s = d.data().status;
+      return s === "pending" || s === "processing";
+    }).length;
+
+    statApps.textContent = appsSnap.size;
+    statVip.textContent = vipCount;
+    statOrders.textContent = activeOrders;
+    statSigners.textContent = signersSnap.size;
+  } catch (e) {
+    console.error("Dashboard error:", e);
+  }
 }
 
-document.addEventListener("click", (e) => {
-    // Редактировать приложение (кнопка)
-    if (e.target.classList.contains("edit-app-btn")) {
-        const appId = e.target.dataset.id;
-        openAppModal(appId);
-    }
-    // Редактировать приложение (клик по карточке, исключая кнопки)
-    const item = e.target.closest('.app-item');
-    if (item && !e.target.closest('.item-actions')) {
-        openAppModal(item.dataset.id);
-    }
-    // Открыть VIP-чат
-    if (e.target.classList.contains("open-chat-btn")) {
-        const orderId = e.target.dataset.id;
-        openChatModal(orderId);
-    }
-    // Изменить VIP статус пользователя
-    if (e.target.classList.contains("set-vip-status-btn")) {
-        const userId = e.target.dataset.id;
-        const currentStatus = e.target.dataset.status;
-        toggleUserVipStatus(userId, currentStatus);
-    }
-});
-
-document.getElementById("add-app-btn")?.addEventListener("click", () => openAppModal(null));
-
 // ===============================
-// 4. CRUD ДЛЯ ПРИЛОЖЕНИЙ (Логика не изменена)
+// APPS (GRID)
 // ===============================
-function setupAppModalListeners() {
-    const modal = document.getElementById("app-modal");
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal || e.target.closest("[data-action='close']")) modal.classList.remove("visible");
-    });
+function initApps() {
+  appsSkeleton.style.display = "grid";
+  appsGrid.setAttribute("aria-busy", "true");
+  loadApps().then(() => {
+    appsSkeleton.style.display = "none";
+    appsGrid.removeAttribute("aria-busy");
+  });
 
-    document.getElementById("app-edit-form").addEventListener("submit", saveApp);
-    document.getElementById("app-delete-btn").addEventListener("click", deleteApp);
+  appSearch?.addEventListener("input", renderApps);
+  appFilter?.addEventListener("change", renderApps);
+  addAppBtn?.addEventListener("click", () => openAppModal(null));
+}
+
+async function loadApps() {
+  const snap = await getDocs(collection(db, "ursa_ipas"));
+  state.apps = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  renderApps();
+}
+
+function renderApps() {
+  const q = (appSearch?.value || "").toLowerCase();
+  const tag = appFilter?.value || "all";
+
+  appsGrid.innerHTML = "";
+  const apps = state.apps.filter((a) => {
+    const byName = (a.NAME || "").toLowerCase().includes(q);
+    const byTag =
+      tag === "all"
+        ? true
+        : tag === "vip"
+        ? a.vipOnly === true
+        : Array.isArray(a.tags)
+        ? a.tags.includes(tag)
+        : (a.tags || "").split(",").map((t) => t.trim()).includes(tag);
+    return byName && byTag;
+  });
+
+  if (!apps.length) {
+    appsGrid.innerHTML = `<div class="empty">Нет приложений по фильтру</div>`;
+    return;
+  }
+
+  apps.forEach((app) => {
+    const card = document.createElement("div");
+    card.className = "app-card";
+    card.innerHTML = `
+      <img class="icon" src="${app.iconUrl || "https://placehold.co/120x120"}" alt="${app.NAME || "App"}"/>
+      <div class="ttl" title="${app.NAME || "N/A"}">${app.NAME || "N/A"}</div>
+      <div class="meta">
+        <span class="pill ${app.vipOnly ? "vip" : "free"}">${app.vipOnly ? "VIP" : "FREE"}</span>
+        <span class="cnt" title="Скачивания">${app.downloadCount || 0}</span>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-ghost small" data-edit="${app.id}">✏️ Редактировать</button>
+      </div>`;
+    appsGrid.appendChild(card);
+  });
+
+  // Bind edit buttons
+  appsGrid.addEventListener(
+    "click",
+    (e) => {
+      const btn = e.target.closest("[data-edit]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-edit");
+      openAppModal(id);
+    },
+    { once: true }
+  );
 }
 
 function openAppModal(appId) {
-    const modal = document.getElementById("app-modal");
-    const app = allApps.find(a => a.id === appId);
+  const app = state.apps.find((a) => a.id === appId);
 
-    document.getElementById("app-id").value = appId || "";
-    document.getElementById("app-modal-title").textContent = appId ? "Редактировать приложение" : "Добавить новое приложение";
-    
-    document.getElementById("app-name").value = app?.NAME || "";
-    document.getElementById("app-version").value = app?.Version || "";
-    document.getElementById("app-url").value = app?.DownloadUrl || "";
-    document.getElementById("app-icon").value = app?.iconUrl || "";
-    document.getElementById("app-tags").value = Array.isArray(app?.tags) ? app.tags.join(", ") : app?.tags || "";
-    document.getElementById("app-vip-only").checked = app?.vipOnly === true;
-    document.getElementById("app-desc").value = app?.description_ru || app?.description_en || app?.desc || "";
+  $("#app-modal-title").textContent = appId ? "Редактировать приложение" : "Добавить новое приложение";
+  fAppId.value = appId || "";
+  fAppName.value = app?.NAME || "";
+  fAppVersion.value = app?.Version || "";
+  fAppUrl.value = app?.DownloadUrl || "";
+  fAppIcon.value = app?.iconUrl || "";
+  fAppTags.value = Array.isArray(app?.tags) ? app.tags.join(", ") : app?.tags || "";
+  fAppVipOnly.checked = app?.vipOnly === true;
+  fAppDesc.value = app?.description_ru || app?.description_en || app?.desc || "";
 
-    document.getElementById("app-delete-btn").style.display = appId ? "inline-block" : "none";
-
-    modal.classList.add("visible");
+  appDeleteBtn.style.display = appId ? "inline-block" : "none";
+  appModal.classList.add("visible");
 }
 
-async function saveApp(e) {
-    e.preventDefault();
-    
-    const id = document.getElementById("app-id").value;
-    const data = {
-        NAME: document.getElementById("app-name").value,
-        Version: document.getElementById("app-version").value,
-        DownloadUrl: document.getElementById("app-url").value,
-        iconUrl: document.getElementById("app-icon").value,
-        tags: document.getElementById("app-tags").value.split(",").map(t => t.trim().toLowerCase()).filter(Boolean),
-        vipOnly: document.getElementById("app-vip-only").checked,
-        description_ru: document.getElementById("app-desc").value,
-        updatedAt: new Date().toISOString()
-    };
+appModal?.addEventListener("click", (e) => {
+  if (e.target === appModal || e.target.closest("[data-action='close']")) {
+    appModal.classList.remove("visible");
+  }
+});
 
-    try {
-        if (id) {
-            await updateDoc(doc(db, "ursa_ipas", id), data);
-            alert("Приложение обновлено!");
-        } else {
-            const newDocRef = doc(collection(db, "ursa_ipas"));
-            await setDoc(newDocRef, { ...data, createdAt: new Date().toISOString(), downloadCount: 0 });
-            alert("Приложение добавлено!");
-        }
-        
-        document.getElementById("app-modal").classList.remove("visible");
-        loadApps(); // Обновляем список
-    } catch (err) {
-        alert("Ошибка сохранения: " + err.message);
-    }
-}
+appForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = fAppId.value.trim();
+  const data = {
+    NAME: fAppName.value.trim(),
+    Version: fAppVersion.value.trim(),
+    DownloadUrl: fAppUrl.value.trim(),
+    iconUrl: fAppIcon.value.trim(),
+    tags: fAppTags.value
+      .split(",")
+      .map((t) => t.trim().toLowerCase())
+      .filter(Boolean),
+    vipOnly: !!fAppVipOnly.checked,
+    description_ru: fAppDesc.value.trim(),
+    updatedAt: new Date().toISOString()
+  };
 
-async function deleteApp() {
-    const id = document.getElementById("app-id").value;
-    if (!id || !confirm("Вы уверены, что хотите удалить это приложение?")) return;
+  try {
+    if (id) {
+      await updateDoc(doc(db, "ursa_ipas", id), data);
+      alert("Приложение обновлено");
+    } else {
+      const newRef = doc(collection(db, "ursa_ipas"));
+      await setDoc(newRef, { ...data, createdAt: new Date().toISOString(), downloadCount: 0 });
+      alert("Приложение добавлено");
+    }
+    appModal.classList.remove("visible");
+    await loadApps();
+  } catch (e) {
+    alert("Ошибка сохранения: " + e.message);
+  }
+});
 
-    try {
-        await deleteDoc(doc(db, "ursa_ipas", id));
-        alert("Приложение удалено.");
-        
-        document.getElementById("app-modal").classList.remove("visible");
-        loadApps();
-    } catch (err) {
-        alert("Ошибка удаления: " + err.message);
-    }
-}
-
+appDeleteBtn?.addEventListener("click", async () => {
+  const id = fAppId.value.trim();
+  if (!id) return;
+  if (!confirm("Удалить приложение?")) return;
+  try {
+    await deleteDoc(doc(db, "ursa_ipas", id));
+    alert("Удалено");
+    appModal.classList.remove("visible");
+    await loadApps();
+  } catch (e) {
+    alert("Ошибка удаления: " + e.message);
+  }
+});
 
 // ===============================
-// 5. VIP ЧАТ И УПРАВЛЕНИЕ (Логика не изменена)
+// USERS
 // ===============================
-
-function openChatModal(orderId) {
-    const modal = document.getElementById("chat-modal");
-    const order = allOrders.find(o => o.id === orderId);
-
-    document.getElementById("chat-order-id").textContent = orderId.substring(0, 8) + '...';
-    document.getElementById("order-status-select").value = order?.status || 'pending';
-    
-    modal.classList.add("visible");
-    
-    // Отписка от предыдущего чата (если был)
-    if (currentChatUnsubscribe) currentChatUnsubscribe();
-    
-    // Подписка на новый чат
-    const chatRef = collection(db, "vip_orders", orderId, "messages");
-    const q = query(chatRef, orderBy("timestamp"));
-    currentChatUnsubscribe = onSnapshot(q, (snap) => renderChat(snap, order));
-    
-    // Обработчик отправки сообщения админа
-    document.getElementById("admin-chat-send").onclick = () => sendAdminMessage(orderId);
-    document.getElementById("admin-chat-input").onkeydown = (e) => {
-        if (e.key === "Enter") { e.preventDefault(); sendAdminMessage(orderId); }
-    };
-    
-    // Обработчик смены статуса
-    document.getElementById("order-status-select").onchange = (e) => 
-        updateDoc(doc(db, "vip_orders", orderId), { status: e.target.value })
-        .then(() => loadVipOrders()); // Обновляем список заказов
-    
-    // Обработчик выдачи VIP
-    document.getElementById("set-vip-btn").onclick = () => 
-        setVipStatusForUser(order.uid, orderId);
+function initUsers() {
+  usersSkeleton.style.display = "block";
+  loadUsers().then(() => (usersSkeleton.style.display = "none"));
+  userSearch?.addEventListener("input", renderUsers);
 }
 
-function renderChat(snap, order) {
-    const chatArea = document.getElementById("admin-chat-area");
-    chatArea.innerHTML = `
-        <div class="system-message">
-            💸 Заявка: ${order.id.substring(0, 8)}... (Метод: ${order.method})<br>
-            👤 UID: ${order.uid.substring(0, 8)}...<br>
-            🔗 UDID: ${order.udid.substring(0, 8)}...
-        </div>
-    `;
-    
-    snap.forEach((doc) => {
-        const m = doc.data();
-        const el = document.createElement("div");
-        el.className = (m.sender === "admin") ? "msg admin" : "msg user";
-        el.textContent = m.text || (m.fileName || m.mime || "Файл");
-        
-        // Добавление ссылки на файл
-        if (m.fileUrl) {
-            const a = document.createElement("a");
-            a.href = m.fileUrl;
-            a.target = "_blank";
-            a.textContent = m.fileName || "Файл";
-            a.style.display = "block";
-            el.innerHTML = m.text ? `${m.text}<br>` : ''; // Сохраняем текст, если есть
-            el.appendChild(a);
-        }
-        chatArea.appendChild(el);
-    });
+async function loadUsers() {
+  const usersSnap = await getDocs(collection(db, "ursa_users"));
+  const signersSnap = await getDocs(collection(db, "ursa_signers"));
 
-    chatArea.scrollTop = chatArea.scrollHeight;
+  const signersMap = Object.create(null);
+  signersSnap.docs.forEach((d) => (signersMap[d.id] = d.data()));
+
+  state.users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data(), signer: signersMap[d.id] }));
+  renderUsers();
 }
 
-async function sendAdminMessage(orderId) {
-    const input = document.getElementById("admin-chat-input");
-    const text = input.value.trim();
-    if (!text) return;
-    
-    await setDoc(doc(collection(db, "vip_orders", orderId, "messages")), {
-        sender: "admin",
-        text: text,
-        timestamp: serverTimestamp(),
-    });
-    input.value = "";
-}
+function renderUsers() {
+  const q = (userSearch?.value || "").toLowerCase();
+  usersTableBody.innerHTML = "";
+  const filtered = state.users.filter((u) =>
+    !q || u.email?.toLowerCase().includes(q) || u.id.toLowerCase().includes(q)
+  );
 
-// ===============================
-// 6. УПРАВЛЕНИЕ СТАТУСАМИ (Логика не изменена)
-// ===============================
+  filtered.forEach((u) => {
+    const cert = u.signer
+      ? new Date(u.signer.expires) > new Date()
+        ? "✅ Активен"
+        : "❌ Истек"
+      : "Нет";
+    const vip = u.status === "vip" ? "⭐ VIP" : "FREE";
 
-async function setVipStatusForUser(uid, orderId = null) {
-    if (!confirm(`Вы уверены, что хотите присвоить VIP-статус пользователю ${uid.substring(0, 8)}...?`)) return;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${u.email || "N/A"}</td>
+      <td>${u.id.substring(0, 8)}...</td>
+      <td>${vip}</td>
+      <td>${cert}</td>
+      <td><button class="btn btn-ghost small" data-toggle-vip="${u.id}" data-status="${u.status}">${
+        u.status === "vip" ? "↓ FREE" : "↑ VIP"
+      }</button></td>`;
+    usersTableBody.appendChild(tr);
+  });
 
-    try {
-        // 1. Обновляем статус пользователя в ursa_users
-        await updateDoc(doc(db, "ursa_users", uid), {
-            status: "vip",
-            vip_activated_at: new Date().toISOString()
-        });
-        
-        // 2. Обновляем статус заказа (если есть)
-        if (orderId) {
-            await updateDoc(doc(db, "vip_orders", orderId), {
-                status: "completed"
-            });
-            document.getElementById("chat-modal")?.classList.remove("visible");
-        }
-
-        alert(`VIP-статус для пользователя ${uid.substring(0, 8)}... успешно установлен.`);
-        loadUsers();
-        loadVipOrders();
-
-    } catch (err) {
-        alert("Ошибка выдачи VIP: " + err.message);
-    }
+  usersTableBody.addEventListener(
+    "click",
+    async (e) => {
+      const btn = e.target.closest("[data-toggle-vip]");
+      if (!btn) return;
+      const uid = btn.getAttribute("data-toggle-vip");
+      const cur = btn.getAttribute("data-status");
+      await toggleUserVipStatus(uid, cur);
+      await loadUsers();
+    },
+    { once: true }
+  );
 }
 
 async function toggleUserVipStatus(uid, currentStatus) {
-    const newStatus = currentStatus === 'vip' ? 'free' : 'vip';
-    if (!confirm(`Изменить статус пользователя ${uid.substring(0, 8)}... на ${newStatus.toUpperCase()}?`)) return;
-
-    try {
-        await updateDoc(doc(db, "ursa_users", uid), {
-            status: newStatus,
-            vip_activated_at: newStatus === 'vip' ? new Date().toISOString() : arrayRemove("vip_activated_at")
-        });
-
-        alert(`Статус изменен на ${newStatus.toUpperCase()}`);
-        loadUsers(); // Обновляем список
-    } catch (err) {
-        alert("Ошибка: " + err.message);
-    }
+  const next = currentStatus === "vip" ? "free" : "vip";
+  if (!confirm(`Изменить статус на ${next.toUpperCase()}?`)) return;
+  await updateDoc(doc(db, "ursa_users", uid), {
+    status: next,
+    vip_activated_at: next === "vip" ? new Date().toISOString() : null
+  });
 }
+
+// ===============================
+// ORDERS + REALTIME CHAT
+// ===============================
+function initOrders() {
+  ordersSkeleton.style.display = "block";
+  // one-time load (list). Chat is realtime per order selection
+  loadOrders().then(() => (ordersSkeleton.style.display = "none"));
+
+  ordersStatus?.addEventListener("change", renderOrders);
+  orderSearch?.addEventListener("input", renderOrders);
+}
+
+async function loadOrders() {
+  const qRef = query(collection(db, "vip_orders"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(qRef);
+  state.orders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  renderOrders();
+}
+
+function renderOrders() {
+  const st = ordersStatus?.value || "all";
+  const q = (orderSearch?.value || "").toLowerCase();
+
+  ordersList.innerHTML = "";
+  let orders = state.orders.filter((o) => (st === "all" ? true : o.status === st));
+  orders = orders.filter(
+    (o) => !q || o.id.toLowerCase().includes(q) || o.uid?.toLowerCase().includes(q)
+  );
+
+  const activeCount = state.orders.filter(
+    (o) => o.status === "pending" || o.status === "processing"
+  ).length;
+  ordersCounter.textContent = String(activeCount);
+
+  if (!orders.length) {
+    ordersList.innerHTML = `<li class="empty">Заявок не найдено</li>`;
+    return;
+  }
+
+  orders.forEach((o) => {
+    const date = o.createdAt?.toDate?.()?.toLocaleString?.() || o.createdAt || "—";
+    const li = document.createElement("li");
+    li.className = "order-row";
+    li.innerHTML = `
+      <div class="col main">
+        <div class="id">#${o.id.substring(0, 8)}…</div>
+        <div class="meta">UID: ${o.uid?.substring(0, 8) || "—"}… • Метод: ${o.method || "—"}</div>
+      </div>
+      <div class="col mid">
+        <span class="status ${o.status}">${statusText(o.status)}</span>
+        <div class="time">${date}</div>
+      </div>
+      <div class="col actions">
+        <button class="btn btn-ghost small" data-chat="${o.id}">💬 Чат</button>
+      </div>`;
+    ordersList.appendChild(li);
+  });
+
+  ordersList.addEventListener(
+    "click",
+    (e) => {
+      const btn = e.target.closest("[data-chat]");
+      if (!btn) return;
+      const orderId = btn.getAttribute("data-chat");
+      openChat(orderId);
+    },
+    { once: true }
+  );
+}
+
+function statusText(s) {
+  return (
+    {
+      pending: "🟡 Ожидает",
+      processing: "🟠 В работе",
+      completed: "🟢 Завершено",
+      canceled: "⚫ Отменено"
+    }[s] || s
+  );
+}
+
+// ---- Chat panel
+function openChat(orderId) {
+  const order = state.orders.find((o) => o.id === orderId);
+  if (!order) return;
+
+  chatOrderIdEl.textContent = orderId.substring(0, 8) + "…";
+  chatOrderMeta.textContent = `Метод: ${order.method || "—"} • UID: ${
+    order.uid?.substring(0, 8) || "—"
+  }…`;
+  chatStatusSelect.value = order.status || "pending";
+
+  chatPanel.setAttribute("aria-hidden", "false");
+  chatPanel.classList.add("open");
+
+  // Cleanup previous
+  if (state.chat.unsub) state.chat.unsub();
+  state.chat.orderId = orderId;
+
+  const chatRef = collection(db, "vip_orders", orderId, "messages");
+  const qRef = query(chatRef, orderBy("timestamp"));
+  state.chat.unsub = onSnapshot(qRef, (snap) => {
+    renderChatMessages(snap, order);
+  });
+}
+
+chatClose?.addEventListener("click", closeChat);
+function closeChat() {
+  chatPanel.classList.remove("open");
+  chatPanel.setAttribute("aria-hidden", "true");
+  if (state.chat.unsub) {
+    state.chat.unsub();
+    state.chat.unsub = null;
+  }
+  state.chat.orderId = null;
+  chatArea.innerHTML = "";
+}
+
+function renderChatMessages(snap, order) {
+  chatArea.innerHTML = `
+    <div class="system-message">
+      💸 Заявка: #${order.id.substring(0, 8)}…<br/>
+      👤 UID: ${order.uid?.substring(0, 8) || "—"}…<br/>
+      🔗 UDID: ${order.udid?.substring(0, 8) || "—"}…
+    </div>`;
+
+  snap.forEach((d) => {
+    const m = d.data();
+    const el = document.createElement("div");
+    el.className = m.sender === "admin" ? "msg admin" : "msg user";
+
+    if (m.text) {
+      el.textContent = m.text;
+    }
+    if (m.fileUrl) {
+      const a = document.createElement("a");
+      a.href = m.fileUrl;
+      a.target = "_blank";
+      a.rel = "noreferrer noopener";
+      a.textContent = m.fileName || "Файл";
+      if (m.text) el.appendChild(document.createElement("br"));
+      el.appendChild(a);
+    }
+
+    chatArea.appendChild(el);
+  });
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+chatForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!state.chat.orderId) return;
+  const text = chatInput.value.trim();
+  if (!text) return;
+  try {
+    await addDoc(collection(db, "vip_orders", state.chat.orderId, "messages"), {
+      sender: "admin",
+      text,
+      timestamp: serverTimestamp()
+    });
+    chatInput.value = "";
+  } catch (e) {
+    alert("Не удалось отправить сообщение: " + e.message);
+  }
+});
+
+chatStatusSelect?.addEventListener("change", async (e) => {
+  if (!state.chat.orderId) return;
+  try {
+    await updateDoc(doc(db, "vip_orders", state.chat.orderId), { status: e.target.value });
+    // refresh orders list to reflect new status/pill & counter
+    await loadOrders();
+  } catch (e) {
+    alert("Не удалось обновить статус: " + e.message);
+  }
+});
+
+setVipBtn?.addEventListener("click", async () => {
+  if (!state.chat.orderId) return;
+  // get order to know uid
+  const order = state.orders.find((o) => o.id === state.chat.orderId);
+  if (!order?.uid) return alert("У заказа нет UID");
+  if (!confirm(`Выдать VIP пользователю ${order.uid.substring(0, 8)}…?`)) return;
+  try {
+    await updateDoc(doc(db, "ursa_users", order.uid), {
+      status: "vip",
+      vip_activated_at: new Date().toISOString()
+    });
+    await updateDoc(doc(db, "vip_orders", state.chat.orderId), { status: "completed" });
+    await loadUsers();
+    await loadOrders();
+    closeChat();
+    alert("VIP выдан");
+  } catch (e) {
+    alert("Ошибка выдачи VIP: " + e.message);
+  }
+});
+
+// ===============================
+// UTIL
+// ===============================
+function srAlert(text) {
+  const el = document.createElement("div");
+  el.className = "sr-only";
+  el.setAttribute("role", "status");
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
