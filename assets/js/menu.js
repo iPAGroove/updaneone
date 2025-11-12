@@ -24,7 +24,7 @@ import {
   setDoc,
   getDoc,
   // ✅ Добавлен deleteDoc для удаления из Firestore
-  deleteDoc, 
+  deleteDoc, 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import {
   getStorage,
@@ -78,7 +78,7 @@ async function parseMobileProvision(file) {
 }
 
 // ===============================
-// 📌 Отображение сертификата (ОБНОВЛЕНО)
+// 📌 Отображение сертификата (КОМПАКТНАЯ ВЕРСИЯ)
 // ===============================
 function renderCertificateBlock() {
   const card = document.querySelector(".certificate-card");
@@ -86,7 +86,7 @@ function renderCertificateBlock() {
   const expiry = localStorage.getItem("ursa_cert_exp");
   const isLoggedIn = !!auth.currentUser;
 
-  // ✅ Убрана кнопка "Купить сертификат"
+  // Убрана кнопка "Купить сертификат"
   const showAddButton = isLoggedIn
     ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
     : `<p class="cert-info-placeholder">Для управления сертификатом необходимо войти.</p>`;
@@ -97,18 +97,38 @@ function renderCertificateBlock() {
   }
 
   const isExpired = new Date(expiry) < new Date();
-  const status = isExpired ? "❌ Отозван" : "✅ Активен";
+  const statusText = isExpired ? "Отозван" : "Активен";
   const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
 
+  // 🚀 Более компактная разметка с использованием cert-info и cert-row
   card.innerHTML = `
-            <p><strong>UDID:</strong></p>
-      <div style="overflow-x: scroll; white-space: nowrap; font-size: 13px; opacity: 0.85; margin-bottom: 8px;">
-        ${udid}
+    <div class="cert-info">
+      <div class="cert-row">
+        <span class="cert-label">UDID:</span>
+        <small style="
+            overflow-x: scroll;
+            white-space: nowrap;
+            font-size: 13px;
+            opacity: 0.85;
+            max-width: 65%;
+            text-align: right;
+        ">
+          ${udid}
+        </small>
       </div>
-      <p style="margin-top: 0;"><strong>Действует до:</strong> ${expiry}</p>
-      <p style="font-weight:600;color:${statusColor}; margin-bottom: 12px;">Статус: ${status}</p>
-      <button class="btn delete-cert-btn">Удалить сертификат</button>
-        `;
+      <div class="cert-row">
+        <span class="cert-label">Действует до:</span>
+        <span>${expiry}</span>
+      </div>
+      <div class="cert-row">
+        <span class="cert-label">Статус:</span>
+        <span style="font-weight:600;color:${statusColor};">
+          ${isExpired ? '❌ ' : '✅ '} ${statusText}
+        </span>
+      </div>
+    </div>
+    <button class="btn delete-cert-btn">Удалить сертификат</button>
+  `;
 }
 
 // ===============================
@@ -210,7 +230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (e.target.classList.contains("delete-cert-btn")) {
       if (!confirm("Вы уверены, что хотите удалить сертификат? Он будет удален и из вашего аккаунта.")) return;
-      
+      
       // ✅ УДАЛЕНИЕ ИЗ FIREBASE
       const user = auth.currentUser;
       if (user) {
@@ -226,7 +246,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       localStorage.removeItem("ursa_cert_udid");
       localStorage.removeItem("ursa_cert_exp");
       localStorage.removeItem("ursa_signer_id");
-      
+      
       renderCertificateBlock();
     }
   });
