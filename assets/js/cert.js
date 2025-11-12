@@ -1,6 +1,7 @@
+// assets/js/cert.js
 // ===============================
 // URSA SIGNER — покупка сертификата
-// Шаги: выбор сертификата → получение UDID → способ оплаты → чат поддержки
+// Шаги: выбор сертификата → получение UDID → способ оплаты → чат сертификата
 // ===============================
 
 import { auth, db } from "./app.js";
@@ -19,12 +20,12 @@ import {
   uploadBytes,
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
-
-const storage = getStorage();
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
+const storage = getStorage();
+
 // ------------------------------------------------
-// ⚡ Авторизация
+// 🔑 Авторизация
 // ------------------------------------------------
 onAuthStateChanged(auth, (user) => {
   if (!user) {
@@ -66,7 +67,7 @@ function initCertFlow() {
 
   btnNext?.addEventListener("click", () => { close(modal1); open(modal2); });
   btnBack1?.addEventListener("click", () => { close(modal2); open(modal1); });
-  btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); });
+  btnBackToOptions?.addEventListener("click", () => { close(modalChat); open(modal2); chatBound = false; });
 
   // ------------------------------------------------
   // 💸 Методы оплаты
@@ -85,6 +86,7 @@ function initCertFlow() {
     btn.addEventListener("click", async () => {
       const method = btn.dataset.method;
       localStorage.setItem("ursa_cert_method", method);
+
       try {
         const orderId = await createCertOrder(method);
         if (!orderId) throw new Error("orderId missing");
@@ -107,9 +109,7 @@ function initCertFlow() {
   // 🧾 Создание заявки
   // ------------------------------------------------
   async function createCertOrder(method) {
-    // ждем восстановления auth
     while (!auth.currentUser) await new Promise(r => setTimeout(r, 100));
-
     const uid = auth.currentUser.uid;
     const plan = localStorage.getItem("ursa_cert_plan");
 
@@ -165,18 +165,26 @@ function initCertFlow() {
   }
 
   // ------------------------------------------------
-  // 📡 Чат
+  // 📡 Чат сертификата
   // ------------------------------------------------
   let chatBound = false;
+
   function bindChat() {
     if (chatBound) return;
     chatBound = true;
 
     const orderId = localStorage.getItem("ursa_cert_order_id");
-    if (!orderId) return alert("Чат не инициализирован. Повторите выбор способа оплаты.");
+    if (!orderId) {
+      alert("⚠️ Чат не инициализирован. Повторите выбор способа оплаты.");
+      return;
+    }
+
+    if (!auth.currentUser) {
+      alert("⚠️ Авторизуйтесь, чтобы использовать чат сертификата.");
+      return;
+    }
 
     const q = query(collection(db, "cert_orders", orderId, "messages"), orderBy("timestamp"));
-
     try {
       onSnapshot(q, (snap) => {
         chatArea.innerHTML = "";
@@ -184,7 +192,12 @@ function initCertFlow() {
           const m = doc.data();
           const el = document.createElement("div");
           el.className = m.sender === "admin" ? "msg admin" : "msg user";
-          if (m.text) el.textContent = m.text;
+
+          if (m.text) {
+            const textNode = document.createElement("p");
+            textNode.textContent = m.text;
+            el.appendChild(textNode);
+          }
 
           if (m.fileUrl) {
             if (m.mime?.startsWith("image/")) {
@@ -202,15 +215,19 @@ function initCertFlow() {
               el.appendChild(a);
             }
           }
+
           chatArea.appendChild(el);
         });
         chatArea.scrollTop = chatArea.scrollHeight;
       });
     } catch (e) {
-      console.error("Ошибка snapshot:", e);
+      console.error("❌ Ошибка snapshot:", e);
       alert("Нет доступа к чату. Повторите вход.");
     }
 
+    // ------------------------------------------------
+    // ✉️ Отправка текста
+    // ------------------------------------------------
     const input = document.querySelector(".chat-input");
     const sendBtn = document.querySelector(".chat-send-btn");
     const attachBtn = document.querySelector(".chat-attach-btn");
@@ -225,7 +242,7 @@ function initCertFlow() {
       if (!txt) return;
       try {
         await addDoc(collection(db, "cert_orders", orderId, "messages"), {
-          sender: "user",
+          sender: auth.currentUser.uid,
           text: txt,
           timestamp: serverTimestamp()
         });
@@ -236,6 +253,9 @@ function initCertFlow() {
       }
     }
 
+    // ------------------------------------------------
+    // 📎 Отправка файла
+    // ------------------------------------------------
     const hiddenFile = Object.assign(document.createElement("input"), { type: "file", style: "display:none" });
     document.body.appendChild(hiddenFile);
 
@@ -247,8 +267,9 @@ function initCertFlow() {
         const refPath = ref(storage, `cert_chats/${orderId}/${Date.now()}_${file.name}`);
         await uploadBytes(refPath, file);
         const url = await getDownloadURL(refPath);
+
         await addDoc(collection(db, "cert_orders", orderId, "messages"), {
-          sender: "user",
+          sender: auth.currentUser.uid,
           fileUrl: url,
           fileName: file.name,
           mime: file.type,
