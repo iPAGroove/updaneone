@@ -264,25 +264,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       try {
-        const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
-        const snap = await getDoc(orderRef);
+  // 🔥 теперь создаём чат в коллекции support_orders
+  const chatRef = doc(db, "support_orders", `support_${user.uid}`);
+  const chatSnap = await getDoc(chatRef);
 
-        if (!snap.exists()) {
-          await setDoc(orderRef, {
-            uid: user.uid,
-            email: user.email || null,
-            status: "open",
-            type: "support",
-            createdAt: new Date().toISOString(),
-          });
-        }
-
-        window.location.assign(`./support.html?uid=${user.uid}`);
-      } catch (err) {
-        console.error("Ошибка перехода в чат:", err);
-      }
+  if (!chatSnap.exists()) {
+    await setDoc(chatRef, {
+      uid: user.uid,
+      email: user.email || null,
+      status: "open",
+      type: "support",
+      createdAt: new Date().toISOString(),
     });
+    console.log("✅ Новый чат поддержки создан:", `support_${user.uid}`);
+  } else {
+    console.log("ℹ️ Чат поддержки уже существует:", `support_${user.uid}`);
   }
+
+  // ✅ теперь переходим в реальный support.html
+  window.location.assign(`./support.html?uid=${user.uid}`);
+} catch (err) {
+  console.error("Ошибка перехода в чат поддержки:", err);
+  alert("⚠️ Не удалось открыть чат поддержки.");
+}
 
   // ===============================
   // Авторизация Email
