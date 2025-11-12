@@ -1,18 +1,24 @@
 /* FULL SCREEN MENU MODAL */
 .menu-overlay {
-    position: fixed; inset: 0;
+    position: fixed;
+    inset: 0;
     background: rgba(0,0,0,0.95);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    z-index: 10000; /* 💡 ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ: Максимальный Z-index, чтобы меню было видно поверх абсолютно всего, даже поверх .tabbar (z-index: 9999) */
+    z-index: 10000;
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 0;
-    pointer-events: none;
-    transition: opacity .3s ease;
+    visibility: hidden;
+    transition: opacity .35s ease, visibility .35s ease;
+    will-change: opacity;
 }
-.menu-overlay.visible { opacity: 1; pointer-events: all; }
+.menu-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
 
 .menu-content {
     width: 100%;
