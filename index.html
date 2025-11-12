@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="assets/css/menu.css?v=7" />
 </head>
 
-<body>
+<body ontouchstart="">
 
   <!-- HEADER -->
   <header class="topbar">
@@ -31,7 +31,6 @@
   <main>
     <div class="wrap">
       <div id="catalog" class="catalog" role="list">
-
         <section class="collection-row">
           <h2 class="collection-title">Popular</h2>
           <div class="card-carousel"></div>
@@ -49,7 +48,6 @@
           <div class="card-carousel"></div>
           <button class="view-all-btn">Смотреть все</button>
         </section>
-
       </div>
     </div>
   </main>
@@ -150,7 +148,11 @@
       <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
       <button class="btn menu-action-btn change-lang-btn">Сменить язык</button>
       <button class="btn menu-action-btn about-us-btn">О нас</button>
-      <button type="button" class="btn menu-action-btn support-chat-btn">Чат поддержки</button>
+
+      <!-- ✅ Исправленная iOS-кнопка -->
+      <div role="button" tabindex="0" class="btn menu-action-btn support-chat-btn" style="cursor:pointer;">
+        Чат поддержки
+      </div>
     </div>
   </div>
 
@@ -179,13 +181,10 @@
 
       <label class="auth-label">Файл .p12</label>
       <input type="file" id="cert-p12" accept=".p12" class="auth-input">
-
       <label class="auth-label">Файл .mobileprovision</label>
       <input type="file" id="cert-mobileprovision" accept=".mobileprovision" class="auth-input">
-
       <label class="auth-label">Пароль для .p12 (если есть)</label>
       <input type="password" id="cert-password" placeholder="Пароль (необязательно)" class="auth-input">
-
       <button class="email-login-btn" id="cert-import-btn">Импортировать</button>
     </div>
   </div>
@@ -213,5 +212,10 @@
   <script type="module" src="assets/js/search.js?v=7"></script>
   <script type="module" src="assets/js/menu.js?v=7"></script>
   <script type="module" src="assets/js/signer.js?v=7"></script>
+
+  <!-- Safari touch init -->
+  <script>
+    document.addEventListener('touchstart', () => { }, { passive: true });
+  </script>
 </body>
 </html>
