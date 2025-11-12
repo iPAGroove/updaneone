@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "./about.html";
   });
 
-  // ✅ Чат поддержки
+  // ✅ Чат поддержки (исправлено)
   const supportBtn = document.querySelector(".support-chat-btn");
   if (supportBtn) {
     supportBtn.addEventListener("click", async (e) => {
@@ -249,7 +249,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
-        const snap = await getDoc(orderRef);
+        let snap;
+        try {
+          snap = await getDoc(orderRef);
+        } catch {
+          // если getDoc запрещён — просто создаём
+          await setDoc(orderRef, {
+            uid: user.uid,
+            email: user.email || null,
+            status: "open",
+            type: "support",
+            createdAt: new Date().toISOString(),
+          });
+          snap = { exists: () => true };
+        }
+
         if (!snap.exists()) {
           await setDoc(orderRef, {
             uid: user.uid,
@@ -259,6 +273,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             createdAt: new Date().toISOString(),
           });
         }
+
         window.location.assign(`./support.html?uid=${user.uid}`);
       } catch (err) {
         console.error("Ошибка перехода в чат:", err);
