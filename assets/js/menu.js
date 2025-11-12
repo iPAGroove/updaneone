@@ -5,7 +5,6 @@
 // + Переход на покупку сертификата
 // + Переход в "О нас"
 // + Переход в "Чат поддержки"
-// + Автоматическое восстановление сертификата при входе
 // ===============================
 
 import {
@@ -23,7 +22,7 @@ import {
   doc,
   setDoc,
   getDoc,
-  // ✅ Добавлен deleteDoc для удаления из Firestore
+  // ✅ ДОБАВЛЕНО: Для удаления сертификата из Firestore
   deleteDoc, 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import {
@@ -78,7 +77,7 @@ async function parseMobileProvision(file) {
 }
 
 // ===============================
-// 📌 Отображение сертификата (ОБНОВЛЕНО)
+// 📌 Отображение сертификата
 // ===============================
 function renderCertificateBlock() {
   const card = document.querySelector(".certificate-card");
@@ -86,9 +85,9 @@ function renderCertificateBlock() {
   const expiry = localStorage.getItem("ursa_cert_exp");
   const isLoggedIn = !!auth.currentUser;
 
-  // ✅ Убрана кнопка "Купить сертификат"
   const showAddButton = isLoggedIn
-    ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
+    ? `<button class="btn add-cert-btn">Добавить сертификат</button>
+       <button class="btn buy-cert-btn neon">Купить сертификат</button>`
     : `<p class="cert-info-placeholder">Для управления сертификатом необходимо войти.</p>`;
 
   if (!udid) {
@@ -101,14 +100,14 @@ function renderCertificateBlock() {
   const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
 
   card.innerHTML = `
-            <p><strong>UDID:</strong></p>
-      <div style="overflow-x: scroll; white-space: nowrap; font-size: 13px; opacity: 0.85; margin-bottom: 8px;">
-        ${udid}
-      </div>
-      <p style="margin-top: 0;"><strong>Действует до:</strong> ${expiry}</p>
-      <p style="font-weight:600;color:${statusColor}; margin-bottom: 12px;">Статус: ${status}</p>
+      <p><strong>ID Профиля:</strong> ${
+        udid.length > 30 ? udid.substring(0, 8) + "..." : udid
+      }</p>
+      <p><strong>Действует до:</strong> ${expiry}</p>
+      <p style="font-weight:600;color:${statusColor};">Статус: ${status}</p>
       <button class="btn delete-cert-btn">Удалить сертификат</button>
-        `;
+      <button class="btn buy-cert-btn neon">Купить новый сертификат</button>
+  `;
 }
 
 // ===============================
@@ -167,12 +166,14 @@ async function importCertificate() {
 }
 
 // ===============================
-// Меню
+// Открытие / закрытие меню
 // ===============================
 function openMenu() {
   const overlay = document.getElementById("menu-modal");
   overlay.classList.add("visible");
   document.body.classList.add("modal-open");
+  overlay.style.transform = "translateZ(0)";
+  requestAnimationFrame(() => (overlay.style.transform = ""));
 }
 function closeMenu() {
   document.getElementById("menu-modal").classList.remove("visible");
@@ -180,7 +181,7 @@ function closeMenu() {
 }
 
 // ===============================
-// Инициализация
+// Основная инициализация (ОБНОВЛЕНО: Удаление сертификата)
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -204,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("cert-import-btn")?.addEventListener("click", importCertificate);
 
-  document.body.addEventListener("click", async (e) => {
+  document.body.addEventListener("click", async (e) => { // ✅ Добавлено async
     if (e.target.classList.contains("add-cert-btn"))
       document.getElementById("cert-modal").classList.add("visible");
 
@@ -232,7 +233,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // === Переходы ===
-  // ✅ Кнопка "Купить новый сертификат" была удалена из UI, но логика перехода оставлена
   document.body.addEventListener("click", (e) => {
     if (e.target.classList.contains("buy-cert-btn")) {
       closeMenu();
@@ -250,7 +250,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "./about.html";
   });
 
-  // ✅ Чат поддержки
+  // ✅ Чат поддержки (исправлено)
   const supportBtn = document.querySelector(".support-chat-btn");
   if (supportBtn) {
     supportBtn.addEventListener("click", async (e) => {
@@ -266,7 +266,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
-        const snap = await getDoc(orderRef);
+        let snap;
+        try {
+          snap = await getDoc(orderRef);
+        } catch {
+          // если getDoc запрещён — просто создаём
+          await setDoc(orderRef, {
+            uid: user.uid,
+            email: user.email || null,
+            status: "open",
+            type: "support",
+            createdAt: new Date().toISOString(),
+          });
+          snap = { exists: () => true };
+        }
 
         if (!snap.exists()) {
           await setDoc(orderRef, {
@@ -332,7 +345,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ===============================
-  // FREE / VIP статус + восстановление сертификата
+  // FREE / VIP статус пользователя (ОБНОВЛЕНО: Загрузка сертификата)
   // ===============================
   onUserChanged(async (user) => {
     if (!user) {
@@ -361,34 +374,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       localStorage.setItem("ursa_user_status", snap.data().status || "free");
     }
 
+    // ✅ ДОБАВЛЕНО: Проверка и автоматическая загрузка сертификата
+    const signerRef = doc(db, "ursa_signers", user.uid);
+    const signerSnap = await getDoc(signerRef);
+
+    if (signerSnap.exists()) {
+        const signerData = signerSnap.data();
+        localStorage.setItem("ursa_cert_udid", signerData.udid || "");
+        localStorage.setItem("ursa_cert_exp", signerData.expires || "");
+        localStorage.setItem("ursa_signer_id", user.uid);
+    } else {
+        // Если записи в DB нет, удаляем локальные данные (чистка)
+        localStorage.removeItem("ursa_cert_udid");
+        localStorage.removeItem("ursa_cert_exp");
+        localStorage.removeItem("ursa_signer_id");
+    }
+    // КОНЕЦ ДОБАВЛЕНО
+
     document.getElementById("user-nickname").textContent =
       snap.data()?.name || user.email || "Пользователь";
     document.getElementById("user-avatar").src =
       snap.data()?.photo ||
       user.photoURL ||
       "https://placehold.co/100x100/121722/00b3ff?text=User";
-
-    // 🔄 Автоматическое восстановление сертификата
-    try {
-      const signerRef = doc(db, "ursa_signers", user.uid);
-      const signerSnap = await getDoc(signerRef);
-      if (signerSnap.exists()) {
-        const data = signerSnap.data();
-        if (data.udid && data.expires) {
-          localStorage.setItem("ursa_cert_udid", data.udid);
-          localStorage.setItem("ursa_cert_exp", data.expires);
-          localStorage.setItem("ursa_signer_id", user.uid); // Также восстанавливаем signer_id
-          console.log("✅ Сертификат восстановлен из Firestore");
-        }
-      } else {
-        // Если записи в DB нет, удаляем локальные данные (чистка, как в предыдущем шаге)
-        localStorage.removeItem("ursa_cert_udid");
-        localStorage.removeItem("ursa_cert_exp");
-        localStorage.removeItem("ursa_signer_id");
-      }
-    } catch (err) {
-      console.warn("⚠️ Не удалось восстановить сертификат:", err);
-    }
 
     renderCertificateBlock();
   });
