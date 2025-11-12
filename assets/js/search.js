@@ -1,7 +1,6 @@
 // assets/js/search.js
 import { appsData } from "./app.js";
 import { openModal } from "./modal.js";
-import { currentLang, getTranslation } from "./i18n.js"; // 🚀 ИМПОРТ
 
 const searchBtn = document.getElementById("search-btn");
 const overlay = document.getElementById("search-modal");
@@ -10,18 +9,9 @@ const results = document.getElementById("search-results");
 const hint = document.querySelector(".search-hint");
 
 // ===============================
-// 🔄 Обновление статических текстов
-// ===============================
-function updateSearchTexts() {
-    input.setAttribute("placeholder", getTranslation('searchPlaceholder'));
-    hint.textContent = getTranslation('searchHint');
-}
-
-// ===============================
 // Открытие
 // ===============================
 searchBtn.addEventListener("click", () => {
-    updateSearchTexts(); // 🚀 Обновляем тексты при открытии
     overlay.classList.add("visible");
     document.body.classList.add("modal-open");
     input.focus();
@@ -60,7 +50,7 @@ document.getElementById("tabbar")?.addEventListener("click", (e) => {
 });
 
 // ===============================
-// Поиск (с поддержкой 2-х языков)
+// Поиск
 // ===============================
 input.addEventListener("input", () => {
     const q = input.value.toLowerCase().trim();
@@ -72,13 +62,10 @@ input.addEventListener("input", () => {
     }
     hint.style.display = "none";
 
-    // 🚀 Поиск по всем языковым полям (ru/en)
     const filtered = appsData.filter(app =>
         app.title.toLowerCase().includes(q) ||
-        (app.desc_ru || "").toLowerCase().includes(q) || // Ищем в русском описании
-        (app.desc_en || "").toLowerCase().includes(q) || // Ищем в английском описании
-        (app.features_ru || "").toLowerCase().includes(q) || // Ищем в русских фичах
-        (app.features_en || "").toLowerCase().includes(q)    // Ищем в английских фичах
+        (app.desc || "").toLowerCase().includes(q) ||
+        (app.features || "").toLowerCase().includes(q)
     );
 
     filtered.forEach(app => {
@@ -95,6 +82,3 @@ input.addEventListener("input", () => {
         results.appendChild(div);
     });
 });
-
-// 🚀 Слушатель на смену языка для обновления текстов, если поиск не активен
-window.addEventListener('langChange', updateSearchTexts);

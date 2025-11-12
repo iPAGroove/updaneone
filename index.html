@@ -2,207 +2,222 @@
 <html lang="ru">
 
 <head>
-    <meta charset="utf-8" />
-    <title data-i18n="pageTitle">URSA IPA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+  <meta charset="utf-8" />
+  <title>URSA IPA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" href="assets/css/core.css?v=7" />
-    <link rel="stylesheet" href="assets/css/header.css?v=7" />
-    <link rel="stylesheet" href="assets/css/navigation.css?v=7" />
-    <link rel="stylesheet" href="assets/css/catalog.css?v=7" />
-    <link rel="stylesheet" href="assets/css/modal.css?v=7" />
-    <link rel="stylesheet" href="assets/css/all-catalog.css?v=7" />
-    <link rel="stylesheet" href="assets/css/search.css?v=7" />
-    <link rel="stylesheet" href="assets/css/menu.css?v=7" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="assets/css/core.css?v=7" />
+  <link rel="stylesheet" href="assets/css/header.css?v=7" />
+  <link rel="stylesheet" href="assets/css/navigation.css?v=7" />
+  <link rel="stylesheet" href="assets/css/catalog.css?v=7" />
+  <link rel="stylesheet" href="assets/css/modal.css?v=7" />
+  <link rel="stylesheet" href="assets/css/all-catalog.css?v=7" />
+  <link rel="stylesheet" href="assets/css/search.css?v=7" />
+  <link rel="stylesheet" href="assets/css/menu.css?v=7" />
 </head>
 
 <body ontouchstart="">
 
-    <header class="topbar">
-        <div class="wrap">
-            <div class="brand"><span data-i18n="brandName">URSA IPA</span></div>
-        </div>
-    </header>
-
-    <main>
-        <div class="wrap">
-            <div id="catalog" class="catalog" role="list">
-                <section class="collection-row">
-                    <h2 class="collection-title" data-i18n="popularTitle">Popular</h2>
-                    <div class="card-carousel"></div>
-                    <button class="view-all-btn" data-i18n="viewAllBtn">Смотреть все</button>
-                </section>
-
-                <section class="collection-row">
-                    <h2 class="collection-title" data-i18n="updateTitle">Update</h2>
-                    <div class="card-carousel"></div>
-                    <button class="view-all-btn" data-i18n="viewAllBtn">Смотреть все</button>
-                </section>
-
-                <section class="collection-row">
-                    <h2 class="collection-title" data-i18n="vipTitle">VIP</h2>
-                    <div class="card-carousel"></div>
-                    <button class="view-all-btn" data-i18n="viewAllBtn">Смотреть все</button>
-                </section>
-            </div>
-        </div>
-    </main>
-
-    <nav class="tabbar" id="tabbar" role="tablist">
-        <div class="newdock">
-            <button class="nav-btn active" data-tab="apps">📱</button>
-            <button class="nav-btn" data-tab="games">🎮</button>
-            <button class="nav-btn" id="search-btn">🔍</button>
-            <button class="nav-btn" id="menu-btn">☰</button>
-        </div>
-    </nav>
-
-    <div class="modal-overlay" id="app-modal">
-        <div class="modal-content">
-            <button class="modal-close-btn" data-action="close">✕</button>
-
-            <div class="modal-header-new">
-                <img id="modal-icon" class="modal-icon" src="" alt="">
-                <div class="modal-info-col">
-                    <h3 id="modal-title" class="modal-app-title" data-i18n="modalTitlePlaceholder">Название</h3>
-                    <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank" data-i18n="installBtn">Установить</a>
-
-                    <div id="dl-buttons-row" class="install-progress-container" style="display:none;">
-                        <div class="progress-header">
-                            <span class="progress-text" data-i18n="installWaitServer">Ожидание…</span>
-                            <span class="progress-percent">0%</span>
-                        </div>
-                        <div class="progress-bar-wrap">
-                            <div class="progress-bar-fill" style="width:0%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-metadata-new">
-                <p data-i18n="versionLabel">Версия<strong><span id="modal-version">N/A</span></strong></p>
-                <p data-i18n="sizeLabel">Размер<strong><span id="modal-size">N/A</span></strong></p>
-                <p data-i18n="uploadedLabel">Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
-            </div>
-
-            <div class="modal-features-new">
-                <h4 data-i18n="featuresTitle">ФУНКЦИИ МОДА</h4>
-                <pre id="modal-features"></pre>
-            </div>
-
-            <div class="modal-description-new">
-                <p id="modal-desc"></p>
-            </div>
-        </div>
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand"><span>URSA IPA</span></div>
     </div>
+  </header>
 
-    <div class="all-list-overlay" id="all-catalog-modal">
-        <div class="all-list-content">
-            <button class="all-close-btn" data-action="close-list">✕</button>
-            <h2 id="all-list-title" data-i18n="catalogTitle">Каталог</h2>
-            <div id="all-list-container" class="all-list-scroll"></div>
-        </div>
+  <!-- MAIN -->
+  <main>
+    <div class="wrap">
+      <div id="catalog" class="catalog" role="list">
+        <section class="collection-row">
+          <h2 class="collection-title">Popular</h2>
+          <div class="card-carousel"></div>
+          <button class="view-all-btn">Смотреть все</button>
+        </section>
+
+        <section class="collection-row">
+          <h2 class="collection-title">Update</h2>
+          <div class="card-carousel"></div>
+          <button class="view-all-btn">Смотреть все</button>
+        </section>
+
+        <section class="collection-row">
+          <h2 class="collection-title">VIP</h2>
+          <div class="card-carousel"></div>
+          <button class="view-all-btn">Смотреть все</button>
+        </section>
+      </div>
     </div>
+  </main>
 
-    <div class="search-overlay" id="search-modal">
-        <div class="search-content">
-            <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Поиск приложений..." autocomplete="off">
-            <p class="search-hint" data-i18n="searchHint">Нажмите вне поиска, чтобы закрыть</p>
-            <div id="search-results" class="search-results"></div>
-        </div>
+  <!-- TABBAR -->
+  <nav class="tabbar" id="tabbar" role="tablist">
+    <div class="newdock">
+      <button class="nav-btn active" data-tab="apps">📱</button>
+      <button class="nav-btn" data-tab="games">🎮</button>
+      <button class="nav-btn" id="search-btn">🔍</button>
+      <button class="nav-btn" id="menu-btn">☰</button>
     </div>
+  </nav>
 
-    <div class="menu-overlay" id="menu-modal">
-        <div class="menu-content">
-            <button class="menu-close-btn" data-action="close-menu">←</button>
+  <!-- APP MODAL -->
+  <div class="modal-overlay" id="app-modal">
+    <div class="modal-content">
+      <button class="modal-close-btn" data-action="close">✕</button>
 
-            <div class="user-profile">
-                <img id="user-avatar" src="https://placehold.co/100x100/121722/00b3ff?text=User" class="avatar" alt="">
-                <h3 id="user-nickname" class="nickname" data-i18n="guestNickname">Гость</h3>
-                <p id="user-status" class="user-status">Free</p>
+      <div class="modal-header-new">
+        <img id="modal-icon" class="modal-icon" src="" alt="">
+        <div class="modal-info-col">
+          <h3 id="modal-title" class="modal-app-title">Название</h3>
+          <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
+
+          <div id="dl-buttons-row" class="install-progress-container" style="display:none;">
+            <div class="progress-header">
+              <span class="progress-text">Ожидание…</span>
+              <span class="progress-percent">0%</span>
             </div>
-
-            <div class="login-options">
-                <p class="login-prompt" data-i18n="loginPrompt">Войти через:</p>
-                <div class="login-buttons">
-                    <button class="auth-btn google-auth" title="Google">G</button>
-                    <button class="auth-btn facebook-auth" title="Facebook">f</button>
-                    <button class="auth-btn email-auth" title="Email">✉️</button>
-                </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" style="width:0%;"></div>
             </div>
-
-            <div class="certificate-card">
-                <p class="cert-info-placeholder" data-i18n="certPlaceholder">Данные о сертификате будут здесь</p>
-                <button class="btn add-cert-btn" data-i18n="addCertBtn">Добавить сертификат</button>
-            </div>
-
-            <button class="btn menu-action-btn select-plan-btn" data-i18n="selectPlanBtn">Выбрать план</button>
-            <button class="btn menu-action-btn buy-cert-btn" data-i18n="buyCertBtn">Купить сертификат</button>
-            <button class="btn menu-action-btn change-lang-btn" data-i18n="changeLangBtn">Сменить язык</button>
-            <button class="btn menu-action-btn about-us-btn" data-i18n="aboutUsBtn">О нас</button>
-
-            <div role="button" tabindex="0" class="btn menu-action-btn support-chat-btn" style="cursor:pointer;" data-i18n="supportChatBtn">
-                Чат поддержки
-            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="modal-metadata-new">
+        <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
+        <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
+        <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+      </div>
+
+      <div class="modal-features-new">
+        <h4>ФУНКЦИИ МОДА</h4>
+        <pre id="modal-features"></pre>
+      </div>
+
+      <div class="modal-description-new">
+        <p id="modal-desc"></p>
+      </div>
     </div>
+  </div>
 
-    <div id="email-modal" class="email-auth-overlay">
-        <div class="email-modal-content">
-            <button class="menu-close-btn" data-action="close-email">←</button>
-            <h2 class="email-title" data-i18n="loginRegisterTitle">Вход / Регистрация</h2>
+  <!-- ALL CATALOG -->
+  <div class="all-list-overlay" id="all-catalog-modal">
+    <div class="all-list-content">
+      <button class="all-close-btn" data-action="close-list">✕</button>
+      <h2 id="all-list-title">Каталог</h2>
+      <div id="all-list-container" class="all-list-scroll"></div>
+    </div>
+  </div>
 
-            <input type="text" id="email-input" placeholder="Email" class="auth-input"
-                autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-            <input type="password" id="password-input" placeholder="Пароль" class="auth-input"
-                autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false">
+  <!-- SEARCH -->
+  <div class="search-overlay" id="search-modal">
+    <div class="search-content">
+      <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
+      <p class="search-hint">Нажмите вне поиска, чтобы закрыть</p>
+      <div id="search-results" class="search-results"></div>
+    </div>
+  </div>
 
-            <button class="email-login-btn" id="email-login-btn" data-i18n="loginBtn">Войти</button>
-            <button class="email-register-btn" id="email-register-btn" data-i18n="registerBtn">Создать аккаунт</button>
-            <button class="email-reset-btn" id="email-reset-btn" data-i18n="forgotPassBtn">Забыли пароль?</button>
+  <!-- MENU -->
+  <div class="menu-overlay" id="menu-modal">
+    <div class="menu-content">
+      <button class="menu-close-btn" data-action="close-menu">←</button>
+
+      <div class="user-profile">
+        <img id="user-avatar" src="https://placehold.co/100x100/121722/00b3ff?text=User" class="avatar" alt="">
+        <h3 id="user-nickname" class="nickname">Гость</h3>
+        <!-- ✅ Новый блок статуса -->
+        <p id="user-status" class="user-status">Free</p>
+      </div>
+
+      <div class="login-options">
+        <p class="login-prompt">Войти через:</p>
+        <div class="login-buttons">
+          <button class="auth-btn google-auth" title="Google">G</button>
+          <button class="auth-btn facebook-auth" title="Facebook">f</button>
+          <button class="auth-btn email-auth" title="Email">✉️</button>
         </div>
+      </div>
+
+      <div class="certificate-card">
+        <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
+        <button class="btn add-cert-btn">Добавить сертификат</button>
+      </div>
+
+      <button class="btn menu-action-btn select-plan-btn">Выбрать план</button>
+      <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
+      <button class="btn menu-action-btn change-lang-btn">Сменить язык</button>
+      <button class="btn menu-action-btn about-us-btn">О нас</button>
+
+      <!-- ✅ iOS-совместимая кнопка -->
+      <div role="button" tabindex="0" class="btn menu-action-btn support-chat-btn" style="cursor:pointer;">
+        Чат поддержки
+      </div>
     </div>
+  </div>
 
-    <div id="cert-modal" class="email-auth-overlay">
-        <div class="email-modal-content">
-            <button class="menu-close-btn" data-action="close-cert">←</button>
-            <h2 class="email-title" data-i18n="importCertTitle">Импорт сертификата</h2>
+  <!-- EMAIL LOGIN -->
+  <div id="email-modal" class="email-auth-overlay">
+    <div class="email-modal-content">
+      <button class="menu-close-btn" data-action="close-email">←</button>
+      <h2 class="email-title">Вход / Регистрация</h2>
 
-            <label class="auth-label">Файл .p12</label>
-            <input type="file" id="cert-p12" accept=".p12" class="auth-input">
-            <label class="auth-label">Файл .mobileprovision</label>
-            <input type="file" id="cert-mobileprovision" accept=".mobileprovision" class="auth-input">
-            <label class="auth-label" data-i18n="certPassLabel">Пароль для .p12 (если есть)</label>
-            <input type="password" id="cert-password" data-i18n-placeholder="certPassPlaceholder" placeholder="Пароль (необязательно)" class="auth-input">
-            <button class="email-login-btn" id="cert-import-btn" data-i18n="importBtn">Импортировать</button>
-        </div>
+      <input type="text" id="email-input" placeholder="Email" class="auth-input"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <input type="password" id="password-input" placeholder="Пароль" class="auth-input"
+        autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false">
+
+      <button class="email-login-btn" id="email-login-btn">Войти</button>
+      <button class="email-register-btn" id="email-register-btn">Создать аккаунт</button>
+      <button class="email-reset-btn" id="email-reset-btn">Забыли пароль?</button>
     </div>
+  </div>
 
-    <div class="install-overlay" id="install-modal">
-        <div class="install-box">
-            <div class="install-spinner"></div>
-            <h3 id="install-title" data-i18n="installPrepare">Подготовка…</h3>
-            <p id="install-subtext" data-i18n="installWaitServer">Ожидание сервера…</p>
-            <div class="install-progress-wrap">
-                <div class="install-progress-fill" id="install-progress-fill" style="width: 5%;"></div>
-            </div>
-            <span id="install-percent" class="install-percent">5%</span>
-        </div>
+  <!-- CERT IMPORT -->
+  <div id="cert-modal" class="email-auth-overlay">
+    <div class="email-modal-content">
+      <button class="menu-close-btn" data-action="close-cert">←</button>
+      <h2 class="email-title">Импорт сертификата</h2>
+
+      <label class="auth-label">Файл .p12</label>
+      <input type="file" id="cert-p12" accept=".p12" class="auth-input">
+      <label class="auth-label">Файл .mobileprovision</label>
+      <input type="file" id="cert-mobileprovision" accept=".mobileprovision" class="auth-input">
+      <label class="auth-label">Пароль для .p12 (если есть)</label>
+      <input type="password" id="cert-password" placeholder="Пароль (необязательно)" class="auth-input">
+      <button class="email-login-btn" id="cert-import-btn">Импортировать</button>
     </div>
+  </div>
 
-    <script type="module" src="assets/js/i18n.js?v=7"></script> <script type="module" src="assets/js/app.js?v=7"></script>
-    <script type="module" src="assets/js/firebase/auth.js?v=7"></script>
-    <script type="module" src="assets/js/firebase/user.js?v=7"></script>
-    <script type="module" src="assets/js/navigation.js?v=7"></script>
-    <script type="module" src="assets/js/modal.js?v=7"></script>
-    <script type="module" src="assets/js/all-catalog.js?v=7"></script>
-    <script type="module" src="assets/js/search.js?v=7"></script>
-    <script type="module" src="assets/js/menu.js?v=7"></script>
-    <script type="module" src="assets/js/signer.js?v=7"></script>
+  <!-- INSTALL MODAL -->
+  <div class="install-overlay" id="install-modal">
+    <div class="install-box">
+      <div class="install-spinner"></div>
+      <h3 id="install-title">Подготовка…</h3>
+      <p id="install-subtext">Ожидание сервера…</p>
+      <div class="install-progress-wrap">
+        <div class="install-progress-fill" id="install-progress-fill" style="width: 5%;"></div>
+      </div>
+      <span id="install-percent" class="install-percent">5%</span>
+    </div>
+  </div>
 
-    <script>
-        document.addEventListener('touchstart', () => { }, { passive: true });
-    </script>
+  <!-- SCRIPTS -->
+  <script type="module" src="assets/js/app.js?v=7"></script>
+  <script type="module" src="assets/js/firebase/auth.js?v=7"></script>
+  <script type="module" src="assets/js/firebase/user.js?v=7"></script>
+  <script type="module" src="assets/js/navigation.js?v=7"></script>
+  <script type="module" src="assets/js/modal.js?v=7"></script>
+  <script type="module" src="assets/js/all-catalog.js?v=7"></script>
+  <script type="module" src="assets/js/search.js?v=7"></script>
+  <script type="module" src="assets/js/menu.js?v=7"></script>
+  <script type="module" src="assets/js/signer.js?v=7"></script>
+
+  <!-- Safari touch init -->
+  <script>
+    document.addEventListener('touchstart', () => { }, { passive: true });
+  </script>
 </body>
 </html>
