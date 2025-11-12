@@ -5,6 +5,7 @@
 // + Переход на покупку сертификата
 // + Переход в "О нас"
 // + Переход в "Чат поддержки"
+// + Автоматическое восстановление сертификата при входе
 // ===============================
 
 import {
@@ -164,14 +165,12 @@ async function importCertificate() {
 }
 
 // ===============================
-// Открытие / закрытие меню
+// Меню
 // ===============================
 function openMenu() {
   const overlay = document.getElementById("menu-modal");
   overlay.classList.add("visible");
   document.body.classList.add("modal-open");
-  overlay.style.transform = "translateZ(0)";
-  requestAnimationFrame(() => (overlay.style.transform = ""));
 }
 function closeMenu() {
   document.getElementById("menu-modal").classList.remove("visible");
@@ -179,7 +178,7 @@ function closeMenu() {
 }
 
 // ===============================
-// Основная инициализация
+// Инициализация
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -233,7 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "./about.html";
   });
 
-  // ✅ Чат поддержки (исправлено)
+  // ✅ Чат поддержки
   const supportBtn = document.querySelector(".support-chat-btn");
   if (supportBtn) {
     supportBtn.addEventListener("click", async (e) => {
@@ -249,20 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
-        let snap;
-        try {
-          snap = await getDoc(orderRef);
-        } catch {
-          // если getDoc запрещён — просто создаём
-          await setDoc(orderRef, {
-            uid: user.uid,
-            email: user.email || null,
-            status: "open",
-            type: "support",
-            createdAt: new Date().toISOString(),
-          });
-          snap = { exists: () => true };
-        }
+        const snap = await getDoc(orderRef);
 
         if (!snap.exists()) {
           await setDoc(orderRef, {
@@ -328,7 +314,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ===============================
-  // FREE / VIP статус пользователя
+  // FREE / VIP статус + восстановление сертификата
   // ===============================
   onUserChanged(async (user) => {
     if (!user) {
@@ -363,6 +349,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       snap.data()?.photo ||
       user.photoURL ||
       "https://placehold.co/100x100/121722/00b3ff?text=User";
+
+    // 🔄 Автоматическое восстановление сертификата
+    try {
+      const signerRef = doc(db, "ursa_signers", user.uid);
+      const signerSnap = await getDoc(signerRef);
+      if (signerSnap.exists()) {
+        const data = signerSnap.data();
+        if (data.udid && data.expires) {
+          localStorage.setItem("ursa_cert_udid", data.udid);
+          localStorage.setItem("ursa_cert_exp", data.expires);
+          console.log("✅ Сертификат восстановлен из Firestore");
+        }
+      }
+    } catch (err) {
+      console.warn("⚠️ Не удалось восстановить сертификат:", err);
+    }
 
     renderCertificateBlock();
   });
