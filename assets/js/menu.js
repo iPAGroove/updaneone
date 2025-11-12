@@ -30,6 +30,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+import { getTranslation, translatePage } from "./i18n.js"; // 🚀 ИМПОРТ
 
 const storage = getStorage();
 
@@ -76,7 +77,7 @@ async function parseMobileProvision(file) {
 }
 
 // ===============================
-// 📌 Отображение сертификата (компактная версия)
+// 📌 Отображение сертификата (компактная версия) - Обновлено для i18n
 // ===============================
 function renderCertificateBlock() {
   const card = document.querySelector(".certificate-card");
@@ -84,36 +85,44 @@ function renderCertificateBlock() {
   const expiry = localStorage.getItem("ursa_cert_exp");
   const isLoggedIn = !!auth.currentUser;
 
+  // 🚀 Используем переведенные тексты
+  const addCertText = getTranslation('addCertBtn');
+  const certRequiredText = getTranslation('certRequiredPrompt');
+  const deleteCertText = getTranslation('deleteCertBtn');
+
   const showAddButton = isLoggedIn
-    ? `<button class="btn add-cert-btn">Добавить сертификат</button>`
-    : `<p class="cert-info-placeholder">Для управления сертификатом необходимо войти.</p>`;
+    ? `<button class="btn add-cert-btn" data-i18n="addCertBtn">${addCertText}</button>`
+    : `<p class="cert-info-placeholder" data-i18n="certRequiredPrompt">${certRequiredText}</p>`;
 
   if (!udid) {
     card.innerHTML = `${showAddButton}`;
+    translatePage(); // Обновляем кнопки и плейсхолдеры в случае смены языка
     return;
   }
 
   const isExpired = new Date(expiry) < new Date();
-  const status = isExpired ? "❌ Отозван" : "✅ Активен";
+  // 🚀 Используем переведенные статусы
+  const status = isExpired ? getTranslation('certStatusExpired') : getTranslation('certStatusActive');
   const statusColor = isExpired ? "#ff6b6b" : "#00ff9d";
 
   card.innerHTML = `
     <div class="cert-info">
       <div class="cert-row">
-        <span class="cert-label">UDID:</span>
+        <span class="cert-label">${getTranslation('certInfoUdid')}</span>
         <span class="cert-value mono">${udid}</span>
       </div>
       <div class="cert-row">
-        <span class="cert-label">Действует до:</span>
+        <span class="cert-label">${getTranslation('certInfoExpires')}</span>
         <span class="cert-value">${expiry}</span>
       </div>
       <div class="cert-row">
-        <span class="cert-label">Статус:</span>
+        <span class="cert-label">${getTranslation('certInfoStatus')}</span>
         <span class="cert-value" style="color:${statusColor};font-weight:600;">${status}</span>
       </div>
     </div>
-    <button class="btn delete-cert-btn">Удалить сертификат</button>
+    <button class="btn delete-cert-btn" data-i18n="deleteCertBtn">${deleteCertText}</button>
   `;
+  translatePage(); // Обновляем кнопки в блоке
 }
 
 // ===============================
@@ -178,6 +187,8 @@ function openMenu() {
   const overlay = document.getElementById("menu-modal");
   overlay.classList.add("visible");
   document.body.classList.add("modal-open");
+  // 🚀 Обновляем статические тексты модалок перед открытием
+  translatePage();
 }
 function closeMenu() {
   document.getElementById("menu-modal").classList.remove("visible");
@@ -345,7 +356,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!user) {
       localStorage.setItem("ursa_user_status", "free");
-      document.getElementById("user-nickname").textContent = "Гость";
+      document.getElementById("user-nickname").textContent = getTranslation('guestNickname'); // 🚀 Перевод
       document.getElementById("user-avatar").src =
         "https://placehold.co/100x100/121722/00b3ff?text=User";
       if (statusElement) {
@@ -385,7 +396,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     document.getElementById("user-nickname").textContent =
-      snap.data()?.name || user.email || "Пользователь";
+      snap.data()?.name || user.email || getTranslation('guestNickname'); // 🚀 Перевод
     document.getElementById("user-avatar").src =
       snap.data()?.photo ||
       user.photoURL ||
@@ -412,4 +423,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderCertificateBlock();
   });
+});
+
+// 🚀 Добавляем слушатель на смену языка для обновления блока сертификата и модалок
+window.addEventListener('langChange', () => {
+    renderCertificateBlock();
+    // Переводим открытые модальные окна, если они есть
+    document.querySelectorAll('#email-modal, #cert-modal').forEach(modal => {
+        if (modal.classList.contains('visible')) {
+             translatePage();
+        }
+    });
 });
