@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>URSA Admin Panel — v4</title>   <meta name="theme-color" content="#0d1117" />
+  <title>URSA Admin Panel — v5 (Classic IPA View)</title>
+  <meta name="theme-color" content="#0d1117" />
   <meta name="color-scheme" content="dark" />
 
-    <link rel="stylesheet" href="assets/css/admin.css?v=3" />
+    <link rel="stylesheet" href="assets/css/admin.css?v=5" />
 </head>
 
 <body>
@@ -38,7 +39,7 @@
           <span class="ic" aria-hidden="true">📊</span>
           Дашборд
         </button>
-        <button class="side-link" data-view="apps" aria-controls="view-apps" aria-selected="false">
+        <button class="side-link active" data-view="apps" aria-controls="view-apps" aria-selected="true">
           <span class="ic" aria-hidden="true">📱</span>
           Приложения
         </button>
@@ -46,12 +47,12 @@
           <span class="ic" aria-hidden="true">👥</span>
           Пользователи
         </button>
-                <button class="side-link active" data-view="orders" aria-controls="view-orders" aria-selected="true">
+        <button class="side-link" data-view="orders" aria-controls="view-orders" aria-selected="false">
           <span class="ic" aria-hidden="true">💸</span>
           VIP Заявки
           <span id="orders-counter" class="pill" aria-label="Активных VIP заявок">0</span>
         </button>
-        <button class="side-link" data-view="cert-orders" aria-controls="view-cert-orders" aria-selected="false">
+        <button class="side-link" data-view="cert-orders" aria-controls="view-cert-orders" aria-selected="false">
           <span class="ic" aria-hidden="true">🔐</span>
           Cert Заявки
           <span id="cert-orders-counter" class="pill" aria-label="Активных заявок на сертификаты">0</span>
@@ -65,7 +66,7 @@
 
         <main class="main" role="main">
             <header class="topbar" role="banner">
-        <div class="crumbs" id="topbar-title">💸 VIP Заявки</div>
+        <div class="crumbs" id="topbar-title">📱 Каталог приложений</div>
         <div class="top-actions">
           <div class="kbd-hint" title="Нажмите / для поиска">/</div>
         </div>
@@ -75,54 +76,25 @@
                 <section id="view-dashboard" class="view" tabindex="0" aria-labelledby="dashboard-title">
           <h2 id="dashboard-title" class="sr-only">Общая статистика</h2>
           <div class="stats-grid">
-            <article class="stat-card" role="status" aria-live="polite">
-              <div class="stat-label">Всего приложений</div>
-              <div id="stat-apps" class="stat-value">0</div>
-            </article>
-            <article class="stat-card" role="status" aria-live="polite">
-              <div class="stat-label">VIP-пользователей</div>
-              <div id="stat-vip" class="stat-value">0</div>
-            </article>
-            <article class="stat-card" role="status" aria-live="polite">
-              <div class="stat-label">Активные заказы</div>
-              <div id="stat-orders" class="stat-value">0</div>
-            </article>
-            <article class="stat-card" role="status" aria-live="polite">
-              <div class="stat-label">UDID в базе</div>
-              <div id="stat-signers" class="stat-value">0</div>
-            </article>
+            <article class="stat-card" role="status" aria-live="polite"><div class="stat-label">Всего приложений</div><div id="stat-apps" class="stat-value">0</div></article>
+            <article class="stat-card" role="status" aria-live="polite"><div class="stat-label">VIP-пользователей</div><div id="stat-vip" class="stat-value">0</div></article>
+            <article class="stat-card" role="status" aria-live="polite"><div class="stat-label">Активные заказы</div><div id="stat-orders" class="stat-value">0</div></article>
+            <article class="stat-card" role="status" aria-live="polite"><div class="stat-label">UDID в базе</div><div id="stat-signers" class="stat-value">0</div></article>
           </div>
         </section>
 
-                <section id="view-apps" class="view" tabindex="0" aria-labelledby="apps-title">
-          <div class="view-head">
-            <h2 id="apps-title">Каталог приложений</h2>
-            <div class="view-actions">
-              <button id="add-app-btn" class="btn btn-ghost small">➕ Добавить</button>
-            </div>
+                <section id="view-apps" class="view active" tabindex="0" aria-labelledby="apps-title">
+          <h2 id="apps-title" class="sr-only">Каталог приложений</h2>
+          
+          <div class="admin-actions">
+            <button id="add-app-btn" class="btn btn-accent">+ Добавить IPA</button>
+            <input id="app-search" class="input" type="search" placeholder="Поиск по имени, bundleId, тегам…" inputmode="search" />
           </div>
-
-          <div class="filters">
-            <label class="sr-only" for="app-search">Поиск по названию</label>
-            <input id="app-search" class="input" type="search" placeholder="Поиск по названию…" inputmode="search" />
-            <select id="app-filter" class="select">
-              <option value="all">Все</option>
-              <option value="apps">Apps</option>
-              <option value="games">Games</option>
-              <option value="update">Update</option>
-              <option value="vip">VIP</option>
-            </select>
-          </div>
-
-          <div id="apps-grid" class="apps-grid" aria-busy="true" aria-live="polite"></div>
-          <div id="apps-skeleton" class="grid-skeleton">
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-          </div>
+          
+          <div id="apps-grid" class="cards" aria-busy="true" aria-live="polite">
+                      </div>
+          <div id="apps-skeleton" class="cards-skeleton">
+                      </div>
         </section>
 
                 <section id="view-users" class="view" tabindex="0" aria-labelledby="users-title">
@@ -130,86 +102,38 @@
             <h2 id="users-title">Пользователи</h2>
           </div>
 
-          <div class="filters">
-            <label class="sr-only" for="user-search">Поиск по Email/UID</label>
-            <input id="user-search" class="input" type="search" placeholder="Поиск по Email/UID…" inputmode="search" />
+          <div class="admin-actions">
+            <input id="user-search" class="input" type="search" placeholder="Поиск по Email, имени…" inputmode="search" />
           </div>
 
           <div class="table-wrap">
-            <table class="data-table" id="users-table">
+            <table class="user-table" id="users-table">
               <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>UID</th>
-                  <th>Статус</th>
-                  <th>Сертификат</th>
-                  <th>Действия</th>
-                </tr>
+                <tr><th>Email</th><th>Имя</th><th>UID</th><th>Статус</th><th>Действие</th></tr>
               </thead>
-              <tbody></tbody>
+              <tbody id="user-list"></tbody>
             </table>
           </div>
-
-          <div id="users-skeleton" class="list-skeleton">
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-          </div>
+          <div id="users-skeleton" class="list-skeleton"></div>
         </section>
 
-                <section id="view-orders" class="view active" tabindex="0" aria-labelledby="orders-title">
-          <div class="view-head">
-            <h2 id="orders-title">VIP Заявки</h2>
-            <div class="view-actions">
-              <select id="orders-status" class="select">
-                <option value="all">Все</option>
-                <option value="pending">Ожидает</option>
-                <option value="processing">В работе</option>
-                <option value="completed">Завершено</option>
-                <option value="canceled">Отменено</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="filters">
-            <input id="order-search" class="input" type="search" placeholder="Поиск по UID/Order ID…" inputmode="search" />
-          </div>
-
+                <section id="view-orders" class="view" tabindex="0" aria-labelledby="orders-title">
+          <div class="view-head"><h2 id="orders-title">VIP Заявки</h2><div class="view-actions">
+            <select id="orders-status" class="select small"><option value="all">Все</option><option value="pending">Ожидает</option><option value="processing">В работе</option><option value="completed">Завершено</option><option value="canceled">Отменено</option></select>
+          </div></div>
+          <div class="filters"><input id="order-search" class="input" type="search" placeholder="Поиск по UID/Order ID…" inputmode="search" /></div>
           <ul id="orders-list" class="orders-list" aria-live="polite"></ul>
-
-          <div id="orders-skeleton" class="list-skeleton">
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-          </div>
+          <div id="orders-skeleton" class="list-skeleton"></div>
         </section>
         
-        <section id="view-cert-orders" class="view" tabindex="0" aria-labelledby="cert-orders-title">
-          <div class="view-head">
-            <h2 id="cert-orders-title">🔐 Заявки на Сертификаты</h2>
-            <div class="view-actions">
-              <select id="cert-orders-status" class="select">
-                <option value="all">Все</option>
-                <option value="pending">Ожидает</option>
-                <option value="processing">В работе</option>
-                <option value="completed">Завершено</option>
-                <option value="canceled">Отменено</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="filters">
-            <input id="cert-order-search" class="input" type="search" placeholder="Поиск по UID/Order ID…" inputmode="search" />
-          </div>
-
-          <ul id="cert-orders-list" class="orders-list" aria-live="polite"></ul>
-
-          <div id="cert-orders-skeleton" class="list-skeleton">
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-          </div>
-        </section>
+                <section id="view-cert-orders" class="view" tabindex="0" aria-labelledby="cert-orders-title">
+          <div class="view-head"><h2 id="cert-orders-title">🔐 Заявки на Сертификаты</h2><div class="view-actions">
+            <select id="cert-orders-status" class="select small"><option value="all">Все</option><option value="pending">Ожидает</option><option value="processing">В работе</option><option value="completed">Завершено</option><option value="canceled">Отменено</option></select>
+          </div></div>
+          <div class="filters"><input id="cert-order-search" class="input" type="search" placeholder="Поиск по UID/Order ID…" inputmode="search" /></div>
+          <ul id="cert-orders-list" class="orders-list" aria-live="polite"></ul>
+          <div id="cert-orders-skeleton" class="list-skeleton"></div>
+        </section>
         
       </div>
     </main>
@@ -218,7 +142,8 @@
       <header class="chat-head">
         <div class="chat-title">
           <h3 id="chat-title">Заявка: <span id="chat-order-id">—</span></h3>
-          <div class="sub" id="chat-order-meta">Тип/Метод: — • UID: —</div>         </div>
+          <div class="sub" id="chat-order-meta">Тип/Метод: — • UID: —</div>
+        </div>
         <button id="chat-close" class="icon-btn" aria-label="Закрыть чат">✕</button>
       </header>
 
@@ -244,45 +169,87 @@
 </div>
 
 <div id="app-modal" class="modal" aria-hidden="true" aria-labelledby="app-modal-title" role="dialog">
+  <div class="backdrop" data-close></div>
   <div class="modal-card">
-    <button class="modal-close" data-action="close" aria-label="Закрыть">✕</button>
-    <h3 id="app-modal-title">Редактировать приложение</h3>
-    <form id="app-edit-form">
-      <input type="hidden" id="app-id" />
-
-      <label for="app-name">Название</label>
-      <input type="text" id="app-name" required autocomplete="off" />
-
-      <label for="app-version">Версия</label>
-      <input type="text" id="app-version" inputmode="text" autocomplete="off" />
-
-      <label for="app-url">Ссылка на IPA/DownloadUrl</label>
-      <input type="url" id="app-url" required inputmode="url" placeholder="https://…" />
-
-      <label for="app-icon">URL иконки (200×200)</label>
-      <input type="url" id="app-icon" inputmode="url" placeholder="https://…" />
-
-      <label for="app-tags">Теги (apps, games, update) через запятую</label>
-      <input type="text" id="app-tags" inputmode="text" placeholder="apps, games" />
-
-      <div class="checkbox-line">
-        <input type="checkbox" id="app-vip-only" />
-        <label for="app-vip-only">Только для VIP</label>
-      </div>
-
-      <label for="app-desc">Описание</label>
-      <textarea id="app-desc" placeholder="Короткое описание…"></textarea>
-
+    <header class="modal-head">
+      <strong id="modal-title">Добавить IPA</strong>
+      <button class="close" data-close>✕</button>
+    </header>
+    <form id="ipa-form" class="modal-body">
+      <input type="hidden" name="docId" id="app-id" />
+      <fieldset>
+        <legend>Основное</legend>
+        <div class="field-grid">
+          <label>Name <input type="text" name="name" required></label>
+          <label>Bundle ID <input type="text" name="bundleId" required></label>
+          <label>Version <input type="text" name="version" required></label>
+          <label>Minimal iOS <input type="text" name="minIOS"></label>
+          <label>Size (MB) <input type="number" name="sizeMB"></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Медиа</legend>
+        <label>Icon URL
+          <input type="url" name="iconUrl" id="iconUrl">
+          <img id="icon-preview" class="icon-preview" style="display:none;">
+        </label>
+        <label>Download URL <input type="url" name="downloadUrl" required></label>
+      </fieldset>
+      <fieldset>
+        <legend>Функции мода / Hack Features</legend>
+        <label>Features (RU) <textarea name="features_ru" placeholder="через запятую"></textarea></label>
+        <label>Features (EN) <textarea name="features_en" placeholder="comma separated"></textarea></label>
+      </fieldset>
+      <fieldset>
+        <legend>Категория</legend>
+        <div class="tag-buttons">
+          <button type="button" class="tag-btn" data-tag="games">Games</button>
+          <button type="button" class="tag-btn" data-tag="apps">Apps</button>
+        </div>
+        <input type="hidden" name="tag" />
+      </fieldset>
+      <fieldset>
+        <legend>VIP доступ</legend>
+        <label class="checkbox-line">
+          <input type="checkbox" name="vipOnly" id="vipOnly">
+          <span>Доступ только для VIP</span>
+        </label>
+      </fieldset>
       <div class="modal-actions">
-        <button type="submit" class="btn btn-accent">Сохранить</button>
-        <button type="button" class="btn btn-danger" id="app-delete-btn" style="display:none;">Удалить</button>
+        <button type="submit" class="btn btn-accent">💾 Сохранить</button>
+        <button type="button" class="btn btn-danger" id="app-delete-btn" style="display:none;">🗑 Удалить</button>
       </div>
     </form>
   </div>
 </div>
 
+<div id="user-modal" class="modal" aria-hidden="true" aria-labelledby="user-modal-title" role="dialog">
+  <div class="backdrop" data-close></div>
+  <div class="modal-card small">
+    <header class="modal-head">
+      <strong id="user-modal-title">Редактировать пользователя</strong>
+      <button class="close" data-close>✕</button>
+    </header>
+    <div class="modal-body">
+      <p><b>Email:</b> <span id="edit-user-email"></span></p>
+      <p><b>Имя:</b> <span id="edit-user-name"></span></p>
+      <label>Статус:
+        <select id="edit-user-status">
+          <option value="free">Free</option>
+          <option value="vip">VIP</option>
+        </select>
+      </label>
+      
+      <div class="modal-actions-user">
+        <button id="save-user-status" class="btn btn-accent">💾 Сохранить (Постоянно)</button>
+        <button type="button" id="save-user-vip-31" class="btn vip-btn">⭐ VIP на 31 день</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="sr-only" aria-hidden="true">.</div>
 
 <script type="module" src="assets/js/app.js?v=1"></script>
-<script type="module" src="assets/js/admin.js?v=4"></script> </body>
+<script type="module" src="assets/js/admin.js?v=5"></script>
+</body>
 </html>
