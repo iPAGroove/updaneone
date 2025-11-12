@@ -92,6 +92,28 @@
   letter-spacing: 1px;
 }
 
+/* ✅ USER STATUS */
+.user-status {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 5px;
+  color: #00e0ff;
+  background: rgba(0, 224, 255, 0.08);
+  border: 1px solid rgba(0, 224, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0, 224, 255, 0.25);
+  transition: all 0.3s ease;
+}
+.user-status.vip {
+  color: #ffeb3b;
+  background: rgba(255, 235, 59, 0.08);
+  border-color: rgba(255, 235, 59, 0.3);
+  box-shadow: 0 0 18px rgba(255, 235, 59, 0.35);
+}
+
 /* =====================================================
    2. LOGIN OPTIONS
    ===================================================== */
@@ -143,16 +165,15 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 18px 22px; /* чуть больше отступов */
+  padding: 18px 22px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   box-shadow: 0 0 18px rgba(0, 179, 255, 0.25);
   transition: 0.25s;
-  max-width: 440px; /* ✅ было 360px, теперь шире и визуально балансней */
+  max-width: 440px;
   margin: 0 auto;
 }
-
 .certificate-card:hover {
   border-color: var(--accent);
   box-shadow: 0 0 26px rgba(0, 179, 255, 0.45);
@@ -168,7 +189,6 @@
   border-radius: 12px;
   padding: 10px 14px;
 }
-
 .cert-row {
   display: flex;
   justify-content: space-between;
@@ -177,12 +197,10 @@
   color: var(--text);
   line-height: 1.45;
 }
-
 .cert-label {
   color: var(--text-dim);
   font-weight: 500;
 }
-
 .cert-value.mono {
   font-family: monospace;
   font-size: 14px;
@@ -206,7 +224,6 @@
   background: rgba(255, 50, 50, 0.25);
   border-color: #ff9f9f;
 }
-
 .add-cert-btn {
   padding: 10px 12px;
   border-radius: 10px;
