@@ -136,13 +136,46 @@ function initVIP() {
   const chatArea = document.getElementById("chat-area");
   const msgTpl = document.getElementById("system-message-template");
 
+  // ------------------------------------------------
+  // Блок с реквизитами + копирование 📋
+  // ------------------------------------------------
   function renderSystemMessage(methodKey) {
     chatArea.innerHTML = "";
     const d = PAYMENT[methodKey];
     const node = msgTpl.cloneNode(true);
     node.style.display = "block";
+
+    // Заголовок
     node.querySelector(".chat-method-name").textContent = d.name;
-    node.querySelector(".chat-details").textContent = d.show;
+
+    // Контейнер с реквизитом
+    const details = document.createElement("div");
+    details.className = "chat-details";
+    details.textContent = d.show;
+
+    // Кнопка копирования
+    if (d.copy) {
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy-btn";
+      copyBtn.textContent = "📋 Скопировать";
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(d.copy);
+          copyBtn.textContent = "✅ Скопировано";
+          copyBtn.classList.add("copied");
+          setTimeout(() => {
+            copyBtn.textContent = "📋 Скопировать";
+            copyBtn.classList.remove("copied");
+          }, 2000);
+        } catch {
+          copyBtn.textContent = "❌ Ошибка";
+          setTimeout(() => (copyBtn.textContent = "📋 Скопировать"), 2000);
+        }
+      });
+      details.appendChild(copyBtn);
+    }
+
+    node.appendChild(details);
 
     const uid = localStorage.getItem("ursa_vip_uid");
     const udid = localStorage.getItem("ursa_vip_udid");
