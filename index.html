@@ -31,23 +31,25 @@
   <main>
     <div class="wrap">
       <div id="catalog" class="catalog" role="list">
+
         <section class="collection-row">
-          <h2 class="collection-title">Popular</h2>
+          <h2 class="collection-title" data-i18n="popular">Popular</h2>
           <div class="card-carousel"></div>
-          <button class="view-all-btn">Смотреть все</button>
+          <button class="view-all-btn" data-i18n="viewAll">Смотреть все</button>
         </section>
 
         <section class="collection-row">
-          <h2 class="collection-title">Update</h2>
+          <h2 class="collection-title" data-i18n="update">Update</h2>
           <div class="card-carousel"></div>
-          <button class="view-all-btn">Смотреть все</button>
+          <button class="view-all-btn" data-i18n="viewAll">Смотреть все</button>
         </section>
 
         <section class="collection-row">
-          <h2 class="collection-title">VIP</h2>
+          <h2 class="collection-title" data-i18n="vip">VIP</h2>
           <div class="card-carousel"></div>
-          <button class="view-all-btn">Смотреть все</button>
+          <button class="view-all-btn" data-i18n="viewAll">Смотреть все</button>
         </section>
+
       </div>
     </div>
   </main>
@@ -70,8 +72,9 @@
       <div class="modal-header-new">
         <img id="modal-icon" class="modal-icon" src="" alt="">
         <div class="modal-info-col">
+
           <h3 id="modal-title" class="modal-app-title">Название</h3>
-          <a id="modal-cta" class="btn modal-install-btn" href="#" target="_blank">Установить</a>
+          <a id="modal-cta" class="btn modal-install-btn" data-i18n="install" href="#" target="_blank">Установить</a>
 
           <div id="dl-buttons-row" class="install-progress-container" style="display:none;">
             <div class="progress-header">
@@ -82,23 +85,25 @@
               <div class="progress-bar-fill" style="width:0%;"></div>
             </div>
           </div>
+
         </div>
       </div>
 
       <div class="modal-metadata-new">
-        <p>Версия<strong><span id="modal-version">N/A</span></strong></p>
-        <p>Размер<strong><span id="modal-size">N/A</span></strong></p>
-        <p>Загружено<strong><span id="modal-time-ago">N/A</span></strong></p>
+        <p><span data-i18n="version">Версия</span><strong><span id="modal-version">N/A</span></strong></p>
+        <p><span data-i18n="size">Размер</span><strong><span id="modal-size">N/A</span></strong></p>
+        <p><span data-i18n="uploaded">Загружено</span><strong><span id="modal-time-ago">N/A</span></strong></p>
       </div>
 
       <div class="modal-features-new">
-        <h4>ФУНКЦИИ МОДА</h4>
+        <h4 data-i18n="modFeatures">ФУНКЦИИ МОДА</h4>
         <pre id="modal-features"></pre>
       </div>
 
       <div class="modal-description-new">
         <p id="modal-desc"></p>
       </div>
+
     </div>
   </div>
 
@@ -106,7 +111,7 @@
   <div class="all-list-overlay" id="all-catalog-modal">
     <div class="all-list-content">
       <button class="all-close-btn" data-action="close-list">✕</button>
-      <h2 id="all-list-title">Каталог</h2>
+      <h2 id="all-list-title" data-i18n="catalog">Каталог</h2>
       <div id="all-list-container" class="all-list-scroll"></div>
     </div>
   </div>
@@ -114,8 +119,11 @@
   <!-- SEARCH -->
   <div class="search-overlay" id="search-modal">
     <div class="search-content">
-      <input type="text" id="search-input" placeholder="Поиск приложений..." autocomplete="off">
-      <p class="search-hint">Нажмите вне поиска, чтобы закрыть</p>
+      <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder"
+        placeholder="Поиск приложений..." autocomplete="off">
+
+      <p class="search-hint" data-i18n="searchHint">Нажмите вне поиска, чтобы закрыть</p>
+
       <div id="search-results" class="search-results"></div>
     </div>
   </div>
@@ -123,17 +131,19 @@
   <!-- MENU -->
   <div class="menu-overlay" id="menu-modal">
     <div class="menu-content">
+
       <button class="menu-close-btn" data-action="close-menu">←</button>
 
       <div class="user-profile">
-        <img id="user-avatar" src="https://placehold.co/100x100/121722/00b3ff?text=User" class="avatar" alt="">
-        <h3 id="user-nickname" class="nickname">Гость</h3>
-        <!-- ✅ Новый блок статуса -->
+        <img id="user-avatar"
+          src="https://placehold.co/100x100/121722/00b3ff?text=User"
+          class="avatar" alt="">
+        <h3 id="user-nickname" class="nickname" data-i18n="guest">Гость</h3>
         <p id="user-status" class="user-status">Free</p>
       </div>
 
       <div class="login-options">
-        <p class="login-prompt">Войти через:</p>
+        <p class="login-prompt" data-i18n="loginVia">Войти через:</p>
         <div class="login-buttons">
           <button class="auth-btn google-auth" title="Google">G</button>
           <button class="auth-btn facebook-auth" title="Facebook">f</button>
@@ -143,18 +153,19 @@
 
       <div class="certificate-card">
         <p class="cert-info-placeholder">Данные о сертификате будут здесь</p>
-        <button class="btn add-cert-btn">Добавить сертификат</button>
+        <button class="btn add-cert-btn" data-i18n="addCert">Добавить сертификат</button>
       </div>
 
-      <button class="btn menu-action-btn select-plan-btn">Выбрать план</button>
-      <button class="btn menu-action-btn buy-cert-btn">Купить сертификат</button>
-      <button class="btn menu-action-btn change-lang-btn">Сменить язык</button>
-      <button class="btn menu-action-btn about-us-btn">О нас</button>
+      <button class="btn menu-action-btn select-plan-btn" data-i18n="selectPlan">Выбрать план</button>
+      <button class="btn menu-action-btn buy-cert-btn" data-i18n="buyCert">Купить сертификат</button>
+      <button class="btn menu-action-btn change-lang-btn" data-i18n="changeLang">Language / Язык</button>
+      <button class="btn menu-action-btn about-us-btn" data-i18n="aboutUs">О нас</button>
 
-      <!-- ✅ iOS-совместимая кнопка -->
-      <div role="button" tabindex="0" class="btn menu-action-btn support-chat-btn" style="cursor:pointer;">
+      <div role="button" tabindex="0" class="btn menu-action-btn support-chat-btn" style="cursor:pointer;"
+        data-i18n="supportChat">
         Чат поддержки
       </div>
+
     </div>
   </div>
 
@@ -205,6 +216,7 @@
   </div>
 
   <!-- SCRIPTS -->
+  <script type="module" src="assets/js/i18n.js?v=1"></script>
   <script type="module" src="assets/js/app.js?v=7"></script>
   <script type="module" src="assets/js/firebase/auth.js?v=7"></script>
   <script type="module" src="assets/js/firebase/user.js?v=7"></script>
@@ -215,9 +227,9 @@
   <script type="module" src="assets/js/menu.js?v=7"></script>
   <script type="module" src="assets/js/signer.js?v=7"></script>
 
-  <!-- Safari touch init -->
   <script>
     document.addEventListener('touchstart', () => { }, { passive: true });
   </script>
+
 </body>
 </html>
