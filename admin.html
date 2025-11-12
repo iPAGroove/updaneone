@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>URSA Admin Panel — v3</title>
+  <title>URSA Admin Panel — v4</title>
   <meta name="theme-color" content="#0d1117" />
   <meta name="color-scheme" content="dark" />
 
-  <!-- Styles (new strict black/graphite) -->
-  <link rel="stylesheet" href="assets/css/admin.css?v=3" />
+  <link rel="stylesheet" href="assets/css/admin.css?v=4" />
 </head>
 
 <body>
+
 <noscript>
   <div style="padding:14px;background:#ff5252;color:#000;font-weight:600;text-align:center">
     Для работы панели администрирования требуется включённый JavaScript.
@@ -19,97 +19,91 @@
 </noscript>
 
 <div id="root" class="admin-root">
-  <!-- ==================== AUTH SCREEN ==================== -->
-  <section id="admin-auth" class="auth-screen" role="dialog" aria-labelledby="auth-title" aria-modal="true">
-    <div class="auth-card" role="document">
-      <h1 id="auth-title" class="brand-xl">URSA <span>ADMIN</span></h1>
-      <p class="muted">Вход только для администраторов. Используйте Google-аккаунт.</p>
-      <button id="auth-login-btn" class="btn btn-accent" aria-label="Войти через Google">Войти через Google</button>
-      <p id="auth-error" class="error-text" aria-live="polite"></p>
+
+  <!-- =====================================================
+       AUTH SCREEN
+  ====================================================== -->
+  <section id="admin-auth" class="auth-screen">
+    <div class="auth-card">
+      <h1 class="brand-xl">URSA <span>ADMIN</span></h1>
+      <p class="muted">Вход только для администраторов</p>
+      <button id="auth-login-btn" class="btn btn-accent">Войти через Google</button>
+      <p id="auth-error" class="error-text"></p>
     </div>
   </section>
 
-  <!-- ==================== APP LAYOUT ==================== -->
+  <!-- =====================================================
+       APP SHELL
+  ====================================================== -->
   <div id="admin-app" class="app-shell" style="display:none">
-    <!-- ===== Sidebar ===== -->
-    <aside class="sidebar" role="navigation" aria-label="Основная навигация">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="logo-dot" aria-hidden="true"></div>
+        <div class="logo-dot"></div>
         <div class="brand">URSA <span>ADMIN</span></div>
       </div>
 
       <nav class="side-nav">
-        <button class="side-link" data-view="dashboard" aria-controls="view-dashboard" aria-selected="false">
-          <span class="ic" aria-hidden="true">📊</span>
-          Дашборд
-        </button>
-        <button class="side-link" data-view="apps" aria-controls="view-apps" aria-selected="false">
-          <span class="ic" aria-hidden="true">📱</span>
-          Приложения
-        </button>
-        <button class="side-link" data-view="users" aria-controls="view-users" aria-selected="false">
-          <span class="ic" aria-hidden="true">👥</span>
-          Пользователи
-        </button>
-        <button class="side-link active" data-view="orders" aria-controls="view-orders" aria-selected="true">
-          <span class="ic" aria-hidden="true">💸</span>
-          Заявки
-          <span id="orders-counter" class="pill" aria-label="Активных заявок">0</span>
+        <button class="side-link" data-view="dashboard">📊 Дашборд</button>
+        <button class="side-link" data-view="apps">📱 Приложения</button>
+        <button class="side-link" data-view="users">👥 Пользователи</button>
+        <button class="side-link active" data-view="orders">
+          💸 Заявки 
+          <span id="orders-counter" class="pill">0</span>
         </button>
       </nav>
 
       <div class="side-bottom">
-        <button id="admin-logout-btn" class="side-link danger" aria-label="Выйти из админ-панели">↩ Выход</button>
+        <button id="admin-logout-btn" class="side-link danger">↩ Выход</button>
       </div>
     </aside>
 
-    <!-- ===== Main ===== -->
-    <main class="main" role="main">
-      <!-- Topbar -->
-      <header class="topbar" role="banner">
-        <div class="crumbs" id="topbar-title">💸 VIP Заявки</div>
-        <div class="top-actions">
-          <div class="kbd-hint" title="Нажмите / для поиска">/</div>
-        </div>
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+    <main class="main">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="crumbs" id="topbar-title">VIP Заявки</div>
+        <div class="kbd-hint">/</div>
       </header>
 
-      <!-- Views container -->
+      <!-- VIEWS -->
       <div class="views">
-        <!-- ===== DASHBOARD ===== -->
-        <section id="view-dashboard" class="view" tabindex="0" aria-labelledby="dashboard-title">
-          <h2 id="dashboard-title" class="sr-only">Общая статистика</h2>
+
+        <!-- DASHBOARD -->
+        <section id="view-dashboard" class="view">
           <div class="stats-grid">
-            <article class="stat-card" role="status" aria-live="polite">
+            <div class="stat-card">
               <div class="stat-label">Всего приложений</div>
               <div id="stat-apps" class="stat-value">0</div>
-            </article>
-            <article class="stat-card" role="status" aria-live="polite">
+            </div>
+            <div class="stat-card">
               <div class="stat-label">VIP-пользователей</div>
               <div id="stat-vip" class="stat-value">0</div>
-            </article>
-            <article class="stat-card" role="status" aria-live="polite">
+            </div>
+            <div class="stat-card">
               <div class="stat-label">Активные заказы</div>
               <div id="stat-orders" class="stat-value">0</div>
-            </article>
-            <article class="stat-card" role="status" aria-live="polite">
+            </div>
+            <div class="stat-card">
               <div class="stat-label">UDID в базе</div>
               <div id="stat-signers" class="stat-value">0</div>
-            </article>
+            </div>
           </div>
         </section>
 
-        <!-- ===== APPS (GRID) ===== -->
-        <section id="view-apps" class="view" tabindex="0" aria-labelledby="apps-title">
+        <!-- APPS -->
+        <section id="view-apps" class="view">
           <div class="view-head">
-            <h2 id="apps-title">Каталог приложений</h2>
-            <div class="view-actions">
-              <button id="add-app-btn" class="btn btn-ghost small">➕ Добавить</button>
-            </div>
+            <h2>Каталог приложений</h2>
+            <button id="add-app-btn" class="btn btn-ghost small">➕ Добавить</button>
           </div>
 
           <div class="filters">
-            <label class="sr-only" for="app-search">Поиск по названию</label>
-            <input id="app-search" class="input" type="search" placeholder="Поиск по названию…" inputmode="search" />
+            <input id="app-search" class="input" type="search" placeholder="Поиск…">
             <select id="app-filter" class="select">
               <option value="all">Все</option>
               <option value="apps">Apps</option>
@@ -119,88 +113,80 @@
             </select>
           </div>
 
-          <div id="apps-grid" class="apps-grid" aria-busy="true" aria-live="polite"></div>
+          <div id="apps-grid" class="apps-grid"></div>
           <div id="apps-skeleton" class="grid-skeleton">
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
-            <div class="card-skel"></div>
+            <div class="card-skel"></div><div class="card-skel"></div><div class="card-skel"></div>
+            <div class="card-skel"></div><div class="card-skel"></div><div class="card-skel"></div>
           </div>
         </section>
 
-        <!-- ===== USERS ===== -->
-        <section id="view-users" class="view" tabindex="0" aria-labelledby="users-title">
+        <!-- USERS -->
+        <section id="view-users" class="view">
           <div class="view-head">
-            <h2 id="users-title">Пользователи</h2>
+            <h2>Пользователи</h2>
           </div>
 
           <div class="filters">
-            <label class="sr-only" for="user-search">Поиск по Email/UID</label>
-            <input id="user-search" class="input" type="search" placeholder="Поиск по Email/UID…" inputmode="search" />
+            <input id="user-search" class="input" placeholder="Поиск по Email/UID…">
           </div>
 
           <div class="table-wrap">
-            <table class="data-table" id="users-table">
+            <table class="data-table">
               <thead>
                 <tr>
                   <th>Email</th>
                   <th>UID</th>
                   <th>Статус</th>
                   <th>Сертификат</th>
-                  <th>Действия</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody id="users-table"></tbody>
             </table>
           </div>
 
           <div id="users-skeleton" class="list-skeleton">
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
+            <div class="row-skel"></div><div class="row-skel"></div><div class="row-skel"></div>
           </div>
         </section>
 
-        <!-- ===== ORDERS (DEFAULT) ===== -->
-        <section id="view-orders" class="view active" tabindex="0" aria-labelledby="orders-title">
+        <!-- ORDERS -->
+        <section id="view-orders" class="view active">
           <div class="view-head">
-            <h2 id="orders-title">VIP Заявки</h2>
-            <div class="view-actions">
-              <select id="orders-status" class="select">
-                <option value="all">Все</option>
-                <option value="pending">Ожидает</option>
-                <option value="processing">В работе</option>
-                <option value="completed">Завершено</option>
-                <option value="canceled">Отменено</option>
-              </select>
-            </div>
+            <h2>VIP Заявки</h2>
+            <select id="orders-status" class="select">
+              <option value="all">Все</option>
+              <option value="pending">Ожидает</option>
+              <option value="processing">В работе</option>
+              <option value="completed">Завершено</option>
+              <option value="canceled">Отменено</option>
+            </select>
           </div>
 
           <div class="filters">
-            <input id="order-search" class="input" type="search" placeholder="Поиск по UID/Order ID…" inputmode="search" />
+            <input id="order-search" class="input" placeholder="Поиск по UID/Order…">
           </div>
 
-          <ul id="orders-list" class="orders-list" aria-live="polite"></ul>
+          <ul id="orders-list" class="orders-list"></ul>
 
           <div id="orders-skeleton" class="list-skeleton">
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
-            <div class="row-skel"></div>
+            <div class="row-skel"></div><div class="row-skel"></div><div class="row-skel"></div>
           </div>
         </section>
+
       </div>
     </main>
 
-    <!-- ===== Slide Chat Panel (right) ===== -->
-    <aside id="chat-panel" class="chat-panel" aria-labelledby="chat-title" aria-hidden="true">
+    <!-- =====================================================
+         CHAT PANEL
+    ====================================================== -->
+    <aside id="chat-panel" class="chat-panel" aria-hidden="true">
       <header class="chat-head">
-        <div class="chat-title">
-          <h3 id="chat-title">Заявка: <span id="chat-order-id">—</span></h3>
+        <div>
+          <h3>Заявка: <span id="chat-order-id">—</span></h3>
           <div class="sub" id="chat-order-meta">Метод: — • UID: —</div>
         </div>
-        <button id="chat-close" class="icon-btn" aria-label="Закрыть чат">✕</button>
+        <button id="chat-close" class="icon-btn">✕</button>
       </header>
 
       <div class="chat-toolbar">
@@ -210,64 +196,123 @@
           <option value="completed">Завершено</option>
           <option value="canceled">Отменено</option>
         </select>
-        <button id="set-vip-btn" class="btn btn-accent small">✅ Выдать VIP</button>
+
+        <button id="set-vip-btn" class="btn btn-accent small">Выдать VIP</button>
       </div>
 
-      <div id="admin-chat-area" class="chat-scroll" aria-live="polite"></div>
+      <div id="admin-chat-area" class="chat-scroll"></div>
 
-      <form id="chat-form" class="chat-input" autocomplete="off">
-        <label class="sr-only" for="admin-chat-input">Сообщение</label>
-        <input id="admin-chat-input" type="text" class="input" placeholder="Ответить пользователю…" />
-        <button id="admin-chat-send" class="btn btn-ghost" type="submit" aria-label="Отправить">➤</button>
+      <form id="chat-form" class="chat-input">
+        <input id="admin-chat-input" class="input" placeholder="Ответить…">
+        <button class="btn btn-ghost">➤</button>
       </form>
     </aside>
-  </div>
-</div>
 
-<!-- ==================== MODALS ==================== -->
-<div id="app-modal" class="modal" aria-hidden="true" aria-labelledby="app-modal-title" role="dialog">
-  <div class="modal-card">
-    <button class="modal-close" data-action="close" aria-label="Закрыть">✕</button>
-    <h3 id="app-modal-title">Редактировать приложение</h3>
+  </div> <!-- /app-shell -->
+</div> <!-- /root -->
+
+<!-- =====================================================
+     MODAL — ADD / EDIT IPA
+====================================================== -->
+<div id="app-modal" class="modal">
+
+  <div class="modal-card app-edit-card">
+    <button class="modal-close" data-action="close">✕</button>
+
+    <h2 class="modal-title" id="app-modal-title">Добавить IPA</h2>
+
     <form id="app-edit-form">
-      <input type="hidden" id="app-id" />
 
-      <label for="app-name">Название</label>
-      <input type="text" id="app-name" required autocomplete="off" />
+      <!-- -------------------- Основное -------------------- -->
+      <div class="form-group">
+        <div class="group-title">Основное</div>
 
-      <label for="app-version">Версия</label>
-      <input type="text" id="app-version" inputmode="text" autocomplete="off" />
+        <label>Name
+          <input id="app-name" class="input" type="text">
+        </label>
 
-      <label for="app-url">Ссылка на IPA/DownloadUrl</label>
-      <input type="url" id="app-url" required inputmode="url" placeholder="https://…" />
+        <label>Bundle ID
+          <input id="app-bundle" class="input" type="text">
+        </label>
 
-      <label for="app-icon">URL иконки (200×200)</label>
-      <input type="url" id="app-icon" inputmode="url" placeholder="https://…" />
+        <label>Version
+          <input id="app-version" class="input" type="text">
+        </label>
 
-      <label for="app-tags">Теги (apps, games, update) через запятую</label>
-      <input type="text" id="app-tags" inputmode="text" placeholder="apps, games" />
+        <label>Minimal iOS
+          <input id="app-min-ios" class="input" type="text">
+        </label>
 
-      <div class="checkbox-line">
-        <input type="checkbox" id="app-vip-only" />
-        <label for="app-vip-only">Только для VIP</label>
+        <label>Size (MB)
+          <input id="app-size-mb" class="input" type="text">
+        </label>
       </div>
 
-      <label for="app-desc">Описание</label>
-      <textarea id="app-desc" placeholder="Короткое описание…"></textarea>
+      <!-- -------------------- Медиа -------------------- -->
+      <div class="form-group">
+        <div class="group-title">Медиа</div>
+
+        <label>Icon URL
+          <input id="app-icon" class="input" type="url">
+        </label>
+
+        <div class="icon-preview-wrap">
+          <img id="app-icon-preview" src="https://placehold.co/120x120" class="icon-preview" style="opacity:.4">
+        </div>
+
+        <label>Download URL
+          <input id="app-url" class="input" type="url">
+        </label>
+      </div>
+
+      <!-- -------------------- Функции мода -------------------- -->
+      <div class="form-group">
+        <div class="group-title">Функции мода / Hack Features</div>
+
+        <label>Features (RU)
+          <textarea id="app-features-ru" placeholder="через запятую"></textarea>
+        </label>
+
+        <label>Features (EN)
+          <textarea id="app-features-en" placeholder="comma separated"></textarea>
+        </label>
+      </div>
+
+      <!-- -------------------- Категория -------------------- -->
+      <div class="form-group">
+        <div class="group-title">Категория</div>
+
+        <input type="hidden" id="app-tag">
+
+        <div class="tag-select">
+          <button type="button" class="tag-btn" data-tag="games">Games</button>
+          <button type="button" class="tag-btn" data-tag="apps">Apps</button>
+        </div>
+      </div>
+
+      <!-- -------------------- VIP -------------------- -->
+      <div class="form-group">
+        <div class="group-title">VIP доступ</div>
+
+        <label class="checkbox-line">
+          <input id="app-vip-only" type="checkbox">
+          <span>Доступ только для VIP</span>
+        </label>
+      </div>
 
       <div class="modal-actions">
-        <button type="submit" class="btn btn-accent">Сохранить</button>
-        <button type="button" class="btn btn-danger" id="app-delete-btn" style="display:none;">Удалить</button>
+        <button id="app-delete-btn" type="button" class="btn btn-danger" style="display:none;">Удалить</button>
+        <button type="submit" class="btn btn-accent">💾 Сохранить</button>
       </div>
+
     </form>
   </div>
-</div>
 
-<!-- SR Only util -->
-<div class="sr-only" aria-hidden="true">.</div>
+</div>
 
 <!-- Scripts -->
 <script type="module" src="assets/js/app.js?v=1"></script>
-<script type="module" src="assets/js/admin.js?v=3"></script>
+<script type="module" src="assets/js/admin.js?v=4"></script>
+
 </body>
 </html>
