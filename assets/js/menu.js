@@ -250,6 +250,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "./about.html";
   });
 
+  // ===============================
+  // 💬 Чат поддержки
+  // ===============================
   const supportBtn = document.querySelector(".support-chat-btn");
   if (supportBtn) {
     supportBtn.addEventListener("click", async (e) => {
@@ -264,20 +267,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       try {
-const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
-const snap = await getDoc(orderRef);
+        const chatRef = doc(db, "support_orders", `support_${user.uid}`);
+        const chatSnap = await getDoc(chatRef);
 
-if (!snap.exists()) {
-  await setDoc(orderRef, {
-    uid: user.uid,
-    email: user.email || null,
-    status: "open",
-    type: "support",
-    createdAt: new Date().toISOString(),
-  });
-}
+        if (!chatSnap.exists()) {
+          await setDoc(chatRef, {
+            uid: user.uid,
+            email: user.email || null,
+            status: "open",
+            type: "support",
+            createdAt: new Date().toISOString(),
+          });
+          console.log("✅ Новый чат поддержки создан:", `support_${user.uid}`);
+        } else {
+          console.log("ℹ️ Чат поддержки уже существует:", `support_${user.uid}`);
+        }
 
-window.location.assign(`./support.html?uid=${user.uid}`);
+        window.location.assign(`./support.html?uid=${user.uid}`);
+      } catch (err) {
+        console.error("Ошибка перехода в чат поддержки:", err);
+        alert("⚠️ Не удалось открыть чат поддержки.");
+      }
+    });
+  }
 
   // ===============================
   // Авторизация Email
