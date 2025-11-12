@@ -236,17 +236,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "./about.html";
   });
 
-  // ✅ Переход в Чат поддержки
-  document.body.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("support-chat-btn")) {
-      closeMenu();
-      const user = auth.currentUser;
-      if (!user) {
-        alert("⚠️ Чтобы открыть чат поддержки, войдите в аккаунт.");
-        document.getElementById("menu-modal").classList.add("visible");
-        return;
-      }
+  // ✅ Переход в Чат поддержки (исправлено для iOS)
+document.addEventListener("DOMContentLoaded", () => {
+  const supportBtn = document.querySelector(".support-chat-btn");
+  if (!supportBtn) return;
 
+  supportBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    closeMenu();
+
+    const user = auth.currentUser;
+    if (!user) {
+      alert("⚠️ Чтобы открыть чат поддержки, войдите в аккаунт.");
+      openMenu();
+      return;
+    }
+
+    try {
       const orderRef = doc(db, "vip_orders", `support_${user.uid}`);
       const orderSnap = await getDoc(orderRef);
 
@@ -259,9 +267,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           createdAt: new Date().toISOString(),
         });
       }
-      window.location.href = `./support.html?uid=${user.uid}`;
+
+      // На iOS лучше использовать window.open
+      window.location.assign(`./support.html?uid=${user.uid}`);
+    } catch (err) {
+      console.error("Ошибка перехода в чат:", err);
     }
   });
+});
 
   // ===============================
   // EMAIL LOGIN
