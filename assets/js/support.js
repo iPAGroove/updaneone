@@ -55,7 +55,6 @@ onAuthStateChanged(auth, async (user) => {
       console.log("ℹ️ Чат уже существует:", chatId);
     }
 
-    // Добавляем приветственное системное сообщение
     renderSystemMessage();
     listenToMessages(chatId);
   } catch (err) {
@@ -69,7 +68,6 @@ onAuthStateChanged(auth, async (user) => {
 // ===============================
 function renderSystemMessage() {
   messagesBox.innerHTML = "";
-
   const sysDiv = document.createElement("div");
   sysDiv.className = "msg msg-system";
   sysDiv.innerHTML = `
@@ -77,51 +75,28 @@ function renderSystemMessage() {
       <h4>Поддержка URSA IPA</h4>
       <p>Задайте свой вопрос, и наш специалист ответит в ближайшее время.</p>
       <p class="muted">⏰ Ответ обычно приходит в течение 5–10 минут.</p>
-    </div>
-  `;
-
+    </div>`;
   messagesBox.appendChild(sysDiv);
 }
 
 // ===============================
-// 📨 Подписка на сообщения
+// 📨 Подписка на сообщения (fix duplication)
 // ===============================
 function listenToMessages(chatId) {
   const messagesRef = collection(db, "support_orders", chatId, "messages");
   const q = query(messagesRef, orderBy("createdAt"));
 
-  if (messagesUnsub) messagesUnsub(); // очистка старых слушателей
+  if (messagesUnsub) messagesUnsub(); // снимаем старый слушатель
 
   messagesUnsub = onSnapshot(
     q,
     (snapshot) => {
-      // ⚡ если системное сообщение уже есть — не очищаем его
-      const hasSystem = messagesBox.querySelector(".system-message");
-      if (!hasSystem) messagesBox.innerHTML = "";
-
-      snapshot.forEach((docSnap) => {
-        const msg = docSnap.data();
-        const isUser = msg.sender === currentUser.uid;
-
-        const div = document.createElement("div");
-        div.className = isUser ? "msg msg-user" : "msg msg-support";
-
-        const bubble = document.createElement("div");
-        bubble.className = "msg-bubble";
-
-        const textEl = document.createElement("p");
-        textEl.textContent = msg.text || "";
-
-        const timeEl = document.createElement("span");
-        timeEl.className = "msg-time";
-        timeEl.textContent = formatTime(msg.createdAt?.seconds);
-
-        bubble.appendChild(textEl);
-        bubble.appendChild(timeEl);
-        div.appendChild(bubble);
-        messagesBox.appendChild(div);
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const msg = change.doc.data();
+          addMessageToUI(msg);
+        }
       });
-
       messagesBox.scrollTop = messagesBox.scrollHeight;
     },
     (err) => {
@@ -129,6 +104,30 @@ function listenToMessages(chatId) {
       alert("⚠️ Нет доступа к чату поддержки.");
     }
   );
+}
+
+// ===============================
+// 👇 Отрисовка сообщения в UI
+// ===============================
+function addMessageToUI(msg) {
+  const isUser = msg.sender === currentUser.uid;
+  const div = document.createElement("div");
+  div.className = isUser ? "msg msg-user" : "msg msg-support";
+
+  const bubble = document.createElement("div");
+  bubble.className = "msg-bubble";
+
+  const textEl = document.createElement("p");
+  textEl.textContent = msg.text || "";
+
+  const timeEl = document.createElement("span");
+  timeEl.className = "msg-time";
+  timeEl.textContent = formatTime(msg.createdAt?.seconds);
+
+  bubble.appendChild(textEl);
+  bubble.appendChild(timeEl);
+  div.appendChild(bubble);
+  messagesBox.appendChild(div);
 }
 
 // ===============================
@@ -147,9 +146,7 @@ async function sendMessage() {
       sender: currentUser.uid,
       createdAt: serverTimestamp(),
     });
-
     input.value = "";
-    messagesBox.scrollTop = messagesBox.scrollHeight;
   } catch (err) {
     console.error("❌ Ошибка отправки:", err);
     alert("Не удалось отправить сообщение.");
