@@ -218,10 +218,7 @@ button, input, select, textarea { font-family:inherit; color:inherit; }
   cursor:pointer;
   transition:var(--transition);
 }
-.btn:hover {
-  transform:translateY(-1px);
-  border-color:var(--stroke-2);
-}
+.btn:hover { transform:translateY(-1px); border-color:var(--stroke-2); }
 .btn.small { padding:7px 10px; font-size:13px; }
 
 .btn-accent {
@@ -465,27 +462,40 @@ button, input, select, textarea { font-family:inherit; color:inherit; }
   gap:10px;
 }
 
-/* ===================== MODAL — ADD / EDIT IPA ===================== */
+/* ============================================================
+   MODAL — ADD / EDIT IPA (FIXED VERSION)
+   ============================================================ */
+
 .modal {
   position:fixed;
   inset:0;
   background:rgba(0,0,0,0.55);
   display:none;
-  align-items:center;
+  align-items:flex-start;
   justify-content:center;
   z-index:60;
-  padding:20px;
+  padding:40px 20px;
+  overflow-y:auto;
 }
 .modal.visible { display:flex; }
 
 .modal-card {
   width:100%;
   max-width:560px;
+
+  /* 🔥 FIX: окно не выходит за экран */
+  max-height:90vh;
+
   background:var(--bg2);
   border:1px solid var(--stroke);
   border-radius:var(--radius-lg);
   padding:20px;
+
+  overflow-y:auto; /* 🔥 FIX: внутренний скролл */
   box-shadow:var(--shadow);
+
+  /* чтобы нижние поля не упирались */
+  padding-bottom:30px;
 }
 
 .modal-title {
@@ -571,9 +581,7 @@ textarea {
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width:860px) {
-  .app-shell {
-    grid-template-columns:1fr;
-  }
+  .app-shell { grid-template-columns:1fr; }
   .sidebar {
     position:sticky;
     top:0;
@@ -582,10 +590,6 @@ textarea {
   }
 }
 @media (max-width:520px) {
-  .apps-grid {
-    grid-template-columns:repeat(2, 1fr);
-  }
-  .chat-panel {
-    width:100%;
-  }
+  .apps-grid { grid-template-columns:repeat(2, 1fr); }
+  .chat-panel { width:100%; }
 }
