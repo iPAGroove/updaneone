@@ -1,137 +1,228 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>URSA Admin Panel - Дашборд</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>URSA Admin Panel — Дашборд</title>
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="color-scheme" content="dark" />
 
-    <link rel="stylesheet" href="assets/css/admin.css?v=2" />
+  <!-- Стили (новая версия) -->
+  <link rel="stylesheet" href="assets/css/admin.css?v=2" />
 </head>
 
 <body>
+<noscript>
+  <div style="padding:14px;background:#ff5252;color:#000;font-weight:600;text-align:center">
+    Для работы панели администрирования требуется включённый JavaScript.
+  </div>
+</noscript>
+
 <div id="app-container">
-    <div id="admin-auth" class="auth-screen">
-        <h2>Вход в Admin Panel</h2>
-        
-        <p style="color:var(--muted); margin-bottom: 20px;">
-            Используйте ваш Google аккаунт администратора.
-        </p>
-        <button id="auth-login-btn" class="btn">Войти через Google</button>
-        <p id="auth-error" class="error-text"></p>
-    </div>
+  <!-- AUTH -->
+  <div id="admin-auth" class="auth-screen" role="dialog" aria-labelledby="auth-title" aria-modal="true">
+    <h2 id="auth-title">Вход в Admin Panel</h2>
+    <p class="muted" style="margin-bottom:20px">Используйте ваш Google-аккаунт администратора.</p>
+    <button id="auth-login-btn" class="btn" aria-label="Войти через Google">Войти через Google</button>
+    <p id="auth-error" class="error-text" aria-live="polite"></p>
+  </div>
 
-    <div id="admin-dashboard" style="display: none;">
-        <header class="admin-header">
-            <div class="brand">URSA <span>ADMIN</span></div>
-            <nav class="admin-nav">
-                <button class="nav-btn active" data-view="dashboard">📊 Дашборд</button>
-                <button class="nav-btn" data-view="apps">📱 Приложения</button>
-                <button class="nav-btn" data-view="users">👥 Пользователи</button>
-                <button class="nav-btn" data-view="orders">💸 VIP Заявки</button>
-            </nav>
-            <button id="admin-logout-btn" class="logout-btn">Выход</button>
-        </header>
+  <!-- DASHBOARD -->
+  <div id="admin-dashboard" style="display:none;">
+    <header class="admin-header" role="banner">
+      <div class="brand">URSA <span>ADMIN</span></div>
 
-        <main class="admin-main">
-            <section id="view-dashboard" class="view active">
-                <h2>📊 Общая статистика</h2>
-                <div class="stats-grid">
-                    <div class="stat-card"><h3>Всего приложений</h3><p id="stat-apps">0</p></div>
-                    <div class="stat-card"><h3>VIP-пользователей</h3><p id="stat-vip">0</p></div>
-                    <div class="stat-card"><h3>Активные заказы</h3><p id="stat-orders">0</p></div>
-                    <div class="stat-card"><h3>UDID в базе</h3><p id="stat-signers">0</p></div>
-                </div>
-            </section>
-            <section id="view-apps" class="view">
-                <h2>📱 Каталог приложений</h2>
-                <button id="add-app-btn" class="btn small-btn">➕ Добавить приложение</button>
-                <input type="text" id="app-search" placeholder="Поиск по названию..." class="search-input">
-                <table class="data-table" id="apps-table">
-                    <thead><tr><th>Иконка</th><th>Название</th><th>VIP</th><th>Загрузки</th><th>Действия</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </section>
-            <section id="view-users" class="view">
-                <h2>👥 Пользователи</h2>
-                <input type="text" id="user-search" placeholder="Поиск по Email/UID..." class="search-input">
-                <table class="data-table" id="users-table">
-                    <thead><tr><th>Email</th><th>UID</th><th>Статус</th><th>Сертификат</th><th>Действия</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </section>
-            <section id="view-orders" class="view">
-                <h2>💸 VIP Заявки</h2>
-                <table class="data-table" id="orders-table">
-                    <thead><tr><th>ID Заказа</th><th>UID</th><th>Метод</th><th>Статус</th><th>Дата</th><th>Чат</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </section>
-        </main>
-    </div>
-</div>
+      <nav class="admin-nav" aria-label="Навигация по вкладкам">
+        <button class="nav-btn active" data-view="dashboard" aria-controls="view-dashboard" aria-selected="true">📊 Дашборд</button>
+        <button class="nav-btn" data-view="apps" aria-controls="view-apps" aria-selected="false">📱 Приложения</button>
+        <button class="nav-btn" data-view="users" aria-controls="view-users" aria-selected="false">👥 Пользователи</button>
+        <button class="nav-btn" data-view="orders" aria-controls="view-orders" aria-selected="false">💸 VIP Заявки</button>
+      </nav>
 
-<div id="app-modal" class="admin-modal">
-    <div class="modal-content">
-        <button class="modal-close-btn" data-action="close">✕</button>
-        <h3 id="app-modal-title">Редактировать приложение</h3>
+      <button id="admin-logout-btn" class="logout-btn" aria-label="Выйти из админ-панели">Выход</button>
+    </header>
 
-        <form id="app-edit-form">
-            <input type="hidden" id="app-id">
-            <label for="app-name">Название</label>
-            <input type="text" id="app-name" required>
+    <main class="admin-main" role="main">
+      <!-- DASHBOARD VIEW -->
+      <section id="view-dashboard" class="view active" tabindex="0" aria-labelledby="dashboard-title">
+        <h2 id="dashboard-title">📊 Общая статистика</h2>
+        <div class="stats-grid">
+          <div class="stat-card" role="status" aria-live="polite">
+            <h3>Всего приложений</h3><p id="stat-apps">0</p>
+          </div>
+          <div class="stat-card" role="status" aria-live="polite">
+            <h3>VIP-пользователей</h3><p id="stat-vip">0</p>
+          </div>
+          <div class="stat-card" role="status" aria-live="polite">
+            <h3>Активные заказы</h3><p id="stat-orders">0</p>
+          </div>
+          <div class="stat-card" role="status" aria-live="polite">
+            <h3>UDID в базе</h3><p id="stat-signers">0</p>
+          </div>
+        </div>
+      </section>
 
-            <label for="app-version">Версия</label>
-            <input type="text" id="app-version">
-
-            <label for="app-url">Ссылка на IPA/DownloadUrl</label>
-            <input type="url" id="app-url" required>
-
-            <label for="app-icon">URL иконки (200x200)</label>
-            <input type="url" id="app-icon">
-
-            <label for="app-tags">Теги (apps, games, update) через запятую</label>
-            <input type="text" id="app-tags">
-
-            <div class="checkbox-group">
-                <input type="checkbox" id="app-vip-only">
-                <label for="app-vip-only">Только для VIP</label>
-            </div>
-            
-            <label for="app-desc">Описание</label>
-            <textarea id="app-desc"></textarea>
-
-            <button type="submit" class="btn save-btn">Сохранить</button>
-            <button type="button" class="btn delete-btn" id="app-delete-btn" style="display:none;">Удалить</button>
-        </form>
-    </div>
-</div>
-
-
-<div id="chat-modal" class="admin-modal">
-    <div class="modal-content chat-content">
-        <button class="modal-close-btn" data-action="close">✕</button>
-        <h3 id="chat-title">Чат VIP Заявки: <span id="chat-order-id">N/A</span></h3>
-
-        <div class="chat-area" id="admin-chat-area">
-            </div>
-
-        <div class="chat-input-container">
-            <input class="chat-input" id="admin-chat-input" placeholder="Ответить пользователю..." />
-            <button class="chat-send-btn" id="admin-chat-send">➤</button>
+      <!-- APPS VIEW -->
+      <section id="view-apps" class="view" aria-labelledby="apps-title" tabindex="0">
+        <div class="view-head">
+          <h2 id="apps-title">📱 Каталог приложений</h2>
+          <div class="view-actions">
+            <button id="add-app-btn" class="btn small-btn" aria-label="Добавить приложение">➕ Добавить</button>
+          </div>
         </div>
 
-        <div class="admin-actions">
-            <select id="order-status-select">
-                <option value="pending">Ожидает</option>
-                <option value="processing">В работе</option>
-                <option value="completed">Завершено</option>
-                <option value="canceled">Отменено</option>
-            </select>
-            <button id="set-vip-btn" class="btn small-btn">✅ Выдать VIP</button>
+        <label for="app-search" class="sr-only">Поиск по названию приложения</label>
+        <input type="text" id="app-search" placeholder="Поиск по названию…" class="search-input" inputmode="search" />
+
+        <!-- Таблица оставляем для совместимости с текущим admin.js -->
+        <div class="table-scroll">
+          <table class="data-table" id="apps-table">
+            <thead>
+              <tr>
+                <th scope="col">Иконка</th>
+                <th scope="col">Название</th>
+                <th scope="col">VIP</th>
+                <th scope="col">Загрузки</th>
+                <th scope="col">Действия</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
-    </div>
+
+        <!-- Плейсхолдер на время загрузки -->
+        <div class="skeleton-list" id="apps-skeleton" aria-hidden="true">
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+        </div>
+      </section>
+
+      <!-- USERS VIEW -->
+      <section id="view-users" class="view" aria-labelledby="users-title" tabindex="0">
+        <h2 id="users-title">👥 Пользователи</h2>
+        <label for="user-search" class="sr-only">Поиск по Email/UID</label>
+        <input type="text" id="user-search" placeholder="Поиск по Email/UID…" class="search-input" inputmode="search" />
+
+        <div class="table-scroll">
+          <table class="data-table" id="users-table">
+            <thead>
+              <tr>
+                <th scope="col">Email</th>
+                <th scope="col">UID</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Сертификат</th>
+                <th scope="col">Действия</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="skeleton-list" id="users-skeleton" aria-hidden="true">
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+        </div>
+      </section>
+
+      <!-- ORDERS VIEW -->
+      <section id="view-orders" class="view" aria-labelledby="orders-title" tabindex="0">
+        <h2 id="orders-title">💸 VIP Заявки</h2>
+
+        <div class="table-scroll">
+          <table class="data-table" id="orders-table">
+            <thead>
+              <tr>
+                <th scope="col">ID Заказа</th>
+                <th scope="col">UID</th>
+                <th scope="col">Метод</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Дата</th>
+                <th scope="col">Чат</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="skeleton-list" id="orders-skeleton" aria-hidden="true">
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+        </div>
+      </section>
+    </main>
+  </div>
 </div>
 
+<!-- APP MODAL -->
+<div id="app-modal" class="admin-modal" aria-hidden="true" aria-labelledby="app-modal-title" role="dialog">
+  <div class="modal-content">
+    <button class="modal-close-btn" data-action="close" aria-label="Закрыть">✕</button>
+    <h3 id="app-modal-title">Редактировать приложение</h3>
+
+    <form id="app-edit-form">
+      <input type="hidden" id="app-id" />
+
+      <label for="app-name">Название</label>
+      <input type="text" id="app-name" required autocomplete="off" />
+
+      <label for="app-version">Версия</label>
+      <input type="text" id="app-version" inputmode="text" autocomplete="off" />
+
+      <label for="app-url">Ссылка на IPA/DownloadUrl</label>
+      <input type="url" id="app-url" required inputmode="url" placeholder="https://…" />
+
+      <label for="app-icon">URL иконки (200×200)</label>
+      <input type="url" id="app-icon" inputmode="url" placeholder="https://…" />
+
+      <label for="app-tags">Теги (apps, games, update) через запятую</label>
+      <input type="text" id="app-tags" inputmode="text" placeholder="apps, games" />
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="app-vip-only" />
+        <label for="app-vip-only">Только для VIP</label>
+      </div>
+
+      <label for="app-desc">Описание</label>
+      <textarea id="app-desc" placeholder="Короткое описание…"></textarea>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn save-btn">Сохранить</button>
+        <button type="button" class="btn delete-btn" id="app-delete-btn" style="display:none;">Удалить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+<div id="chat-modal" class="admin-modal" aria-hidden="true" aria-labelledby="chat-title" role="dialog">
+  <div class="modal-content chat-content">
+    <button class="modal-close-btn" data-action="close" aria-label="Закрыть">✕</button>
+    <h3 id="chat-title">Чат VIP Заявки: <span id="chat-order-id">N/A</span></h3>
+
+    <div class="chat-area" id="admin-chat-area"></div>
+
+    <div class="chat-input-container">
+      <label for="admin-chat-input" class="sr-only">Сообщение</label>
+      <input class="chat-input" id="admin-chat-input" placeholder="Ответить пользователю…" />
+      <button class="chat-send-btn" id="admin-chat-send" aria-label="Отправить сообщение">➤</button>
+    </div>
+
+    <div class="admin-actions">
+      <label for="order-status-select" class="sr-only">Статус заказа</label>
+      <select id="order-status-select">
+        <option value="pending">Ожидает</option>
+        <option value="processing">В работе</option>
+        <option value="completed">Завершено</option>
+        <option value="canceled">Отменено</option>
+      </select>
+      <button id="set-vip-btn" class="btn small-btn">✅ Выдать VIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
 <script type="module" src="assets/js/app.js?v=1"></script>
 <script type="module" src="assets/js/admin.js?v=1"></script>
 </body>
