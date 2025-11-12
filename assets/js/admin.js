@@ -1,4 +1,128 @@
 // ======================================================================
+// PART 0 — DOM ELEMENTS + GLOBAL STATE + HELPERS
+// ======================================================================
+
+import { auth, db } from "./app.js";
+
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+import {
+  onAuthStateChanged,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+// ========== STATE ==========
+const state = {
+  user: null,
+  apps: [],
+  users: [],
+  orders: [],
+  chat: {
+    orderId: null,
+    type: null,
+    unsub: null
+  }
+};
+
+// ========== DOM SELECTORS ==========
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+// Auth
+const authScreen = $("#admin-auth");
+const appShell = $("#admin-app");
+const loginBtn = $("#auth-login-btn");
+const logoutBtn = $("#admin-logout-btn");
+const authError = $("#auth-error");
+
+// Sidebar + views
+const sideLinks = $$(".side-link");
+const topbarTitle = $("#topbar-title");
+
+const views = {
+  dashboard: $("#view-dashboard"),
+  apps: $("#view-apps"),
+  users: $("#view-users"),
+  orders: $("#view-orders"),
+};
+
+const ordersCounter = $("#orders-counter");
+
+// Dashboard cards
+const statApps = $("#stat-apps");
+const statVip = $("#stat-vip");
+const statOrders = $("#stat-orders");
+const statSigners = $("#stat-signers");
+
+// Apps
+const appsGrid = $("#apps-grid");
+const appsSkeleton = $("#apps-skeleton");
+const appSearch = $("#app-search");
+const appFilter = $("#app-filter");
+const addAppBtn = $("#add-app-btn");
+
+// Modal
+const appModal = $("#app-modal");
+const appForm = $("#app-edit-form");
+
+const fAppId = $("#app-id");
+const fAppName = $("#app-name");
+const fAppBundle = $("#app-bundle");
+const fAppVersion = $("#app-version");
+const fAppMinIOS = $("#app-min-ios");
+const fAppSizeMb = $("#app-size-mb");
+const fAppUrl = $("#app-url");
+const fAppIcon = $("#app-icon");
+const fAppIconPreview = $("#app-icon-preview");
+const fAppFeaturesRu = $("#app-features-ru");
+const fAppFeaturesEn = $("#app-features-en");
+const fAppTag = $("#app-tag");
+const tagButtons = $$(".tag-btn");
+const fAppVipOnly = $("#app-vip-only");
+const appDeleteBtn = $("#app-delete-btn");
+
+// Users
+const usersTableBody = $("#users-table");
+const usersSkeleton = $("#users-skeleton");
+const userSearch = $("#user-search");
+
+// Orders
+const ordersList = $("#orders-list");
+const ordersSkeleton = $("#orders-skeleton");
+const ordersStatus = $("#orders-status");
+const orderSearch = $("#order-search");
+
+// Chat panel
+const chatPanel = $("#chat-panel");
+const chatClose = $("#chat-close");
+const chatOrderIdEl = $("#chat-order-id");
+const chatOrderMeta = $("#chat-order-meta");
+const chatStatusSelect = $("#order-status-select");
+const setVipBtn = $("#set-vip-btn");
+const chatArea = $("#admin-chat-area");
+const chatForm = $("#chat-form");
+const chatInput = $("#admin-chat-input");
+
+// Auth provider
+const provider = new GoogleAuthProvider();
+
+// ======================================================================
 // PART 1 — APPS VIEW + IPA MODAL (full old-style editor)
 // ======================================================================
 
