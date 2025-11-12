@@ -138,6 +138,7 @@ function initCertFlow() {
 
     const node = msgTpl.cloneNode(true);
     node.style.display = "block";
+    node.classList.add("system-message");
     node.querySelector(".chat-method-name").textContent = data.name;
 
     const details = document.createElement("div");
@@ -185,9 +186,13 @@ function initCertFlow() {
     }
 
     const q = query(collection(db, "cert_orders", orderId, "messages"), orderBy("timestamp"));
+
     try {
       onSnapshot(q, (snap) => {
-        chatArea.innerHTML = "";
+        // ⚡ если уже есть системное сообщение — не очищаем реквизиты
+        const hasSystemMessage = chatArea.querySelector(".system-message");
+        if (!hasSystemMessage) chatArea.innerHTML = "";
+
         snap.forEach((doc) => {
           const m = doc.data();
           const el = document.createElement("div");
@@ -218,6 +223,7 @@ function initCertFlow() {
 
           chatArea.appendChild(el);
         });
+
         chatArea.scrollTop = chatArea.scrollHeight;
       });
     } catch (e) {
