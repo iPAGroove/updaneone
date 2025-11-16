@@ -1,7 +1,7 @@
 // assets/js/all-catalog.js
 // ===============================
 import { openModal } from "./modal.js";
-import { appsData } from "./app.js";
+import { appsData, currentCategory } from "./app.js";
 import { t } from "./i18n.js";
 
 const overlay = document.getElementById("all-catalog-modal");
@@ -39,9 +39,9 @@ function openListModal() {
 
     container.innerHTML = "";
 
-    // 🔥 Фильтрация только по типу каталога (apps / games)
+    // 🔥 Фильтрация по текущей категории (apps/games)
     let filtered = appsData.filter(app =>
-        Array.isArray(app.tags) && app.tags.includes("apps")
+        Array.isArray(app.tags) && app.tags.includes(currentCategory)
     );
 
     // 🔥 Применяем сортировку
@@ -94,7 +94,7 @@ overlay.addEventListener("click", (e) => {
 // ===============================
 document.querySelectorAll(".view-all-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-        currentListType = btn.dataset.type; // 🔥 Считываем тип (popular/update/vip)
+        currentListType = btn.dataset.type;
         openListModal();
     });
 });
