@@ -1,31 +1,59 @@
 // assets/js/all-catalog.js
 // ===============================
-// All Catalog modal + Lang support
-// ===============================
 import { openModal } from "./modal.js";
-import { appsData, currentCategory } from "./app.js";
+import { appsData } from "./app.js";
 import { t } from "./i18n.js";
 
-// DOM
 const overlay = document.getElementById("all-catalog-modal");
 const container = document.getElementById("all-list-container");
 const title = document.getElementById("all-list-title");
 
+// ТЕКУЩИЙ ТИП СПИСКА ("popular" / "update" / "vip")
+let currentListType = "popular";
+
 // ===============================
-// Открыть модалку полного списка
+// Функция сортировки СПИСКА
+// ===============================
+function sortApps(listType, data) {
+    let arr = [...data];
+
+    if (listType === "popular") {
+        arr = arr.sort((a, b) => b.downloadCount - a.downloadCount);
+    }
+    else if (listType === "update") {
+        arr = arr.sort((a, b) => b.updatedTime - a.updatedTime);
+    }
+    else if (listType === "vip") {
+        arr = arr
+            .filter(app => app.vip)
+            .sort((a, b) => b.downloadCount - a.downloadCount);
+    }
+
+    return arr;
+}
+
+// ===============================
+// Открыть список
 // ===============================
 function openListModal() {
-    // 🔥 Переведённое название списка
-    title.textContent = currentCategory === "apps" ? t("apps") : t("games");
 
     container.innerHTML = "";
 
-    // 🔥 Корректная фильтрация по массиву tags
-    const filtered = appsData.filter(app =>
-        Array.isArray(app.tags) && app.tags.includes(currentCategory)
+    // 🔥 Фильтрация только по типу каталога (apps / games)
+    let filtered = appsData.filter(app =>
+        Array.isArray(app.tags) && app.tags.includes("apps")
     );
 
-    filtered.forEach(app => {
+    // 🔥 Применяем сортировку
+    const finalList = sortApps(currentListType, filtered);
+
+    // 🔥 Заголовок окна
+    if (currentListType === "popular") title.textContent = t("popular");
+    if (currentListType === "update")  title.textContent = t("update");
+    if (currentListType === "vip")     title.textContent = t("vip");
+
+    // Рендер карточек
+    finalList.forEach(app => {
         const card = document.createElement("div");
         card.className = "card";
 
@@ -48,34 +76,36 @@ function openListModal() {
 }
 
 // ===============================
-// Закрыть модалку
+// Закрытие
 // ===============================
 function closeListModal() {
     overlay.classList.remove("visible");
     document.body.classList.remove("modal-open");
 }
 
-// ===============================
-// Обработчики
-// ===============================
 overlay.addEventListener("click", (e) => {
     if (e.target === overlay || e.target.closest("[data-action='close-list']")) {
         closeListModal();
     }
 });
 
+// ===============================
+// Обработчик кнопок "Смотреть все"
+// ===============================
 document.querySelectorAll(".view-all-btn").forEach(btn => {
     btn.addEventListener("click", () => {
+        currentListType = btn.dataset.type; // 🔥 Считываем тип (popular/update/vip)
         openListModal();
     });
 });
 
 // ===============================
-// 🔄 Реакция на смену языка
+// 🔄 Перерисовка при смене языка
 // ===============================
 document.addEventListener("ursa_lang_changed", () => {
-    // Если окно открыто — перерисовать заголовок
     if (overlay.classList.contains("visible")) {
-        title.textContent = currentCategory === "apps" ? t("apps") : t("games");
+        if (currentListType === "popular") title.textContent = t("popular");
+        if (currentListType === "update")  title.textContent = t("update");
+        if (currentListType === "vip")     title.textContent = t("vip");
     }
 });
