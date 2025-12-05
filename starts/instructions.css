@@ -1,51 +1,77 @@
-body {
-    background: #0b0f14;
-    color: white;
-    font-family: -apple-system, sans-serif;
+/* starts/instructions.css */
+
+:root {
+    --bg: #0b0f14;
+    --card: #141a24;
+    --border: #1e2633;
+    --accent: #00b3ff;
+    --text: #fff;
+    --muted: #9aa7bd;
+}
+html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    height: 100%;
     margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     text-align: center;
-    padding: 30px;
+    padding: 20px;
+    box-sizing: border-box; /* Важно для избежания лишнего скролла */
 }
-
-.wrap {
-    max-width: 420px;
-    margin: auto;
+.container {
+    max-width: 400px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 30px 20px;
+    box-shadow: 0 0 40px rgba(0, 179, 255, 0.25);
 }
-
-.title {
-    font-size: 28px;
-    margin-bottom: 16px;
-    color: #00b3ff;
+h1 {
+    font-size: 24px;
+    color: var(--accent);
+    margin-bottom: 15px;
 }
-
-.card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid #1e2633;
-    border-radius: 14px;
-    padding: 24px;
+p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin-bottom: 20px;
 }
-
-.text {
-    opacity: .9;
-}
-
-.guide-img {
-    width: 120px;
-    margin: 18px auto;
-}
-
-.steps {
-    opacity: .7;
-    font-size: 14px;
-    margin-bottom: 14px;
-}
-
-.btn {
-    width: 100%;
-    padding: 14px;
-    font-weight: bold;
-    border: none;
-    background: #00b3ff;
+.instruction-step {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    margin-bottom: 15px;
+    background: color-mix(in oklab, var(--card) 90%, #000 10%);
+    padding: 12px;
     border-radius: 10px;
+    border-left: 3px solid var(--accent);
 }
-.btn:disabled { opacity: .4; }
+.instruction-step span {
+    font-size: 28px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+.instruction-step p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text);
+}
+.btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--accent), #00e0ff);
+    color: #001018;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 179, 255, 0.45);
+    margin-top: 20px;
+}
