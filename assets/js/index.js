@@ -6,7 +6,7 @@ function isPwa() {
 
 // Регистрация Service Worker (чтобы A2HS вообще видел PWA)
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/pwa/sw.js")
+  navigator.serviceWorker.register("pwa/sw.js")
     .then(() => console.log("🛠️ SW зарегистрирован с index.html"))
     .catch(err => console.warn("SW error:", err));
 }
@@ -14,7 +14,7 @@ if ("serviceWorker" in navigator) {
 // Если уже запущено как PWA → сразу в home.html
 if (isPwa()) {
   console.log("✔️ Уже PWA → редирект на home.html");
-  window.location.href = "/home.html";
+  window.location.href = "home.html";
 }
 
 // Кнопка "Проверить режим"
@@ -24,7 +24,7 @@ if (btn) {
     e.preventDefault();
 
     if (isPwa()) {
-      window.location.href = "/home.html";
+      window.location.href = "home.html";
     } else {
       alert("⚠️ Сейчас обычный режим браузера. Добавьте сайт на главный экран.");
     }
