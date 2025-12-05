@@ -1,26 +1,88 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>URSA IPA — Install</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="URSA">
+    <meta charset="UTF-8">
+    <title>URSA IPA — Установка</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <!-- PWA Manifest (подключим позже) -->
+    <link rel="manifest" href="pwa/manifest.json">
+
+    <style>
+        body {
+            margin: 0;
+            background: #0b0f14;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 360px;
+        }
+        h1 {
+            font-size: 28px;
+            color: #00b3ff;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        p {
+            opacity: .85;
+            line-height: 1.5;
+        }
+        .step {
+            margin-top: 18px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        .btn {
+            margin-top: 25px;
+            display:inline-block;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: #00b3ff;
+            color: #001018;
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
 </head>
 
-<body style="background:black;color:white;text-align:center;font-family:-apple-system;padding-top:80px">
+<body>
+<div class="container">
+    <h1>URSA IPA</h1>
+    <p>Чтобы использовать сервис — установите приложение на главный экран.</p>
 
-<h1>URSA IPA</h1>
-<p>⚡ Добавьте на главный экран, чтобы открыть приложение</p>
-<p>📌 Safari → Поделиться → «На главный экран»</p>
+    <div class="step">
+        iPhone / iPad:<br>
+        1) Нажмите <b>Поделиться</b> внизу<br>
+        2) Выберите <b>«На экран Домой»</b>
+    </div>
+
+    <div class="step">
+        Android:<br>
+        1) Меню браузера<br>
+        2) <b>Добавить на главный экран</b>
+    </div>
+
+    <a href="#" class="btn" id="checkPwaBtn">Проверить режим</a>
+</div>
 
 <script>
-function isPWA() {
-  return window.navigator.standalone === true ||
-    window.matchMedia('(display-mode: standalone)').matches;
-}
-if (isPWA()) window.location.replace("/pwa.html");
+    // Проверяем запуск как PWA
+    document.getElementById('checkPwaBtn').addEventListener('click', () => {
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            window.location.href = "home.html";
+        } else {
+            alert("⚠️ Пока сайт не установлен как PWA!");
+        }
+    });
 </script>
 
 </body>
