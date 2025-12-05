@@ -1,18 +1,20 @@
-console.log("PWA Home Loaded");
+console.log("URSA App Loaded");
 
 const tabs = document.querySelectorAll(".nav-btn");
 const content = document.getElementById("content");
 
-function render(tab) {
-  if (tab==="apps") return content.innerHTML="📱 Apps";
-  if (tab==="games") return content.innerHTML="🎮 Games";
-  if (tab==="profile") return content.innerHTML="👤 Profile";
+function setTab(tab) {
+  if (tab === "apps") content.innerHTML = "📱 Apps";
+  if (tab === "games") content.innerHTML = "🎮 Games";
+  if (tab === "profile") content.innerHTML = "👤 Profile";
 }
 
-tabs.forEach(b=>b.addEventListener("click",()=>{
-  tabs.forEach(t=>t.classList.remove("active"));
-  b.classList.add("active");
-  render(b.dataset.tab);
-}));
+tabs.forEach(btn => {
+  btn.addEventListener("click", () => {
+    tabs.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    setTab(btn.dataset.tab);
+  });
+});
 
-render("apps");
+setTab("apps");
