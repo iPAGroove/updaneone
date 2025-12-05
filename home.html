@@ -12,9 +12,16 @@
 <body>
     <div class="wrap">
         <h2>Загрузка приложения...</h2>
-        <p>Ожидание активации PWA...</p>
+        <p>Проверка режима PWA...</p>
     </div>
 
+    <!-- Guard — главная проверка входа -->
+    <script type="module">
+        import { checkAccess } from './assets/js/guard.js';
+        checkAccess();
+    </script>
+
+    <!-- Регистрация сервис-воркера -->
     <script src="assets/js/pwa.js"></script>
 </body>
 </html>
