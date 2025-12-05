@@ -23,20 +23,19 @@ html, body {
     flex-direction: column;
 }
 
-/* HEADER */
 .topbar {
     text-align: center;
     padding: calc(env(safe-area-inset-top) + 14px) 0 10px;
     background: color-mix(in oklab, var(--bg) 95%, #000 5%);
     border-bottom: 1px solid var(--border);
 }
+
 .logo {
     font-family: 'Orbitron', sans-serif;
     font-size: 22px;
     color: var(--accent);
 }
 
-/* MAIN */
 main {
     flex: 1;
     overflow-y: auto;
@@ -48,7 +47,6 @@ main {
     opacity: .85;
 }
 
-/* NAVBAR */
 .navbar {
     position: fixed;
     bottom: 0;
@@ -62,6 +60,7 @@ main {
     justify-content: space-around;
     align-items: center;
 }
+
 .nav-btn {
     background: transparent;
     border: none;
@@ -70,6 +69,7 @@ main {
     padding: 10px 0;
     cursor: pointer;
 }
+
 .nav-btn.active {
     color: var(--accent);
 }
