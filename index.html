@@ -1,48 +1,27 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8" />
-    <title>URSA IPA - Установка PWA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
-    <meta name="apple-mobile-web-app-title" content="URSA" /> 
-    <link rel="apple-touch-icon" href="/assets/icons/pwa-icon-180.png">
-
-    <link rel="stylesheet" href="starts/instructions.css?v=1" />
+<meta charset="UTF-8">
+<title>URSA IPA — Install</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="URSA">
 </head>
-<body>
 
-    <div class="container" id="pwa-install-prompt">
-        <h1>Добро пожаловать в URSA!</h1>
-        <p>
-            Для корректной работы и получения полного доступа к функциям приложения требуется **добавить сайт на главный экран (PWA)**.
-        </p>
+<body style="background:black;color:white;text-align:center;font-family:-apple-system;padding-top:80px">
 
-        <div class="instruction-step">
-            <span>1️⃣</span>
-            <p>Нажмите на иконку **"Поделиться"** 📤 в нижней части браузера (Safari).</p>
-        </div>
-        <div class="instruction-step">
-            <span>2️⃣</span>
-            <p>Выберите **«На экран “Домой”»** ➕ из списка действий.</p>
-        </div>
-        <div class="instruction-step">
-            <span>3️⃣</span>
-            <p>Откройте URSA с новой иконки на рабочем столе, чтобы начать работу.</p>
-        </div>
+<h1>URSA IPA</h1>
+<p>⚡ Добавьте на главный экран, чтобы открыть приложение</p>
+<p>📌 Safari → Поделиться → «На главный экран»</p>
 
-        <a href="#" class="btn" id="i-already-installed">Я уже добавил, запустить приложение</a>
-    </div>
+<script>
+function isPWA() {
+  return window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+}
+if (isPWA()) window.location.replace("/pwa.html");
+</script>
 
-    <div class="container" id="pwa-main-app" style="display:none;">
-        <h1>Запуск приложения...</h1>
-        <p>Вы успешно запустили URSA в режиме PWA. Сейчас произойдет загрузка основного каталога.</p>
-        </div>
-
-    <script src="starts/instructions.js?v=1"></script>
 </body>
 </html>
