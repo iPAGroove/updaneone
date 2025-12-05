@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>URSA IPA — PWA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta charset="utf-8" />
+    <title>URSA IPA - Установка PWA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="URSA">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/iPAGroove/updaneone/main/icons/pwa.jpeg?v=1000">
-  <link rel="manifest" href="/pwa/manifest.json?v=1000">
-  <link rel="stylesheet" href="/starts/instructions.css?v=1000">
+    <link rel="stylesheet" href="starts/instructions.css?v=1" />
 </head>
-
 <body>
-<div class="wrap">
-  <h1 class="title">URSA</h1>
-  <div class="card">
-    <p class="text">Чтобы открыть приложение, добавьте его на главный экран.</p>
-    <img src="/starts/pwa-guide.png" class="guide-img" alt="Guide">
-    <p class="steps">📌 Safari → Поделиться → «На главный экран»</p>
-    <button id="continueBtn" class="btn" disabled>Проверка режима…</button>
-  </div>
-</div>
 
-<script>
-function isPWA() {
-  if (window.navigator.standalone) return true;
-  const modes = ["standalone","fullscreen","minimal-ui"];
-  return modes.some(m => window.matchMedia("(display-mode:"+m+")").matches);
-}
-let tries = 0;
-const timer = setInterval(() => {
-  tries++;
-  if (isPWA()) {
-    window.location.replace("/home.html?v=1000");
-    clearInterval(timer);
-  }
-  if (tries > 20) clearInterval(timer);
-}, 150);
-</script>
+    <div class="container" id="pwa-install-prompt">
+        <h1>Добро пожаловать в URSA IPA!</h1>
+        <p>
+            Для корректной работы и получения полного доступа к функциям приложения требуется **добавить сайт на главный экран (PWA)**.
+        </p>
 
+        <div class="instruction-step">
+            <span>1️⃣</span>
+            <p>Нажмите на иконку **"Поделиться"** 📤 в нижней части браузера (Safari).</p>
+        </div>
+        <div class="instruction-step">
+            <span>2️⃣</span>
+            <p>Выберите **«На экран “Домой”»** ➕ из списка действий.</p>
+        </div>
+        <div class="instruction-step">
+            <span>3️⃣</span>
+            <p>Откройте URSA IPA с новой иконки, чтобы начать работу.</p>
+        </div>
+
+        <a href="#" class="btn" id="i-already-installed">Я уже добавил, перейти</a>
+    </div>
+
+    <div class="container" id="pwa-main-app" style="display:none;">
+        <h1>Запуск приложения...</h1>
+        <p>Вы успешно запустили URSA IPA в режиме PWA. Сейчас произойдет загрузка основного каталога.</p>
+        </div>
+
+    <script src="starts/instructions.js?v=1"></script>
 </body>
 </html>
