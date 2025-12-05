@@ -1,7 +1,7 @@
 {
   "name": "URSA IPA",
   "short_name": "URSA",
-  "start_url": "home.html?v=2",
+  "start_url": "home.html?v=3",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0b0f14",
