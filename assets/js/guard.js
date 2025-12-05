@@ -4,7 +4,7 @@ export function checkAccess() {
 
   if (!isPwa) {
     console.log("⛔ home.html открыт НЕ как PWA — назад на index");
-    window.location.href = "/index.html";
+    window.location.href = "index.html";
     return false;
   }
 
