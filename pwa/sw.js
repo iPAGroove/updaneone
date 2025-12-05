@@ -1,8 +1,8 @@
 self.addEventListener("install", (event) => {
-    console.log("📦 Service Worker: installed");
-    self.skipWaiting();
+  console.log("📦 Service Worker: installed");
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-    console.log("⚡ Service Worker: activated");
+  console.log("⚡ Service Worker: activated");
 });
