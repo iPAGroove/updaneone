@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>URSA IPA — Установка</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <link rel="stylesheet" href="assets/css/index.css">
+  <meta charset="UTF-8">
+  <title>URSA IPA — Установка</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- ВАЖНО: manifest должен быть здесь -->
+  <link rel="manifest" href="pwa/manifest.json">
+
+  <link rel="stylesheet" href="assets/css/index.css">
 </head>
 
 <body>
-    <div class="container">
-        <h1>URSA IPA</h1>
-        <p>Чтобы использовать сервис — установите приложение на главный экран.</p>
+  <div class="container">
+    <h1>URSA IPA</h1>
+    <p>Чтобы использовать сервис — установите приложение на главный экран.</p>
 
-        <div class="step">
-            iPhone / iPad:<br>
-            1) Нажмите <b>Поделиться</b> внизу<br>
-            2) Выберите <b>«На экран Домой»</b>
-        </div>
-
-        <div class="step">
-            Android:<br>
-            1) Меню браузера<br>
-            2) <b>Добавить на главный экран</b>
-        </div>
-
-        <a href="#" class="btn" id="checkPwaBtn">Проверить режим</a>
+    <div class="step">
+      iPhone / iPad:<br>
+      1) Нажмите <b>Поделиться</b> внизу<br>
+      2) Выберите <b>«На экран Домой»</b>
     </div>
 
-    <script src="assets/js/index.js"></script>
+    <div class="step">
+      Android:<br>
+      1) Меню браузера<br>
+      2) <b>Добавить на главный экран</b>
+    </div>
+
+    <a href="#" class="btn" id="checkPwaBtn">Проверить режим</a>
+  </div>
+
+  <!-- Регистрация SW + логика проверки -->
+  <script src="assets/js/index.js"></script>
 </body>
 </html>
