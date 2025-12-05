@@ -1,14 +1,14 @@
 {
   "name": "URSA IPA",
   "short_name": "URSA",
-  "start_url": "/home.html?v=1000",
+  "start_url": "/home.html?v=9999",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0b0f14",
   "theme_color": "#00b3ff",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/iPAGroove/updaneone/main/icons/pwa.jpeg?v=1000",
+      "src": "/starts/pwa-guide.png?v=9999",
       "sizes": "512x512",
       "type": "image/png"
     }
