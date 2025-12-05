@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>URSA IPA — PWA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="pwa/manifest.json">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="home/home.css?v=1">
+</head>
+
+<body>
+<div id="app">
+
+    <!-- HEADER -->
+    <header class="topbar">
+        <span class="logo">URSA</span>
+    </header>
+
+    <!-- MAIN -->
+    <main id="content">
+        <div class="welcome-block">
+            <h2>Добро пожаловать 👋</h2>
+            <p>Подготовка среды…</p>
+        </div>
+    </main>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <button class="nav-btn active" data-tab="apps">📱</button>
+        <button class="nav-btn" data-tab="games">🎮</button>
+        <button class="nav-btn" data-tab="profile">👤</button>
+    </nav>
+
+</div>
+
+<script src="home/home.js?v=1"></script>
+</body>
+</html>
