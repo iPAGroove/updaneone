@@ -6,23 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <link rel="stylesheet" href="assets/css/home.css">
-  <!-- Можно тоже оставить manifest, но ключевой — на index.html -->
   <link rel="manifest" href="pwa/manifest.json">
 </head>
 
 <body>
   <div class="wrap">
-    <h2>Загрузка приложения...</h2>
-    <p>Проверка режима PWA...</p>
+    <h2>Загрузка приложения…</h2>
+    <p>Проверка режима PWA…</p>
   </div>
 
-  <!-- Guard — следим, что сюда попали только из PWA -->
   <script type="module">
     import { checkAccess } from './assets/js/guard.js';
     checkAccess();
   </script>
 
-  <!-- Регистрация SW (можно и здесь, но главное — чтобы хотя бы на одной странице было) -->
   <script src="assets/js/pwa.js"></script>
 </body>
 </html>
