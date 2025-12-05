@@ -5,17 +5,22 @@
     <title>URSA IPA — PWA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 
-    <!-- PWA manifest -->
-    <link rel="manifest" href="pwa/manifest.json?v=3">
+    <!-- iOS PWA support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <!-- Manifest -->
+    <link rel="manifest" href="./pwa/manifest.json?v=10">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="home/home.css?v=3">
+    <link rel="stylesheet" href="./home/home.css?v=10">
 
     <!-- Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./pwa/service-worker.js?v=3')
-          .catch(e => console.log('[URSA] SW error:', e));
+        navigator.serviceWorker.register('./pwa/service-worker.js?v=10')
+        .then(() => console.log('[URSA] Service Worker registered'))
+        .catch(err => console.log('[URSA] SW ERROR:', err));
       }
     </script>
 </head>
@@ -28,11 +33,11 @@
         <span class="logo">URSA</span>
     </header>
 
-    <!-- MAIN -->
+    <!-- MAIN CONTENT -->
     <main id="content">
         <div class="welcome-block">
-            <h2>Добро пожаловать 👋</h2>
-            <p>Подготовка среды…</p>
+            <h2>Загрузка…</h2>
+            <p>Пожалуйста, подождите</p>
         </div>
     </main>
 
@@ -45,6 +50,6 @@
 
 </div>
 
-<script src="home/home.js?v=3"></script>
+<script src="./home/home.js?v=10"></script>
 </body>
 </html>
