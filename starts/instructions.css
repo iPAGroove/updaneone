@@ -1,0 +1,64 @@
+body {
+    background: #0b0f14;
+    color: #fff;
+    font-family: -apple-system, "SF Pro Text", Arial, sans-serif;
+    margin: 0;
+    text-align: center;
+    padding: 30px;
+}
+
+.wrap {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.title {
+    color: #00b3ff;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid #1e2633;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.text {
+    font-size: 15px;
+    opacity: .9;
+}
+
+.guide-img {
+    width: 120px;
+    margin: 18px auto;
+    opacity: .85;
+}
+
+.steps {
+    font-size: 14px;
+    opacity: .65;
+    line-height: 1.4;
+}
+
+.btn {
+    margin-top: 22px;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    background: #00b3ff;
+    border: none;
+    border-radius: 12px;
+    color: #001018;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
