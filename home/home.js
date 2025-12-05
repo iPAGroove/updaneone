@@ -1,26 +1,18 @@
-// home/home.js
-console.log("PWA Home UI Loaded");
+console.log("PWA Home Loaded");
 
 const tabs = document.querySelectorAll(".nav-btn");
 const content = document.getElementById("content");
 
-function setTab(type) {
-    if (type === "apps") {
-        content.innerHTML = `<p>📱 Раздел приложений</p>`;
-    } else if (type === "games") {
-        content.innerHTML = `<p>🎮 Раздел игр</p>`;
-    } else if (type === "profile") {
-        content.innerHTML = `<p>👤 Профиль пользователя</p>`;
-    }
+function render(tab) {
+  if (tab==="apps") return content.innerHTML="📱 Apps";
+  if (tab==="games") return content.innerHTML="🎮 Games";
+  if (tab==="profile") return content.innerHTML="👤 Profile";
 }
 
-tabs.forEach(btn => {
-    btn.addEventListener("click", () => {
-        tabs.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        setTab(btn.dataset.tab);
-    });
-});
+tabs.forEach(b=>b.addEventListener("click",()=>{
+  tabs.forEach(t=>t.classList.remove("active"));
+  b.classList.add("active");
+  render(b.dataset.tab);
+}));
 
-// стартовое состояние
-setTab("apps");
+render("apps");
