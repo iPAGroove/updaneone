@@ -2,55 +2,45 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>URSA IPA — PWA</title>
+  <title>URSA IPA — App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="URSA">
 
-  <!-- ICON -->
-  <link rel="apple-touch-icon" href="/starts/pwa-guide.png?v=9999">
-
-  <!-- PWA Manifest -->
   <link rel="manifest" href="/pwa/manifest.json?v=9999">
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="/starts/instructions.css?v=9999">
+  <link rel="stylesheet" href="/home/home.css?v=9999">
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/pwa/service-worker.js?v=9999');
+    }
+  </script>
 </head>
 
 <body>
-  <div class="wrap">
-    <h1 class="title">URSA</h1>
-    <div class="card">
-      <p class="text">
-        Чтобы открыть приложение, добавьте его на главный экран.
-      </p>
-      <img src="/starts/pwa-guide.png?v=9999" class="guide-img" alt="Guide">
-      <p class="steps">
-        📌 Safari → Поделиться → <br> «На главный экран»
-      </p>
-      <button id="continueBtn" class="btn" disabled>Проверка режима…</button>
-    </div>
+
+<div id="app">
+
+<header class="topbar">
+  <span class="logo">URSA</span>
+</header>
+
+<main id="content">
+  <div class="welcome-block">
+    <h2>Добро пожаловать 👋</h2>
+    <p>Загрузка…</p>
   </div>
+</main>
 
-<script>
-function pwaCheck() {
-  if (window.navigator.standalone) return true;
-  const modes = ["standalone","fullscreen","minimal-ui"];
-  return modes.some(m => window.matchMedia("(display-mode:"+m+")").matches);
-}
+<nav class="navbar">
+  <button class="nav-btn active" data-tab="apps">📱</button>
+  <button class="nav-btn" data-tab="games">🎮</button>
+  <button class="nav-btn" data-tab="profile">👤</button>
+</nav>
 
-let tryCount = 0;
-const timer = setInterval(() => {
-  tryCount++;
-  if (pwaCheck()) {
-    window.location.replace("/home.html?v=9999");
-    clearInterval(timer);
-  }
-  if (tryCount > 20) clearInterval(timer);
-}, 150);
-</script>
+</div>
 
+<script src="/home/home.js?v=9999"></script>
 </body>
 </html>
