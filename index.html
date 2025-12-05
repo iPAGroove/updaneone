@@ -5,19 +5,28 @@
   <title>URSA IPA — PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   
-  <!-- Важно для iOS standalone режима -->
+  <!-- iOS PWA fullscreen & title -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="URSA">
 
-  <!-- Стили -->
-  <link rel="stylesheet" href="./starts/instructions.css?v=10">
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/iPAGroove/updaneone/main/icons/pwa.jpeg?v=11">
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/iPAGroove/updaneone/main/icons/pwa.jpeg?v=11">
+
+  <!-- Manifest -->
+  <link rel="manifest" href="./pwa/manifest.json?v=11">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="./starts/instructions.css?v=11">
 </head>
 
 <body>
   <div class="wrap">
-    <h1 class="title">URSA IPA</h1>
+    <h1 class="title">URSA</h1>
 
     <div class="card">
+
       <p class="text">
         Чтобы открыть приложение, добавьте его на главный экран.
       </p>
@@ -32,17 +41,16 @@
       <button id="continueBtn" class="btn" disabled>
         Проверка режима…
       </button>
+
     </div>
   </div>
 
 <script>
-// ===== SUPER-ULTRA-RELIABLE PWA DETECTION =====
+// ===== SUPER-ULTRA-RELIABLE PWA DETECTION ===== //
 
 function isPWAMode() {
-  // Старый iOS способ
   if (window.navigator.standalone === true) return true;
 
-  // Современные режимы отображения
   const modes = ["standalone", "fullscreen", "minimal-ui"];
   for (let mode of modes) {
     if (window.matchMedia("(display-mode: " + mode + ")").matches) {
@@ -53,11 +61,10 @@ function isPWAMode() {
   return false;
 }
 
-function redirectToPWA() {
-  console.log("[URSA] Checking PWA mode...");
+function tryRedirect() {
   if (isPWAMode()) {
-    console.log("[URSA] PWA detected → redirecting to home.html");
-    window.location.replace("./home.html?v=10");
+    console.log("[URSA] PWA detected → redirect");
+    window.location.replace("./home.html?v=11");
     return true;
   }
   return false;
@@ -68,13 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
   btn.textContent = "Добавьте на главный экран";
   btn.disabled = true;
 
-  // iOS включает standalone с задержкой ⇒ делаем несколько проверок
   let attempts = 0;
   const interval = setInterval(() => {
     attempts++;
-    if (redirectToPWA() || attempts > 15) {
-      clearInterval(interval);
-    }
+    if (tryRedirect() || attempts > 15) clearInterval(interval);
   }, 200);
 });
 </script>
