@@ -1,55 +1,46 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>URSA IPA — PWA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta charset="UTF-8">
+  <title>URSA IPA — App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <!-- iOS PWA support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <!-- Manifest -->
-    <link rel="manifest" href="./pwa/manifest.json?v=10">
+  <link rel="manifest" href="/updaneone/pwa/manifest.json?v=50">
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="./home/home.css?v=10">
+  <link rel="stylesheet" href="/updaneone/home/home.css?v=50">
 
-    <!-- Service Worker -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./pwa/service-worker.js?v=10')
-        .then(() => console.log('[URSA] Service Worker registered'))
-        .catch(err => console.log('[URSA] SW ERROR:', err));
-      }
-    </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/updaneone/pwa/service-worker.js?v=50');
+    }
+  </script>
 </head>
 
 <body>
 <div id="app">
 
-    <!-- HEADER -->
-    <header class="topbar">
-        <span class="logo">URSA</span>
-    </header>
+<header class="topbar">
+  <span class="logo">URSA</span>
+</header>
 
-    <!-- MAIN CONTENT -->
-    <main id="content">
-        <div class="welcome-block">
-            <h2>Загрузка…</h2>
-            <p>Пожалуйста, подождите</p>
-        </div>
-    </main>
+<main id="content">
+  <div class="welcome-block">
+    <h2>Загрузка…</h2>
+    <p>Пожалуйста, подождите</p>
+  </div>
+</main>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <button class="nav-btn active" data-tab="apps">📱</button>
-        <button class="nav-btn" data-tab="games">🎮</button>
-        <button class="nav-btn" data-tab="profile">👤</button>
-    </nav>
+<nav class="navbar">
+  <button class="nav-btn active" data-tab="apps">📱</button>
+  <button class="nav-btn" data-tab="games">🎮</button>
+  <button class="nav-btn" data-tab="profile">👤</button>
+</nav>
 
 </div>
 
-<script src="./home/home.js?v=10"></script>
+<script src="/updaneone/home/home.js?v=50"></script>
 </body>
 </html>
