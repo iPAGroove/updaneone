@@ -3,54 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>URSA IPA — PWA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="URSA">
 
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/iPAGroove/updaneone/main/icons/pwa.jpeg?v=50">
-  <link rel="icon" href="https://raw.githubusercontent.com/iPAGroove/updaneone/main/icons/pwa.jpeg?v=50">
-
-  <link rel="manifest" href="/updaneone/pwa/manifest.json?v=50">
-
-  <link rel="stylesheet" href="/updaneone/starts/instructions.css?v=50">
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/iPAGroove/updaneone/main/icons/pwa.jpeg?v=1000">
+  <link rel="manifest" href="/pwa/manifest.json?v=1000">
+  <link rel="stylesheet" href="/starts/instructions.css?v=1000">
 </head>
 
 <body>
-  <div class="wrap">
-    <h1 class="title">URSA</h1>
-
-    <div class="card">
-      <p class="text">Чтобы открыть приложение, добавьте его на главный экран.</p>
-      <img src="/updaneone/starts/pwa-guide.png" class="guide-img" alt="Guide">
-      <p class="steps">📌 Safari → Поделиться → <br> «На главный экран»</p>
-      <button id="continueBtn" class="btn" disabled>Проверка режима…</button>
-    </div>
+<div class="wrap">
+  <h1 class="title">URSA</h1>
+  <div class="card">
+    <p class="text">Чтобы открыть приложение, добавьте его на главный экран.</p>
+    <img src="/starts/pwa-guide.png" class="guide-img" alt="Guide">
+    <p class="steps">📌 Safari → Поделиться → «На главный экран»</p>
+    <button id="continueBtn" class="btn" disabled>Проверка режима…</button>
   </div>
+</div>
 
 <script>
 function isPWA() {
-  if (window.navigator.standalone === true) return true;
-  const modes = ["standalone", "fullscreen", "minimal-ui"];
-  return modes.some(m => window.matchMedia("(display-mode:" + m + ")").matches);
+  if (window.navigator.standalone) return true;
+  const modes = ["standalone","fullscreen","minimal-ui"];
+  return modes.some(m => window.matchMedia("(display-mode:"+m+")").matches);
 }
-
-function tryRedirect() {
+let tries = 0;
+const timer = setInterval(() => {
+  tries++;
   if (isPWA()) {
-    window.location.replace("/updaneone/home.html?v=50");
-    return true;
+    window.location.replace("/home.html?v=1000");
+    clearInterval(timer);
   }
-  return false;
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  let attempts = 0;
-  const int = setInterval(() => {
-    attempts++;
-    if (tryRedirect() || attempts > 20) clearInterval(int);
-  }, 200);
-});
+  if (tries > 20) clearInterval(timer);
+}, 150);
 </script>
 
 </body>
