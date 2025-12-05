@@ -8,13 +8,16 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <meta name="apple-mobile-web-app-title" content="URSA" /> 
+    <link rel="apple-touch-icon" href="/assets/icons/pwa-icon-180.png">
 
     <link rel="stylesheet" href="starts/instructions.css?v=1" />
 </head>
 <body>
 
     <div class="container" id="pwa-install-prompt">
-        <h1>Добро пожаловать в URSA IPA!</h1>
+        <h1>Добро пожаловать в URSA!</h1>
         <p>
             Для корректной работы и получения полного доступа к функциям приложения требуется **добавить сайт на главный экран (PWA)**.
         </p>
@@ -29,15 +32,15 @@
         </div>
         <div class="instruction-step">
             <span>3️⃣</span>
-            <p>Откройте URSA IPA с новой иконки, чтобы начать работу.</p>
+            <p>Откройте URSA с новой иконки на рабочем столе, чтобы начать работу.</p>
         </div>
 
-        <a href="#" class="btn" id="i-already-installed">Я уже добавил, перейти</a>
+        <a href="#" class="btn" id="i-already-installed">Я уже добавил, запустить приложение</a>
     </div>
 
     <div class="container" id="pwa-main-app" style="display:none;">
         <h1>Запуск приложения...</h1>
-        <p>Вы успешно запустили URSA IPA в режиме PWA. Сейчас произойдет загрузка основного каталога.</p>
+        <p>Вы успешно запустили URSA в режиме PWA. Сейчас произойдет загрузка основного каталога.</p>
         </div>
 
     <script src="starts/instructions.js?v=1"></script>
