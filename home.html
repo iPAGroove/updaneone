@@ -8,28 +8,26 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-  <link rel="manifest" href="/pwa/manifest.json?v=50">
-
-  <link rel="stylesheet" href="/home/home.css?v=50">
+  <link rel="manifest" href="/pwa/manifest.json?v=1000">
+  <link rel="stylesheet" href="/home/home.css?v=1000">
 
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/pwa/service-worker.js?v=50');
+      navigator.serviceWorker.register('/pwa/service-worker.js?v=1000');
     }
   </script>
 </head>
 
 <body>
 <div id="app">
-
 <header class="topbar">
   <span class="logo">URSA</span>
 </header>
 
 <main id="content">
   <div class="welcome-block">
-    <h2>Загрузка…</h2>
-    <p>Пожалуйста, подождите</p>
+    <h2>Добро пожаловать 👋</h2>
+    <p>Загрузка контента…</p>
   </div>
 </main>
 
@@ -38,9 +36,8 @@
   <button class="nav-btn" data-tab="games">🎮</button>
   <button class="nav-btn" data-tab="profile">👤</button>
 </nav>
-
 </div>
 
-<script src="/home/home.js?v=50"></script>
+<script src="/home/home.js?v=1000"></script>
 </body>
 </html>
