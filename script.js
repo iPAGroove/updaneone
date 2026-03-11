@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         navigator.clipboard.writeText(udid).then(() => {
             const originalText = copyBtn.textContent;
             copyBtn.textContent = 'Скопировано!';
-            copyBtn.style.background = 'rgba(50, 215, 75, 0.2)';
+            copyBtn.style.background = 'rgba(50, 215, 75, 0.15)';
             copyBtn.style.color = '#32d74b';
             
             setTimeout(() => {
