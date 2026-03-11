@@ -9,6 +9,7 @@ body {
     background-color: #020205;
     color: #ffffff;
     display: flex;
+    flex-direction: column; /* Изменено для позиционирования футера */
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -69,7 +70,6 @@ body {
     background: rgba(15, 15, 18, 0.45);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    /* Аккуратный контур с градиентом */
     border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 50px 35px;
     border-radius: 32px;
@@ -82,7 +82,6 @@ body {
     position: relative;
 }
 
-/* Дополнительный тонкий блик на рамке */
 .card::after {
     content: "";
     position: absolute;
@@ -184,4 +183,27 @@ code {
 .copy-btn:active {
     transform: scale(0.97);
     background: rgba(255, 255, 255, 0.1);
+}
+
+/* Стили рекламы */
+.footer-promo {
+    position: absolute;
+    bottom: 30px;
+    z-index: 1;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    width: 100%;
+    letter-spacing: 0.5px;
+}
+
+.footer-promo a {
+    color: rgba(0, 210, 255, 0.5);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.footer-promo a:hover {
+    color: rgba(0, 210, 255, 1);
 }
