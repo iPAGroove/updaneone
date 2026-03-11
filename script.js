@@ -20,13 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
             copyBtn.textContent = 'Copied!';
             copyBtn.style.borderColor = '#32d74b';
             copyBtn.style.color = '#32d74b';
-            copyBtn.style.textShadow = '0 0 8px rgba(50, 215, 75, 0.4)';
             
             setTimeout(() => {
                 copyBtn.textContent = originalText;
                 copyBtn.style.borderColor = '';
                 copyBtn.style.color = '';
-                copyBtn.style.textShadow = '';
             }, 2000);
         });
     });
