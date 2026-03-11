@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultDiv = document.getElementById('result');
     const udidDisplay = document.getElementById('udid-display');
     const copyBtn = document.getElementById('copy-btn');
-    const enrollBtn = document.querySelector('.btn:not(.secondary)');
+    const enrollBtn = document.getElementById('enroll-btn');
     const pText = document.querySelector('p');
 
     if (udid) {
@@ -17,14 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
     copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(udid).then(() => {
             const originalText = copyBtn.textContent;
-            copyBtn.textContent = 'Скопировано!';
-            copyBtn.style.background = 'rgba(50, 215, 75, 0.15)';
+            copyBtn.textContent = 'Copied!';
+            copyBtn.style.borderColor = '#32d74b';
             copyBtn.style.color = '#32d74b';
+            copyBtn.style.textShadow = '0 0 8px rgba(50, 215, 75, 0.4)';
             
             setTimeout(() => {
                 copyBtn.textContent = originalText;
-                copyBtn.style.background = '';
+                copyBtn.style.borderColor = '';
                 copyBtn.style.color = '';
+                copyBtn.style.textShadow = '';
             }, 2000);
         });
     });
