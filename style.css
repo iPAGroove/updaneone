@@ -188,13 +188,14 @@ code {
 /* Стили рекламы */
 .footer-promo {
     position: absolute;
-    bottom: 30px;
+    bottom: 60px; /* Было 30px, теперь подняли на 60px */
     z-index: 1;
     font-size: 13px;
     color: rgba(255, 255, 255, 0.3);
     text-align: center;
     width: 100%;
     letter-spacing: 0.5px;
+    padding: 0 20px; /* Добавили отступы по бокам, чтобы на узких экранах не прилипало */
 }
 
 .footer-promo a {
