@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Узнать свой UDID</title>
+    <title>URSA IPA - UDID</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>UDID Finder</h1>
-        <p>Нажми кнопку ниже, чтобы установить профиль и узнать UDID своего устройства.</p>
+        <div class="logo">URSA IPA</div>
+        <h1>Узнай свой UDID</h1>
+        <p>Установи конфигурационный профиль, чтобы система смогла безопасно определить UDID твоего устройства.</p>
         
-        <a href="https://твой-python-сервер.com/enroll" class="btn">Получить UDID</a>
+        <a href="https://a25f-195-64-239-64.ngrok-free.app/enroll" class="btn">Получить UDID</a>
         
         <div id="result" class="hidden">
             <h2>Твой UDID:</h2>
-            <code id="udid-display"></code>
+            <div class="udid-box">
+                <code id="udid-display"></code>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
