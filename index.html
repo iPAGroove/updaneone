@@ -2,23 +2,28 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URSA IPA - UDID</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>URSA IPA | UDID</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="logo">URSA IPA</div>
-        <h1>Узнай свой UDID</h1>
-        <p>Установи конфигурационный профиль, чтобы система смогла безопасно определить UDID твоего устройства.</p>
+    <div class="ambient-bg">
+        <div class="blob color-1"></div>
+        <div class="blob color-2"></div>
+    </div>
+    
+    <div class="card">
+        <div class="brand">URSA IPA</div>
+        <h1>Твой UDID</h1>
+        <p>Установи конфигурационный профиль в настройках устройства.</p>
         
-        <a href="https://488e-195-64-239-64.ngrok-free.app/enroll" class="btn">Получить UDID</a>
+        <a href="https://488e-195-64-239-64.ngrok-free.app/enroll" class="btn">Получить профиль</a>
         
         <div id="result" class="hidden">
-            <h2>Твой UDID:</h2>
-            <div class="udid-box">
+            <div class="udid-wrapper">
                 <code id="udid-display"></code>
             </div>
+            <button id="copy-btn" class="btn secondary">Скопировать</button>
         </div>
     </div>
     <script src="script.js"></script>
